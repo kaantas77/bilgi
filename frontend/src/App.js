@@ -446,19 +446,19 @@ const ConversationItem = ({ conversation, isActive, onSelect, onDelete, onToggle
     <div
       onClick={onSelect}
       className={`flex items-center justify-between p-3 rounded-lg cursor-pointer group transition-colors ${
-        isActive ? 'bg-gray-700' : 'hover:bg-gray-800'
+        isActive ? 'bg-slate-800' : 'hover:bg-slate-800'
       }`}
     >
       <div className="flex items-center space-x-3 flex-1 min-w-0">
-        <MessageCircle className="w-4 h-4 text-gray-400 flex-shrink-0" />
-        <span className="text-sm truncate">{conversation.title}</span>
+        <MessageCircle className="w-4 h-4 text-slate-400 flex-shrink-0" />
+        <span className="text-sm truncate text-white">{conversation.title}</span>
       </div>
       <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
         <Button
           onClick={onToggleStar}
           variant="ghost"
           size="sm"
-          className="text-gray-400 hover:text-yellow-400"
+          className="text-slate-400 hover:text-yellow-400 hover:bg-slate-700"
         >
           <Star className={`w-3 h-3 ${isStarred ? 'fill-yellow-400 text-yellow-400' : ''}`} />
         </Button>
@@ -466,7 +466,7 @@ const ConversationItem = ({ conversation, isActive, onSelect, onDelete, onToggle
           onClick={onDelete}
           variant="ghost"
           size="sm"
-          className="text-gray-400 hover:text-red-400"
+          className="text-slate-400 hover:text-red-400 hover:bg-slate-700"
         >
           <Trash2 className="w-3 h-3" />
         </Button>
