@@ -21,6 +21,8 @@ function App() {
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [starredConversations, setStarredConversations] = useState([]);
+  const [showUserMenu, setShowUserMenu] = useState(false);
   const messagesEndRef = useRef(null);
 
   // Scroll to bottom when new messages arrive
