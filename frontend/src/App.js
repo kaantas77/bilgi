@@ -6,7 +6,7 @@ import { Card, CardContent } from './components/ui/card';
 import { Separator } from './components/ui/separator';
 import { ScrollArea } from './components/ui/scroll-area';
 import { Avatar, AvatarImage, AvatarFallback } from './components/ui/avatar';
-import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from './components/ui/sidebar';
+
 import { MessageCircle, Plus, Trash2, Send, Bot, User } from 'lucide-react';
 import axios from 'axios';
 
