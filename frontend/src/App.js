@@ -93,14 +93,26 @@ function App() {
   const sendMessage = async () => {
     if (!inputMessage.trim() || isLoading) return;
     
-    if (!currentConversation) {
-      await createNewConversation();
-      return;
+    let conversationToUse = currentConversation;
+    
+    if (!conversationToUse) {
+      // Create new conversation first
+      try {
+        const response = await axios.post(`${API}/conversations`, {
+          title: "Yeni Sohbet"  // Temporary title, will be updated with first message
+        });
+        conversationToUse = response.data;
+        setCurrentConversation(conversationToUse);
+        setConversations([conversationToUse, ...conversations]);
+      } catch (error) {
+        console.error('Error creating conversation:', error);
+        return;
+      }
     }
 
     const userMessage = {
       id: Date.now().toString(),
-      conversation_id: currentConversation.id,
+      conversation_id: conversationToUse.id,
       role: 'user',
       content: inputMessage,
       timestamp: new Date().toISOString()
@@ -111,21 +123,21 @@ function App() {
     setIsLoading(true);
 
     try {
-      const response = await axios.post(`${API}/conversations/${currentConversation.id}/messages`, {
+      const response = await axios.post(`${API}/conversations/${conversationToUse.id}/messages`, {
         content: inputMessage,
         mode: 'chat'
       });
       
       setMessages(prev => [...prev, response.data]);
       
-      // Update conversation list
+      // Refresh conversation list to get updated title
       await loadConversations();
     } catch (error) {
       console.error('Error sending message:', error);
       // Add error message
       const errorMessage = {
         id: Date.now().toString(),
-        conversation_id: currentConversation.id,
+        conversation_id: conversationToUse.id,
         role: 'assistant',
         content: 'Üzgünüm, bir hata oluştu. Lütfen tekrar deneyin.',
         timestamp: new Date().toISOString()
