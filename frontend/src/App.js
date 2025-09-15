@@ -160,61 +160,125 @@ function App() {
   const starred = conversations.filter(conv => isStarred(conv.id));
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
       {/* Sidebar */}
-      <div className={`bg-gray-900 text-white transition-all duration-300 ${sidebarOpen ? 'w-80' : 'w-0'} overflow-hidden`}>
-        <div className="flex flex-col h-full">
-          {/* Header */}
-          <div className="p-4 border-b border-gray-700">
-            <div className="flex items-center justify-between mb-4">
-              <h1 className="text-xl font-bold text-blue-400">BİLGİN AI</h1>
-              <Button
-                onClick={() => setSidebarOpen(false)}
-                variant="ghost"
-                size="sm"
-                className="text-gray-400 hover:text-white"
-              >
-                ←
-              </Button>
-            </div>
+      <div className={`bg-gray-900 text-white transition-all duration-300 ${sidebarOpen ? 'w-80' : 'w-0'} overflow-hidden flex flex-col`}>
+        {/* Header */}
+        <div className="p-4 border-b border-gray-700">
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="text-xl font-bold text-blue-400">BİLGİN AI</h1>
             <Button
-              onClick={createNewConversation}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+              onClick={() => setSidebarOpen(false)}
+              variant="ghost"
+              size="sm"
+              className="text-gray-400 hover:text-white"
             >
-              <Plus className="w-4 h-4 mr-2" />
-              Yeni Sohbet
+              ←
             </Button>
           </div>
+          <Button
+            onClick={createNewConversation}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Yeni Sohbet
+          </Button>
+        </div>
 
-          {/* Conversations List */}
-          <ScrollArea className="flex-1">
-            <div className="p-2 space-y-1">
-              {conversations.map((conversation) => (
-                <div
-                  key={conversation.id}
-                  onClick={() => selectConversation(conversation)}
-                  className={`flex items-center justify-between p-3 rounded-lg cursor-pointer group transition-colors ${
-                    currentConversation?.id === conversation.id
-                      ? 'bg-gray-700'
-                      : 'hover:bg-gray-800'
-                  }`}
-                >
-                  <div className="flex items-center space-x-3 flex-1 min-w-0">
-                    <MessageCircle className="w-4 h-4 text-gray-400" />
-                    <span className="text-sm truncate">{conversation.title}</span>
-                  </div>
-                  <Button
-                    onClick={(e) => deleteConversation(conversation.id, e)}
-                    variant="ghost"
-                    size="sm"
-                    className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-400"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+        {/* Conversations List */}
+        <ScrollArea className="flex-1">
+          <div className="p-2 space-y-4">
+            {/* Starred Section */}
+            {starred.length > 0 && (
+              <div className="space-y-1">
+                <div className="flex items-center space-x-2 px-3 py-2">
+                  <Star className="w-4 h-4 text-yellow-400" />
+                  <span className="text-sm font-medium text-gray-300">Yıldızlı</span>
                 </div>
-              ))}
-            </div>
-          </ScrollArea>
+                {starred.map((conversation) => (
+                  <ConversationItem 
+                    key={conversation.id}
+                    conversation={conversation}
+                    isActive={currentConversation?.id === conversation.id}
+                    onSelect={() => selectConversation(conversation)}
+                    onDelete={(e) => deleteConversation(conversation.id, e)}
+                    onToggleStar={(e) => {
+                      e.stopPropagation();
+                      toggleStar(conversation.id);
+                    }}
+                    isStarred={true}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* Recent Section */}
+            {recentConversations.length > 0 && (
+              <div className="space-y-1">
+                <div className="flex items-center space-x-2 px-3 py-2">
+                  <Clock className="w-4 h-4 text-gray-400" />
+                  <span className="text-sm font-medium text-gray-300">Son Sohbetler</span>
+                  {recentConversations.length > 5 && (
+                    <span className="text-xs text-gray-500 ml-auto">Tümünü Gör</span>
+                  )}
+                </div>
+                {recentConversations.slice(0, 10).map((conversation) => (
+                  <ConversationItem 
+                    key={conversation.id}
+                    conversation={conversation}
+                    isActive={currentConversation?.id === conversation.id}
+                    onSelect={() => selectConversation(conversation)}
+                    onDelete={(e) => deleteConversation(conversation.id, e)}
+                    onToggleStar={(e) => {
+                      e.stopPropagation();
+                      toggleStar(conversation.id);
+                    }}
+                    isStarred={false}
+                  />
+                ))}
+              </div>
+            )}
+
+            {conversations.length === 0 && (
+              <div className="text-center text-gray-500 text-sm py-8">
+                Henüz sohbet bulunmuyor
+              </div>
+            )}
+          </div>
+        </ScrollArea>
+
+        {/* User Profile Section */}
+        <div className="border-t border-gray-700 p-3">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <div className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-800 cursor-pointer transition-colors">
+                <Avatar className="w-8 h-8">
+                  <AvatarFallback className="bg-blue-600 text-white text-sm">
+                    U
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium text-white truncate">Kullanıcı</div>
+                  <div className="text-xs text-gray-400">Free Plan</div>
+                </div>
+                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+              </div>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-56 mb-2">
+              <DropdownMenuItem>
+                <Settings className="w-4 h-4 mr-2" />
+                Ayarlar
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <CreditCard className="w-4 h-4 mr-2" />
+                Üyelik Yükselt
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <LogOut className="w-4 h-4 mr-2" />
+                Çıkış Yap
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
