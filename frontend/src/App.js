@@ -259,7 +259,7 @@ function App() {
                 </Avatar>
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-medium text-white truncate">Kullanıcı</div>
-                  <div className="text-xs text-slate-400">Free Plan</div>
+                  <div className="text-xs text-gray-500">Free Plan</div>
                 </div>
                 <div className="w-2 h-2 bg-green-400 rounded-full"></div>
               </div>
