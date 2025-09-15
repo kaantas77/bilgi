@@ -164,7 +164,7 @@ function App() {
       {/* Sidebar */}
       <div className={`bg-black text-white transition-all duration-300 ${sidebarOpen ? 'w-80' : 'w-0'} overflow-hidden flex flex-col border-r border-gray-800`}>
         {/* Header */}
-        <div className="p-4 border-b border-slate-800">
+        <div className="p-4 border-b border-gray-800">
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-xl font-bold text-white">BİLGİN</h1>
             <Button
