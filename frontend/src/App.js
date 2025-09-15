@@ -309,7 +309,7 @@ function App() {
             </div>
 
             {/* Messages Area */}
-            <ScrollArea className="flex-1 p-6 bg-slate-900">
+            <ScrollArea className="flex-1 p-6 bg-black">
               <div className="space-y-6 max-w-4xl mx-auto">
                 {messages.map((message) => (
                   <div
@@ -320,11 +320,11 @@ function App() {
                   >
                     <Avatar className="w-8 h-8 flex-shrink-0">
                       {message.role === 'user' ? (
-                        <AvatarFallback className="bg-blue-600 text-white">
+                        <AvatarFallback className="bg-red-800 text-white">
                           <User className="w-4 h-4" />
                         </AvatarFallback>
                       ) : (
-                        <AvatarFallback className="bg-green-600 text-white">
+                        <AvatarFallback className="bg-red-900 text-white">
                           <Bot className="w-4 h-4" />
                         </AvatarFallback>
                       )}
@@ -332,12 +332,12 @@ function App() {
                     <div className={`flex-1 ${message.role === 'user' ? 'text-right' : ''}`}>
                       <div className={`inline-block max-w-3xl p-4 rounded-2xl ${
                         message.role === 'user' 
-                          ? 'bg-blue-600 text-white' 
-                          : 'bg-slate-700 text-white border border-slate-600'
+                          ? 'bg-red-800 text-white' 
+                          : 'bg-gray-900 text-white border border-gray-800'
                       }`}>
                         <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
                       </div>
-                      <div className="text-xs text-slate-400 mt-2">
+                      <div className="text-xs text-gray-500 mt-2">
                         {new Date(message.timestamp).toLocaleTimeString('tr-TR', {
                           hour: '2-digit',
                           minute: '2-digit'
@@ -349,18 +349,18 @@ function App() {
                 {isLoading && (
                   <div className="flex items-start space-x-4">
                     <Avatar className="w-8 h-8">
-                      <AvatarFallback className="bg-green-600 text-white">
+                      <AvatarFallback className="bg-red-900 text-white">
                         <Bot className="w-4 h-4" />
                       </AvatarFallback>
                     </Avatar>
-                    <div className="bg-slate-700 border border-slate-600 p-4 rounded-2xl">
+                    <div className="bg-gray-900 border border-gray-800 p-4 rounded-2xl">
                       <div className="flex items-center space-x-2">
                         <div className="flex space-x-1">
-                          <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce"></div>
-                          <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                          <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                          <div className="w-2 h-2 bg-red-400 rounded-full animate-bounce"></div>
+                          <div className="w-2 h-2 bg-red-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                          <div className="w-2 h-2 bg-red-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
                         </div>
-                        <span className="text-sm text-slate-300">BİLGİN yazıyor...</span>
+                        <span className="text-sm text-gray-400">BİLGİN yazıyor...</span>
                       </div>
                     </div>
                   </div>
