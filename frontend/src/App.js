@@ -248,7 +248,7 @@ function App() {
         </ScrollArea>
 
         {/* User Profile Section */}
-        <div className="border-t border-gray-700 p-3">
+        <div className="border-t border-slate-800 p-3">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <div className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-800 cursor-pointer transition-colors">
