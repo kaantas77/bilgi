@@ -240,7 +240,7 @@ function App() {
             )}
 
             {conversations.length === 0 && (
-              <div className="text-center text-gray-500 text-sm py-8">
+              <div className="text-center text-slate-400 text-sm py-8">
                 Henüz sohbet bulunmuyor
               </div>
             )}
