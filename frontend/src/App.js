@@ -283,14 +283,14 @@ function App() {
       </div>
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col bg-white dark:bg-gray-800">
+      <div className="flex-1 flex flex-col bg-slate-900">
         {/* Toggle Sidebar Button */}
         {!sidebarOpen && (
           <Button
             onClick={() => setSidebarOpen(true)}
             variant="ghost"
             size="sm"
-            className="absolute top-4 left-4 z-10 text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700"
+            className="absolute top-4 left-4 z-10 text-slate-400 hover:text-white bg-slate-800 border border-slate-700 hover:bg-slate-700"
           >
             →
           </Button>
