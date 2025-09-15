@@ -398,18 +398,18 @@ function App() {
           </>
         ) : (
           /* Welcome Screen */
-          <div className="flex-1 flex items-center justify-center p-8">
+          <div className="flex-1 flex items-center justify-center p-8 bg-slate-900">
             <div className="text-center space-y-8 max-w-md">
               <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center mx-auto">
                 <Bot className="w-10 h-10 text-white" />
               </div>
               <div>
-                <h2 className="text-3xl font-bold text-gray-800 dark:text-white mb-3">BİLGİN AI</h2>
-                <p className="text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">
+                <h2 className="text-3xl font-bold text-white mb-3">BİLGİN AI</h2>
+                <p className="text-slate-300 mb-6 leading-relaxed">
                   Yapay zeka destekli asistanınız ile sohbet etmeye başlayın. 
                   Sorularınızı sorabilir, yardım alabilir ve bilgi edinebilirsiniz.
                 </p>
-                <div className="space-y-3 text-sm text-gray-500 dark:text-gray-400">
+                <div className="space-y-3 text-sm text-slate-400">
                   <div className="flex items-center space-x-2">
                     <MessageCircle className="w-4 h-4" />
                     <span>Doğal dil işleme</span>
