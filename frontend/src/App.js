@@ -283,14 +283,14 @@ function App() {
       </div>
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col bg-white dark:bg-gray-800">
         {/* Toggle Sidebar Button */}
         {!sidebarOpen && (
           <Button
             onClick={() => setSidebarOpen(true)}
             variant="ghost"
             size="sm"
-            className="absolute top-4 left-4 z-10"
+            className="absolute top-4 left-4 z-10 text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
           >
             →
           </Button>
@@ -299,65 +299,70 @@ function App() {
         {currentConversation ? (
           <>
             {/* Chat Header */}
-            <div className="bg-white border-b p-4">
-              <h2 className="text-lg font-semibold text-gray-800">{currentConversation.title}</h2>
+            <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-gray-800 dark:text-white">{currentConversation.title}</h2>
+                <Badge variant="secondary" className="text-xs">
+                  ChatGPT Benzeri
+                </Badge>
+              </div>
             </div>
 
             {/* Messages Area */}
-            <ScrollArea className="flex-1 p-4">
-              <div className="space-y-4 max-w-4xl mx-auto">
+            <ScrollArea className="flex-1 p-6">
+              <div className="space-y-6 max-w-4xl mx-auto">
                 {messages.map((message) => (
                   <div
                     key={message.id}
-                    className={`flex items-start space-x-3 ${
+                    className={`flex items-start space-x-4 ${
                       message.role === 'user' ? 'flex-row-reverse space-x-reverse' : ''
                     }`}
                   >
-                    <Avatar className="w-8 h-8">
+                    <Avatar className="w-8 h-8 flex-shrink-0">
                       {message.role === 'user' ? (
-                        <>
-                          <AvatarFallback className="bg-blue-600 text-white">
-                            <User className="w-4 h-4" />
-                          </AvatarFallback>
-                        </>
+                        <AvatarFallback className="bg-blue-600 text-white">
+                          <User className="w-4 h-4" />
+                        </AvatarFallback>
                       ) : (
-                        <>
-                          <AvatarFallback className="bg-green-600 text-white">
-                            <Bot className="w-4 h-4" />
-                          </AvatarFallback>
-                        </>
+                        <AvatarFallback className="bg-green-600 text-white">
+                          <Bot className="w-4 h-4" />
+                        </AvatarFallback>
                       )}
                     </Avatar>
-                    <Card className={`max-w-2xl ${
-                      message.role === 'user' 
-                        ? 'bg-blue-600 text-white ml-auto' 
-                        : 'bg-white border'
-                    }`}>
-                      <CardContent className="p-3">
-                        <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                      </CardContent>
-                    </Card>
+                    <div className={`flex-1 ${message.role === 'user' ? 'text-right' : ''}`}>
+                      <div className={`inline-block max-w-3xl p-4 rounded-2xl ${
+                        message.role === 'user' 
+                          ? 'bg-blue-600 text-white' 
+                          : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-600'
+                      }`}>
+                        <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                      </div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                        {new Date(message.timestamp).toLocaleTimeString('tr-TR', {
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </div>
+                    </div>
                   </div>
                 ))}
                 {isLoading && (
-                  <div className="flex items-start space-x-3">
+                  <div className="flex items-start space-x-4">
                     <Avatar className="w-8 h-8">
                       <AvatarFallback className="bg-green-600 text-white">
                         <Bot className="w-4 h-4" />
                       </AvatarFallback>
                     </Avatar>
-                    <Card className="bg-white border">
-                      <CardContent className="p-3">
-                        <div className="flex items-center space-x-2">
-                          <div className="animate-pulse flex space-x-1">
-                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
-                          </div>
-                          <span className="text-sm text-gray-500">Yazıyor...</span>
+                    <div className="bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 p-4 rounded-2xl">
+                      <div className="flex items-center space-x-2">
+                        <div className="flex space-x-1">
+                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
                         </div>
-                      </CardContent>
-                    </Card>
+                        <span className="text-sm text-gray-500 dark:text-gray-400">BİLGİN yazıyor...</span>
+                      </div>
+                    </div>
                   </div>
                 )}
                 <div ref={messagesEndRef} />
@@ -365,41 +370,63 @@ function App() {
             </ScrollArea>
 
             {/* Input Area */}
-            <div className="bg-white border-t p-4">
-              <div className="max-w-4xl mx-auto flex items-center space-x-3">
-                <Input
-                  value={inputMessage}
-                  onChange={(e) => setInputMessage(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  placeholder="Mesajınızı yazın..."
-                  className="flex-1"
-                  disabled={isLoading}
-                />
-                <Button
-                  onClick={sendMessage}
-                  disabled={!inputMessage.trim() || isLoading}
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
-                >
-                  <Send className="w-4 h-4" />
-                </Button>
+            <div className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-4">
+              <div className="max-w-4xl mx-auto">
+                <div className="flex items-end space-x-3 bg-gray-50 dark:bg-gray-700 rounded-2xl p-3 border border-gray-200 dark:border-gray-600">
+                  <Input
+                    value={inputMessage}
+                    onChange={(e) => setInputMessage(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="BİLGİN'e mesajınızı yazın..."
+                    className="flex-1 border-0 bg-transparent focus:ring-0 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                    disabled={isLoading}
+                  />
+                  <Button
+                    onClick={sendMessage}
+                    disabled={!inputMessage.trim() || isLoading}
+                    className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl"
+                    size="sm"
+                  >
+                    <Send className="w-4 h-4" />
+                  </Button>
+                </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400 text-center mt-2">
+                  BİLGİN AI hata yapabilir. Önemli bilgileri kontrol edin.
+                </div>
               </div>
             </div>
           </>
         ) : (
           /* Welcome Screen */
-          <div className="flex-1 flex items-center justify-center">
-            <div className="text-center space-y-6">
-              <div className="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center mx-auto">
+          <div className="flex-1 flex items-center justify-center p-8">
+            <div className="text-center space-y-8 max-w-md">
+              <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center mx-auto">
                 <Bot className="w-10 h-10 text-white" />
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-gray-800 mb-2">BİLGİN AI'ye Hoş Geldiniz</h2>
-                <p className="text-gray-600 mb-6">
-                  Yapay zeka destekli asistanınız ile sohbet etmeye başlayın
+                <h2 className="text-3xl font-bold text-gray-800 dark:text-white mb-3">BİLGİN AI</h2>
+                <p className="text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">
+                  Yapay zeka destekli asistanınız ile sohbet etmeye başlayın. 
+                  Sorularınızı sorabilir, yardım alabilir ve bilgi edinebilirsiniz.
                 </p>
+                <div className="space-y-3 text-sm text-gray-500 dark:text-gray-400">
+                  <div className="flex items-center space-x-2">
+                    <MessageCircle className="w-4 h-4" />
+                    <span>Doğal dil işleme</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Bot className="w-4 h-4" />
+                    <span>Akıllı yanıtlar</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Clock className="w-4 h-4" />
+                    <span>7/24 erişim</span>
+                  </div>
+                </div>
                 <Button
                   onClick={createNewConversation}
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white mt-8"
+                  size="lg"
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   Yeni Sohbet Başlat
@@ -412,5 +439,40 @@ function App() {
     </div>
   );
 }
+
+// Conversation Item Component
+const ConversationItem = ({ conversation, isActive, onSelect, onDelete, onToggleStar, isStarred }) => {
+  return (
+    <div
+      onClick={onSelect}
+      className={`flex items-center justify-between p-3 rounded-lg cursor-pointer group transition-colors ${
+        isActive ? 'bg-gray-700' : 'hover:bg-gray-800'
+      }`}
+    >
+      <div className="flex items-center space-x-3 flex-1 min-w-0">
+        <MessageCircle className="w-4 h-4 text-gray-400 flex-shrink-0" />
+        <span className="text-sm truncate">{conversation.title}</span>
+      </div>
+      <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        <Button
+          onClick={onToggleStar}
+          variant="ghost"
+          size="sm"
+          className="text-gray-400 hover:text-yellow-400"
+        >
+          <Star className={`w-3 h-3 ${isStarred ? 'fill-yellow-400 text-yellow-400' : ''}`} />
+        </Button>
+        <Button
+          onClick={onDelete}
+          variant="ghost"
+          size="sm"
+          className="text-gray-400 hover:text-red-400"
+        >
+          <Trash2 className="w-3 h-3" />
+        </Button>
+      </div>
+    </div>
+  );
+};
 
 export default App;
