@@ -290,7 +290,7 @@ function App() {
             onClick={() => setSidebarOpen(true)}
             variant="ghost"
             size="sm"
-            className="absolute top-4 left-4 z-10 text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
+            className="absolute top-4 left-4 z-10 text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700"
           >
             →
           </Button>
