@@ -113,6 +113,27 @@ async def send_message(conversation_id: str, input: MessageCreate):
     user_message_dict = prepare_for_mongo(user_message.dict())
     await db.messages.insert_one(user_message_dict)
     
+    # Check if this is the first message and update conversation title
+    message_count = await db.messages.count_documents({"conversation_id": conversation_id})
+    if message_count == 1:  # This is the first message
+        # Generate title from first message (first 4-5 words or max 50 chars)
+        words = input.content.split()
+        if len(words) <= 5:
+            new_title = input.content[:50]
+        else:
+            new_title = " ".join(words[:5]) + "..."
+        
+        # Clean title and ensure it's not empty
+        new_title = new_title.strip()
+        if not new_title:
+            new_title = "Yeni Sohbet"
+            
+        # Update conversation title
+        await db.conversations.update_one(
+            {"id": conversation_id},
+            {"$set": {"title": new_title, "updated_at": datetime.now(timezone.utc).isoformat()}}
+        )
+    
     try:
         # Call AnythingLLM API
         async with httpx.AsyncClient() as client:
