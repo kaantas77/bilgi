@@ -446,11 +446,11 @@ const ConversationItem = ({ conversation, isActive, onSelect, onDelete, onToggle
     <div
       onClick={onSelect}
       className={`flex items-center justify-between p-3 rounded-lg cursor-pointer group transition-colors ${
-        isActive ? 'bg-slate-800' : 'hover:bg-slate-800'
+        isActive ? 'bg-gray-900' : 'hover:bg-gray-900'
       }`}
     >
       <div className="flex items-center space-x-3 flex-1 min-w-0">
-        <MessageCircle className="w-4 h-4 text-slate-400 flex-shrink-0" />
+        <MessageCircle className="w-4 h-4 text-gray-500 flex-shrink-0" />
         <span className="text-sm truncate text-white">{conversation.title}</span>
       </div>
       <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -458,15 +458,15 @@ const ConversationItem = ({ conversation, isActive, onSelect, onDelete, onToggle
           onClick={onToggleStar}
           variant="ghost"
           size="sm"
-          className="text-slate-400 hover:text-yellow-400 hover:bg-slate-700"
+          className="text-gray-500 hover:text-red-400 hover:bg-gray-800"
         >
-          <Star className={`w-3 h-3 ${isStarred ? 'fill-yellow-400 text-yellow-400' : ''}`} />
+          <Star className={`w-3 h-3 ${isStarred ? 'fill-red-400 text-red-400' : ''}`} />
         </Button>
         <Button
           onClick={onDelete}
           variant="ghost"
           size="sm"
-          className="text-slate-400 hover:text-red-400 hover:bg-slate-700"
+          className="text-gray-500 hover:text-red-400 hover:bg-gray-800"
         >
           <Trash2 className="w-3 h-3" />
         </Button>
