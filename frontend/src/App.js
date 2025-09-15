@@ -370,15 +370,15 @@ function App() {
             </ScrollArea>
 
             {/* Input Area */}
-            <div className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-4">
+            <div className="bg-slate-900 border-t border-slate-700 p-4">
               <div className="max-w-4xl mx-auto">
-                <div className="flex items-end space-x-3 bg-gray-50 dark:bg-gray-700 rounded-2xl p-3 border border-gray-200 dark:border-gray-600">
+                <div className="flex items-end space-x-3 bg-slate-800 rounded-2xl p-3 border border-slate-600">
                   <Input
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
                     onKeyPress={handleKeyPress}
                     placeholder="BİLGİN'e mesajınızı yazın..."
-                    className="flex-1 border-0 bg-transparent focus:ring-0 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                    className="flex-1 border-0 bg-transparent focus:ring-0 text-white placeholder-slate-400"
                     disabled={isLoading}
                   />
                   <Button
@@ -390,7 +390,7 @@ function App() {
                     <Send className="w-4 h-4" />
                   </Button>
                 </div>
-                <div className="text-xs text-gray-500 dark:text-gray-400 text-center mt-2">
+                <div className="text-xs text-slate-400 text-center mt-2">
                   BİLGİN AI hata yapabilir. Önemli bilgileri kontrol edin.
                 </div>
               </div>
