@@ -299,10 +299,10 @@ function App() {
         {currentConversation ? (
           <>
             {/* Chat Header */}
-            <div className="bg-slate-900 border-b border-slate-700 p-4">
+            <div className="bg-black border-b border-gray-800 p-4">
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-semibold text-white">{currentConversation.title}</h2>
-                <Badge variant="secondary" className="text-xs bg-slate-700 text-slate-300">
+                <Badge variant="secondary" className="text-xs bg-red-900 text-red-300 border-red-800">
                   ChatGPT Benzeri
                 </Badge>
               </div>
