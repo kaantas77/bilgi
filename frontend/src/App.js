@@ -193,7 +193,7 @@ function App() {
               <div className="space-y-1">
                 <div className="flex items-center space-x-2 px-3 py-2">
                   <Star className="w-4 h-4 text-yellow-400" />
-                  <span className="text-sm font-medium text-gray-300">Yıldızlı</span>
+                  <span className="text-sm font-medium text-white">Yıldızlı</span>
                 </div>
                 {starred.map((conversation) => (
                   <ConversationItem 
