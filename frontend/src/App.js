@@ -251,7 +251,7 @@ function App() {
         <div className="border-t border-gray-800 p-3">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <div className="flex items-center space-x-3 p-2 rounded-lg hover:bg-slate-800 cursor-pointer transition-colors">
+              <div className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-900 cursor-pointer transition-colors">
                 <Avatar className="w-8 h-8">
                   <AvatarFallback className="bg-blue-600 text-white text-sm">
                     U
