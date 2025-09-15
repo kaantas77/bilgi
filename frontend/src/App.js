@@ -216,10 +216,10 @@ function App() {
             {recentConversations.length > 0 && (
               <div className="space-y-1">
                 <div className="flex items-center space-x-2 px-3 py-2">
-                  <Clock className="w-4 h-4 text-gray-400" />
-                  <span className="text-sm font-medium text-gray-300">Son Sohbetler</span>
+                  <Clock className="w-4 h-4 text-slate-400" />
+                  <span className="text-sm font-medium text-white">Son Sohbetler</span>
                   {recentConversations.length > 5 && (
-                    <span className="text-xs text-gray-500 ml-auto">Tümünü Gör</span>
+                    <span className="text-xs text-slate-400 ml-auto">Tümünü Gör</span>
                   )}
                 </div>
                 {recentConversations.slice(0, 10).map((conversation) => (
