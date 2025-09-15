@@ -160,7 +160,7 @@ function App() {
   const starred = conversations.filter(conv => isStarred(conv.id));
 
   return (
-    <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="flex h-screen bg-slate-900">
       {/* Sidebar */}
       <div className={`bg-slate-950 text-white transition-all duration-300 ${sidebarOpen ? 'w-80' : 'w-0'} overflow-hidden flex flex-col border-r border-slate-800`}>
         {/* Header */}
