@@ -6,8 +6,9 @@ import { Card, CardContent } from './components/ui/card';
 import { Separator } from './components/ui/separator';
 import { ScrollArea } from './components/ui/scroll-area';
 import { Avatar, AvatarImage, AvatarFallback } from './components/ui/avatar';
-
-import { MessageCircle, Plus, Trash2, Send, Bot, User } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './components/ui/dropdown-menu';
+import { Badge } from './components/ui/badge';
+import { MessageCircle, Plus, Trash2, Send, Bot, User, Star, Clock, Settings, LogOut, CreditCard } from 'lucide-react';
 import axios from 'axios';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
