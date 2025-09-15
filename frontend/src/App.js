@@ -143,6 +143,22 @@ function App() {
     }
   };
 
+  // Mock starred conversations (you can implement real starring logic later)
+  const isStarred = (conversationId) => {
+    return starredConversations.includes(conversationId);
+  };
+
+  const toggleStar = (conversationId) => {
+    setStarredConversations(prev => 
+      prev.includes(conversationId) 
+        ? prev.filter(id => id !== conversationId)
+        : [...prev, conversationId]
+    );
+  };
+
+  const recentConversations = conversations.filter(conv => !isStarred(conv.id));
+  const starred = conversations.filter(conv => isStarred(conv.id));
+
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
