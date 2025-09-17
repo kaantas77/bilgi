@@ -457,7 +457,7 @@ const ConversationItem = ({ conversation, isActive, onSelect, onDelete }) => {
           onClick={onDelete}
           variant="ghost"
           size="sm"
-          className="text-gray-400 hover:text-red-400 hover:bg-gray-800 p-1.5 opacity-100"
+          className="text-gray-400 hover:text-gray-300 hover:bg-gray-800 p-1.5 opacity-100"
         >
           <Trash2 className="w-4 h-4" />
         </Button>
