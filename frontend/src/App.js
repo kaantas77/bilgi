@@ -453,7 +453,7 @@ function App() {
 }
 
 // Conversation Item Component
-const ConversationItem = ({ conversation, isActive, onSelect, onDelete, onToggleStar, isStarred }) => {
+const ConversationItem = ({ conversation, isActive, onSelect, onDelete }) => {
   return (
     <div
       onClick={onSelect}
@@ -465,20 +465,12 @@ const ConversationItem = ({ conversation, isActive, onSelect, onDelete, onToggle
         <MessageCircle className="w-4 h-4 text-gray-500 flex-shrink-0" />
         <span className="text-sm truncate text-white">{conversation.title}</span>
       </div>
-      <div className="flex items-center space-x-1">
-        <Button
-          onClick={onToggleStar}
-          variant="ghost"
-          size="sm"
-          className="text-gray-400 hover:text-red-400 hover:bg-gray-800 p-1 opacity-100"
-        >
-          <Star className={`w-4 h-4 ${isStarred ? 'fill-red-400 text-red-400' : ''}`} />
-        </Button>
+      <div className="flex items-center pr-2">
         <Button
           onClick={onDelete}
           variant="ghost"
           size="sm"
-          className="text-gray-400 hover:text-red-400 hover:bg-gray-800 p-1 opacity-100"
+          className="text-gray-400 hover:text-red-400 hover:bg-gray-800 p-1.5 opacity-100"
         >
           <Trash2 className="w-4 h-4" />
         </Button>
