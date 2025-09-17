@@ -26,8 +26,8 @@ app = FastAPI()
 api_router = APIRouter(prefix="/api")
 
 # AnythingLLM configuration
-ANYTHINGLLM_API_URL = "https://malz4o1p.rcld.app/api/v1/workspace/bilgin/chat"
-ANYTHINGLLM_API_KEY = "KPTQKBG-W8E40WK-MZQ3XSX-ZWZC0PM"
+ANYTHINGLLM_API_URL = "https://pilj1jbx.rcsrv.com/api/v1/workspace/bilgin/chat"
+ANYTHINGLLM_API_KEY = "FC6CT8Q-QRE433A-J9K8SV8-S7E2M4N"
 
 # Define Models
 class Conversation(BaseModel):
