@@ -465,12 +465,12 @@ const ConversationItem = ({ conversation, isActive, onSelect, onDelete, onToggle
         <MessageCircle className="w-4 h-4 text-gray-500 flex-shrink-0" />
         <span className="text-sm truncate text-white">{conversation.title}</span>
       </div>
-      <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+      <div className="flex items-center space-x-1 opacity-60 group-hover:opacity-100 transition-opacity">
         <Button
           onClick={onToggleStar}
           variant="ghost"
           size="sm"
-          className="text-gray-500 hover:text-red-400 hover:bg-gray-800"
+          className="text-gray-500 hover:text-red-400 hover:bg-gray-800 p-1"
         >
           <Star className={`w-3 h-3 ${isStarred ? 'fill-red-400 text-red-400' : ''}`} />
         </Button>
@@ -478,7 +478,7 @@ const ConversationItem = ({ conversation, isActive, onSelect, onDelete, onToggle
           onClick={onDelete}
           variant="ghost"
           size="sm"
-          className="text-gray-500 hover:text-red-400 hover:bg-gray-800"
+          className="text-gray-500 hover:text-red-400 hover:bg-gray-800 p-1"
         >
           <Trash2 className="w-3 h-3" />
         </Button>
