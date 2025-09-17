@@ -190,7 +190,7 @@ function App() {
           </div>
           <Button
             onClick={createNewConversation}
-            className="w-full bg-red-800 hover:bg-red-700 text-white border-0"
+            className="w-full bg-gray-700 hover:bg-gray-600 text-white border-0"
           >
             <Plus className="w-4 h-4 mr-2" />
             Yeni Sohbet
