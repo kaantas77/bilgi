@@ -399,7 +399,7 @@ function App() {
           /* Welcome Screen */
           <div className="flex-1 flex items-center justify-center p-8 bg-black">
             <div className="text-center space-y-8 max-w-md">
-              <div className="w-20 h-20 bg-gradient-to-br from-red-800 to-red-900 rounded-full flex items-center justify-center mx-auto">
+              <div className="w-20 h-20 bg-gradient-to-br from-gray-700 to-gray-800 rounded-full flex items-center justify-center mx-auto">
                 <Bot className="w-10 h-10 text-white" />
               </div>
               <div>
@@ -424,7 +424,7 @@ function App() {
                 </div>
                 <Button
                   onClick={createNewConversation}
-                  className="bg-gradient-to-r from-red-800 to-red-900 hover:from-red-700 hover:to-red-800 text-white mt-8"
+                  className="bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white mt-8"
                   size="lg"
                 >
                   <Plus className="w-4 h-4 mr-2" />
