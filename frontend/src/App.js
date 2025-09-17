@@ -383,7 +383,7 @@ function App() {
                   <Button
                     onClick={sendMessage}
                     disabled={!inputMessage.trim() || isLoading}
-                    className="bg-red-800 hover:bg-red-700 text-white rounded-xl"
+                    className="bg-gray-700 hover:bg-gray-600 text-white rounded-xl"
                     size="sm"
                   >
                     <Send className="w-4 h-4" />
