@@ -75,6 +75,122 @@ def parse_from_mongo(item):
                     pass
     return item
 
+def generate_conversation_title(message_content: str) -> str:
+    """Generate a meaningful conversation title based on the first message content"""
+    message = message_content.lower().strip()
+    
+    # Common patterns for title generation
+    title_patterns = {
+        # Questions and requests
+        "nasıl": "Nasıl Yapılır",
+        "nedir": "Bilgi Talebi",
+        "ne demek": "Kavram Açıklaması",
+        "öğrenmek istiyorum": "Öğrenme İsteği",
+        "öğretir misin": "Öğretim Talebi",
+        "yardım": "Yardım İsteği",
+        "destek": "Destek Talebi",
+        
+        # Design and creativity
+        "logo": "Logo Tasarlama",
+        "tasarla": "Tasarım İsteği", 
+        "çiz": "Çizim İsteği",
+        "resim": "Görsel İsteği",
+        "design": "Tasarım Projesi",
+        
+        # Programming and tech
+        "kod": "Programlama",
+        "program": "Programlama",
+        "python": "Python Programlama",
+        "javascript": "JavaScript Geliştirme",
+        "web sitesi": "Web Geliştirme",
+        "uygulama": "Uygulama Geliştirme",
+        "yazılım": "Yazılım Geliştirme",
+        
+        # Writing and content
+        "yaz": "Yazım İsteği",
+        "makale": "Makale Yazımı",
+        "mektup": "Mektup Yazımı",
+        "içerik": "İçerik Üretimi",
+        "metin": "Metin Yazımı",
+        
+        # Analysis and explanation
+        "açıkla": "Açıklama İsteği",
+        "analiz": "Analiz Talebi",
+        "karşılaştır": "Karşılaştırma",
+        "fark": "Fark Analizi",
+        
+        # Problem solving
+        "çöz": "Problem Çözme",
+        "hata": "Hata Giderme", 
+        "sorun": "Sorun Çözme",
+        "düzelt": "Düzeltme İsteği",
+        
+        # Learning and education
+        "öğren": "Öğrenme",
+        "eğit": "Eğitim",
+        "ders": "Ders İsteği",
+        "kurs": "Kurs Bilgisi",
+        "kitap": "Kitap Önerisi",
+        
+        # Business and planning
+        "plan": "Planlama",
+        "strateji": "Strateji Geliştirme",
+        "iş": "İş Konuları",
+        "proje": "Proje Yönetimi",
+        "pazarlama": "Pazarlama Stratejisi",
+        
+        # General topics
+        "öneri": "Öneri İsteği",
+        "tavsiye": "Tavsiye Talebi",
+        "fikir": "Fikir Paylaşımı",
+        "görüş": "Görüş Paylaşımı"
+    }
+    
+    # Check for specific patterns
+    for keyword, title_type in title_patterns.items():
+        if keyword in message:
+            # Try to extract the main subject
+            words = message_content.split()
+            
+            # Handle questions
+            if any(q in message for q in ["nasıl", "nedir", "ne demek"]):
+                # Extract main topic from question
+                main_words = [w for w in words if len(w) > 3 and w.lower() not in ["nasıl", "nedir", "demek", "için", "olan", "yapılır", "kullanılır"]]
+                if main_words:
+                    return f"{main_words[0].title()} Hakkında"
+            
+            # Handle requests with specific subjects
+            if "logo" in message:
+                return "Logo Tasarlama İsteği"
+            if "web sitesi" in message or "website" in message:
+                return "Web Sitesi Geliştirme"
+            if any(lang in message for lang in ["python", "javascript", "java", "c++", "php"]):
+                lang_found = next(lang for lang in ["python", "javascript", "java", "c++", "php"] if lang in message)
+                return f"{lang_found.title()} Programlama"
+            
+            # Extract subject for other patterns
+            if len(words) > 2:
+                # Get meaningful words (longer than 2 chars)
+                meaningful_words = [w for w in words[:5] if len(w) > 2 and not w.lower() in ["bir", "bir", "için", "ile", "olan", "gibi", "kadar"]]
+                if meaningful_words:
+                    subject = meaningful_words[0].title()
+                    return f"{subject} - {title_type}"
+            
+            return title_type
+    
+    # Fallback: Use first few meaningful words
+    words = message_content.split()
+    meaningful_words = [w for w in words[:6] if len(w) > 2]
+    
+    if len(meaningful_words) >= 3:
+        return " ".join(meaningful_words[:3]).title()
+    elif len(meaningful_words) >= 2:
+        return " ".join(meaningful_words[:2]).title()
+    elif meaningful_words:
+        return meaningful_words[0].title()
+    else:
+        return "Yeni Sohbet"
+
 # Routes
 @api_router.get("/")
 async def root():
