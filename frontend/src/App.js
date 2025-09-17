@@ -214,11 +214,6 @@ function App() {
                     isActive={currentConversation?.id === conversation.id}
                     onSelect={() => selectConversation(conversation)}
                     onDelete={(e) => deleteConversation(conversation.id, e)}
-                    onToggleStar={(e) => {
-                      e.stopPropagation();
-                      toggleStar(conversation.id);
-                    }}
-                    isStarred={true}
                   />
                 ))}
               </div>
