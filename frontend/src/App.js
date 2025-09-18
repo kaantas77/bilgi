@@ -306,12 +306,19 @@ function App() {
   // Loading screen
   if (isLoading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-black">
-        <div className="text-center space-y-4">
-          <div className="w-12 h-12 bg-gradient-to-br from-gray-700 to-gray-800 rounded-full flex items-center justify-center mx-auto animate-pulse">
-            <Bot className="w-6 h-6 text-white" />
+      <div className="flex h-screen items-center justify-center">
+        <div className="animated-bg"></div>
+        <div className="floating-particles">
+          {[...Array(9)].map((_, i) => (
+            <div key={i} className="particle"></div>
+          ))}
+        </div>
+        <div className="loading-container text-center space-y-6">
+          <div className="animated-logo w-16 h-16 flex items-center justify-center mx-auto">
+            <Bot className="w-8 h-8 text-white" />
           </div>
-          <div className="text-white">BİLGİN AI Yükleniyor...</div>
+          <div className="loading-spinner mx-auto"></div>
+          <div className="text-white text-lg font-medium">BİLGİN AI Yükleniyor...</div>
         </div>
       </div>
     );
