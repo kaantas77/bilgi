@@ -801,8 +801,8 @@ function App() {
                     <div className={`flex-1 ${message.role === 'user' ? 'text-right' : ''}`}>
                       <div className={`inline-block max-w-3xl p-4 rounded-2xl ${
                         message.role === 'user' 
-                          ? 'bg-gray-700 text-white' 
-                          : 'bg-gray-900 text-white border border-gray-800'
+                          ? 'bg-gray-800 text-white' 
+                          : 'bg-gray-900 text-white border border-gray-900'
                       }`}>
                         <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
                       </div>
