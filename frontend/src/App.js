@@ -467,7 +467,7 @@ function App() {
         {/* Login Form Section */}
         <div className="login-form-section">
           <div className="brand-section">
-            <img src="/bilgin-ai-logo.png" alt="BİLGİN Logo" className="brand-logo" />
+            <img src="/digital-brain-logo.png" alt="BİLGİN Digital Brain" className="brand-logo" />
             <span className="brand-text">BİLGİN</span>
           </div>
           
