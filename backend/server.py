@@ -1,15 +1,20 @@
-from fastapi import FastAPI, APIRouter, HTTPException
+from fastapi import FastAPI, APIRouter, HTTPException, Depends, Response, Request, Cookie
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
 from pathlib import Path
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, EmailStr
 from typing import List, Optional
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import httpx
+import bcrypt
+from jose import JWTError, jwt
+import secrets
+
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -29,9 +34,59 @@ api_router = APIRouter(prefix="/api")
 ANYTHINGLLM_API_URL = "https://pilj1jbx.rcsrv.com/api/v1/workspace/bilgin/chat"
 ANYTHINGLLM_API_KEY = "FC6CT8Q-QRE433A-J9K8SV8-S7E2M4N"
 
+# JWT Configuration
+SECRET_KEY = os.environ.get("JWT_SECRET_KEY", secrets.token_urlsafe(32))
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_DAYS = 7
+
+# Security
+security = HTTPBearer(auto_error=False)
+
+# Admin credentials
+ADMIN_USERNAME = "kaantas77"
+ADMIN_PASSWORD_HASH = bcrypt.hashpw("64Ekremimaro2004MKüge.".encode('utf-8'), bcrypt.gensalt())
+
 # Define Models
+class User(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    username: str
+    email: EmailStr
+    password_hash: str
+    is_verified: bool = False
+    is_admin: bool = False
+    oauth_provider: Optional[str] = None
+    oauth_id: Optional[str] = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    last_login: Optional[datetime] = None
+
+class UserCreate(BaseModel):
+    username: str
+    email: EmailStr
+    password: str
+
+class UserLogin(BaseModel):
+    username: str
+    password: str
+
+class UserResponse(BaseModel):
+    id: str
+    username: str
+    email: str
+    is_verified: bool
+    is_admin: bool
+    created_at: datetime
+    last_login: Optional[datetime]
+
+class Session(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    session_token: str
+    expires_at: datetime
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
 class Conversation(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
     title: str
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
@@ -57,7 +112,14 @@ class MessageResponse(BaseModel):
     content: str
     timestamp: datetime
 
-# Helper function to prepare datetime for MongoDB
+class AdminStats(BaseModel):
+    total_users: int
+    verified_users: int
+    total_conversations: int
+    total_messages: int
+    recent_users: List[UserResponse]
+
+# Helper functions
 def prepare_for_mongo(data):
     if isinstance(data, dict):
         for key, value in data.items():
@@ -68,12 +130,73 @@ def prepare_for_mongo(data):
 def parse_from_mongo(item):
     if isinstance(item, dict):
         for key, value in item.items():
-            if key in ['created_at', 'updated_at', 'timestamp'] and isinstance(value, str):
+            if key in ['created_at', 'updated_at', 'timestamp', 'last_login', 'expires_at'] and isinstance(value, str):
                 try:
                     item[key] = datetime.fromisoformat(value.replace('Z', '+00:00'))
                 except:
                     pass
     return item
+
+def hash_password(password: str) -> str:
+    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
+def verify_password(password: str, password_hash: str) -> bool:
+    return bcrypt.checkpw(password.encode('utf-8'), password_hash.encode('utf-8'))
+
+def create_access_token(data: dict):
+    to_encode = data.copy()
+    expire = datetime.now(timezone.utc) + timedelta(days=ACCESS_TOKEN_EXPIRE_DAYS)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt, expire
+
+async def get_current_user(request: Request, session_token: Optional[str] = Cookie(None)) -> Optional[dict]:
+    """Get current user from session token (cookie or header)"""
+    token = session_token
+    
+    # Fallback to Authorization header if no cookie
+    if not token:
+        auth_header = request.headers.get("Authorization")
+        if auth_header and auth_header.startswith("Bearer "):
+            token = auth_header.split(" ")[1]
+    
+    if not token:
+        return None
+    
+    try:
+        # Check if token exists in database and is not expired
+        session = await db.sessions.find_one({
+            "session_token": token,
+            "expires_at": {"$gt": datetime.now(timezone.utc).isoformat()}
+        })
+        
+        if not session:
+            return None
+        
+        # Get user
+        user = await db.users.find_one({"id": session["user_id"]})
+        if user:
+            return parse_from_mongo(user)
+        
+    except Exception as e:
+        logging.error(f"Error getting current user: {e}")
+        return None
+    
+    return None
+
+async def require_auth(request: Request, session_token: Optional[str] = Cookie(None)) -> dict:
+    """Require authentication"""
+    user = await get_current_user(request, session_token)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    return user
+
+async def require_admin(request: Request, session_token: Optional[str] = Cookie(None)) -> dict:
+    """Require admin privileges"""
+    user = await require_auth(request, session_token)
+    if not user.get("is_admin"):
+        raise HTTPException(status_code=403, detail="Admin privileges required")
+    return user
 
 def generate_conversation_title(message_content: str) -> str:
     """Generate a professional conversation title based on the first message content"""
@@ -224,32 +347,242 @@ def generate_conversation_title(message_content: str) -> str:
     else:
         return "Sohbet Mesajı"
 
-# Routes
-@api_router.get("/")
-async def root():
-    return {"message": "BİLGİN AI Chat API"}
+# Initialize admin user
+async def init_admin():
+    """Initialize admin user if not exists"""
+    admin_user = await db.users.find_one({"username": ADMIN_USERNAME})
+    if not admin_user:
+        admin = User(
+            username=ADMIN_USERNAME,
+            email="admin@bilgin.ai",
+            password_hash=ADMIN_PASSWORD_HASH.decode('utf-8'),
+            is_verified=True,
+            is_admin=True
+        )
+        admin_dict = prepare_for_mongo(admin.dict())
+        await db.users.insert_one(admin_dict)
+        logging.info("Admin user created")
 
+# Authentication Routes
+@api_router.post("/auth/register")
+async def register_user(user_data: UserCreate):
+    # Check if user already exists
+    existing_user = await db.users.find_one({
+        "$or": [
+            {"email": user_data.email},
+            {"username": user_data.username}
+        ]
+    })
+    
+    if existing_user:
+        raise HTTPException(status_code=400, detail="User already exists")
+    
+    # Create new user
+    user = User(
+        username=user_data.username,
+        email=user_data.email,
+        password_hash=hash_password(user_data.password)
+    )
+    
+    user_dict = prepare_for_mongo(user.dict())
+    await db.users.insert_one(user_dict)
+    
+    return {"message": "User registered successfully. Please verify your email."}
+
+@api_router.post("/auth/login")
+async def login_user(user_data: UserLogin, response: Response):
+    # Find user
+    user = await db.users.find_one({"username": user_data.username})
+    if not user or not verify_password(user_data.password, user["password_hash"]):
+        raise HTTPException(status_code=400, detail="Invalid credentials")
+    
+    user = parse_from_mongo(user)
+    
+    # Create session token
+    session_token, expires_at = create_access_token({"user_id": user["id"]})
+    
+    # Save session to database
+    session = Session(
+        user_id=user["id"],
+        session_token=session_token,
+        expires_at=expires_at
+    )
+    session_dict = prepare_for_mongo(session.dict())
+    await db.sessions.insert_one(session_dict)
+    
+    # Update last login
+    await db.users.update_one(
+        {"id": user["id"]},
+        {"$set": {"last_login": datetime.now(timezone.utc).isoformat()}}
+    )
+    
+    # Set cookie
+    response.set_cookie(
+        key="session_token",
+        value=session_token,
+        httponly=True,
+        secure=True,
+        samesite="none",
+        path="/",
+        expires=expires_at
+    )
+    
+    user_response = UserResponse(**user)
+    return {"user": user_response, "message": "Login successful"}
+
+@api_router.post("/auth/logout")
+async def logout_user(response: Response, user: dict = Depends(require_auth)):
+    # Delete session from database
+    await db.sessions.delete_many({"user_id": user["id"]})
+    
+    # Clear cookie
+    response.delete_cookie(key="session_token", path="/")
+    
+    return {"message": "Logout successful"}
+
+@api_router.get("/auth/me")
+async def get_current_user_info(user: dict = Depends(require_auth)):
+    return UserResponse(**user)
+
+# Google OAuth Routes
+@api_router.get("/auth/google")
+async def google_auth():
+    redirect_url = "https://ai-bilgin.preview.emergentagent.com/dashboard"
+    google_auth_url = f"https://auth.emergentagent.com/?redirect={redirect_url}"
+    return {"auth_url": google_auth_url}
+
+@api_router.post("/auth/google/callback")
+async def google_callback(request: Request, response: Response):
+    # Get session_id from request
+    body = await request.json()
+    session_id = body.get("session_id")
+    
+    if not session_id:
+        raise HTTPException(status_code=400, detail="Missing session_id")
+    
+    try:
+        # Get user data from Emergent Auth
+        async with httpx.AsyncClient() as client:
+            auth_response = await client.get(
+                "https://demobackend.emergentagent.com/auth/v1/env/oauth/session-data",
+                headers={"X-Session-ID": session_id}
+            )
+            
+            if auth_response.status_code != 200:
+                raise HTTPException(status_code=400, detail="Invalid session")
+            
+            user_data = auth_response.json()
+            
+        # Check if user exists
+        existing_user = await db.users.find_one({"email": user_data["email"]})
+        
+        if existing_user:
+            user = parse_from_mongo(existing_user)
+        else:
+            # Create new user from Google data
+            user = User(
+                username=user_data["email"].split("@")[0],  # Use email prefix as username
+                email=user_data["email"],
+                password_hash="",  # No password for OAuth users
+                is_verified=True,  # Google users are auto-verified
+                oauth_provider="google",
+                oauth_id=user_data["id"]
+            )
+            
+            user_dict = prepare_for_mongo(user.dict())
+            await db.users.insert_one(user_dict)
+            user = user.dict()
+        
+        # Create session token
+        session_token = user_data["session_token"]
+        expires_at = datetime.now(timezone.utc) + timedelta(days=7)
+        
+        # Save session to database
+        session = Session(
+            user_id=user["id"],
+            session_token=session_token,
+            expires_at=expires_at
+        )
+        session_dict = prepare_for_mongo(session.dict())
+        await db.sessions.insert_one(session_dict)
+        
+        # Update last login
+        await db.users.update_one(
+            {"id": user["id"]},
+            {"$set": {"last_login": datetime.now(timezone.utc).isoformat()}}
+        )
+        
+        # Set cookie
+        response.set_cookie(
+            key="session_token",
+            value=session_token,
+            httponly=True,
+            secure=True,
+            samesite="none",
+            path="/",
+            expires=expires_at
+        )
+        
+        user_response = UserResponse(**user)
+        return {"user": user_response, "message": "Google login successful"}
+        
+    except Exception as e:
+        logging.error(f"Google OAuth error: {e}")
+        raise HTTPException(status_code=400, detail="OAuth authentication failed")
+
+# Admin Routes
+@api_router.get("/admin/stats", response_model=AdminStats)
+async def get_admin_stats(admin: dict = Depends(require_admin)):
+    # Get statistics
+    total_users = await db.users.count_documents({})
+    verified_users = await db.users.count_documents({"is_verified": True})
+    total_conversations = await db.conversations.count_documents({})
+    total_messages = await db.messages.count_documents({})
+    
+    # Get recent users
+    recent_users_data = await db.users.find().sort("created_at", -1).limit(10).to_list(10)
+    recent_users = [UserResponse(**parse_from_mongo(user)) for user in recent_users_data]
+    
+    return AdminStats(
+        total_users=total_users,
+        verified_users=verified_users,
+        total_conversations=total_conversations,
+        total_messages=total_messages,
+        recent_users=recent_users
+    )
+
+@api_router.get("/admin/users", response_model=List[UserResponse])
+async def get_all_users(admin: dict = Depends(require_admin)):
+    users = await db.users.find().sort("created_at", -1).to_list(1000)
+    return [UserResponse(**parse_from_mongo(user)) for user in users]
+
+# Chat Routes (Protected)
 @api_router.get("/conversations", response_model=List[Conversation])
-async def get_conversations():
-    conversations = await db.conversations.find().sort("updated_at", -1).to_list(1000)
+async def get_conversations(user: dict = Depends(require_auth)):
+    conversations = await db.conversations.find({"user_id": user["id"]}).sort("updated_at", -1).to_list(1000)
     return [Conversation(**parse_from_mongo(conv)) for conv in conversations]
 
 @api_router.post("/conversations", response_model=Conversation)
-async def create_conversation(input: ConversationCreate):
-    conversation = Conversation(**input.dict())
+async def create_conversation(input: ConversationCreate, user: dict = Depends(require_auth)):
+    conversation = Conversation(user_id=user["id"], **input.dict())
     conversation_dict = prepare_for_mongo(conversation.dict())
     await db.conversations.insert_one(conversation_dict)
     return conversation
 
 @api_router.get("/conversations/{conversation_id}/messages", response_model=List[MessageResponse])
-async def get_messages(conversation_id: str):
+async def get_messages(conversation_id: str, user: dict = Depends(require_auth)):
+    # Check if conversation belongs to user
+    conversation = await db.conversations.find_one({"id": conversation_id, "user_id": user["id"]})
+    if not conversation:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+    
     messages = await db.messages.find({"conversation_id": conversation_id}).sort("timestamp", 1).to_list(1000)
     return [MessageResponse(**parse_from_mongo(msg)) for msg in messages]
 
 @api_router.post("/conversations/{conversation_id}/messages", response_model=MessageResponse)
-async def send_message(conversation_id: str, input: MessageCreate):
-    # Check if conversation exists
-    conversation = await db.conversations.find_one({"id": conversation_id})
+async def send_message(conversation_id: str, input: MessageCreate, user: dict = Depends(require_auth)):
+    # Check if conversation belongs to user
+    conversation = await db.conversations.find_one({"id": conversation_id, "user_id": user["id"]})
     if not conversation:
         raise HTTPException(status_code=404, detail="Conversation not found")
     
@@ -319,13 +652,17 @@ async def send_message(conversation_id: str, input: MessageCreate):
     return MessageResponse(**ai_message.dict())
 
 @api_router.delete("/conversations/{conversation_id}")
-async def delete_conversation(conversation_id: str):
+async def delete_conversation(conversation_id: str, user: dict = Depends(require_auth)):
+    # Check if conversation belongs to user
+    conversation = await db.conversations.find_one({"id": conversation_id, "user_id": user["id"]})
+    if not conversation:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+    
     # Delete messages first
     await db.messages.delete_many({"conversation_id": conversation_id})
     # Delete conversation
-    result = await db.conversations.delete_one({"id": conversation_id})
-    if result.deleted_count == 0:
-        raise HTTPException(status_code=404, detail="Conversation not found")
+    await db.conversations.delete_one({"id": conversation_id})
+    
     return {"message": "Conversation deleted successfully"}
 
 # Include the router in the main app
@@ -345,6 +682,10 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+
+@app.on_event("startup")
+async def startup_event():
+    await init_admin()
 
 @app.on_event("shutdown")
 async def shutdown_db_client():

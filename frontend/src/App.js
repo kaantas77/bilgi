@@ -8,21 +8,36 @@ import { ScrollArea } from './components/ui/scroll-area';
 import { Avatar, AvatarImage, AvatarFallback } from './components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './components/ui/dropdown-menu';
 import { Badge } from './components/ui/badge';
-import { MessageCircle, Plus, Trash2, Send, Bot, User, Star, Clock, Settings, LogOut, CreditCard } from 'lucide-react';
+import { MessageCircle, Plus, Trash2, Send, Bot, User, Star, Clock, Settings, LogOut, CreditCard, Shield } from 'lucide-react';
 import axios from 'axios';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
+// Set axios to include credentials
+axios.defaults.withCredentials = true;
+
 function App() {
+  const [user, setUser] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showLogin, setShowLogin] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [conversations, setConversations] = useState([]);
   const [currentConversation, setCurrentConversation] = useState(null);
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isMessageLoading, setIsMessageLoading] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [starredConversations, setStarredConversations] = useState([]);
-  const [showUserMenu, setShowUserMenu] = useState(false);
+  
+  // Auth states
+  const [loginData, setLoginData] = useState({ username: '', password: '' });
+  const [registerData, setRegisterData] = useState({ username: '', email: '', password: '' });
+  const [authMode, setAuthMode] = useState('login'); // 'login' or 'register'
+  
+  // Admin states
+  const [showAdmin, setShowAdmin] = useState(false);
+  const [adminStats, setAdminStats] = useState(null);
+  
   const messagesEndRef = useRef(null);
 
   // Scroll to bottom when new messages arrive
@@ -34,10 +49,54 @@ function App() {
     scrollToBottom();
   }, [messages]);
 
-  // Load conversations on mount
+  // Check authentication on mount and handle Google OAuth
   useEffect(() => {
-    loadConversations();
+    checkAuth();
+    handleGoogleCallback();
   }, []);
+
+  const checkAuth = async () => {
+    try {
+      const response = await axios.get(`${API}/auth/me`);
+      setUser(response.data);
+      setIsAuthenticated(true);
+      loadConversations();
+    } catch (error) {
+      setIsAuthenticated(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleCallback = async () => {
+    // Check for session_id in URL fragment
+    const fragment = window.location.hash.substring(1);
+    const params = new URLSearchParams(fragment);
+    const sessionId = params.get('session_id');
+    
+    if (sessionId) {
+      setIsLoading(true);
+      try {
+        const response = await axios.post(`${API}/auth/google/callback`, {
+          session_id: sessionId
+        });
+        
+        setUser(response.data.user);
+        setIsAuthenticated(true);
+        
+        // Clean URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+        
+        // Load conversations
+        loadConversations();
+        
+      } catch (error) {
+        console.error('Google OAuth error:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
 
   const loadConversations = async () => {
     try {
@@ -57,10 +116,56 @@ function App() {
     }
   };
 
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post(`${API}/auth/login`, loginData);
+      setUser(response.data.user);
+      setIsAuthenticated(true);
+      loadConversations();
+    } catch (error) {
+      alert('Login failed: ' + (error.response?.data?.detail || 'Unknown error'));
+    }
+  };
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post(`${API}/auth/register`, registerData);
+      alert('Registration successful! Please login.');
+      setAuthMode('login');
+    } catch (error) {
+      alert('Registration failed: ' + (error.response?.data?.detail || 'Unknown error'));
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      const response = await axios.get(`${API}/auth/google`);
+      window.location.href = response.data.auth_url;
+    } catch (error) {
+      console.error('Google login error:', error);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await axios.post(`${API}/auth/logout`);
+      setUser(null);
+      setIsAuthenticated(false);
+      setConversations([]);
+      setCurrentConversation(null);
+      setMessages([]);
+      setShowAdmin(false);
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+
   const createNewConversation = async () => {
     try {
       const response = await axios.post(`${API}/conversations`, {
-        title: `Sohbet ${conversations.length + 1}`
+        title: "Yeni Sohbet"
       });
       const newConversation = response.data;
       setConversations([newConversation, ...conversations]);
@@ -91,7 +196,7 @@ function App() {
   };
 
   const sendMessage = async () => {
-    if (!inputMessage.trim() || isLoading) return;
+    if (!inputMessage.trim() || isMessageLoading) return;
     
     let conversationToUse = currentConversation;
     
@@ -99,7 +204,7 @@ function App() {
       // Create new conversation first
       try {
         const response = await axios.post(`${API}/conversations`, {
-          title: "Yeni Sohbet"  // Temporary title, will be updated with first message
+          title: "Yeni Sohbet"
         });
         conversationToUse = response.data;
         setCurrentConversation(conversationToUse);
@@ -120,7 +225,7 @@ function App() {
 
     setMessages(prev => [...prev, userMessage]);
     setInputMessage('');
-    setIsLoading(true);
+    setIsMessageLoading(true);
 
     try {
       const response = await axios.post(`${API}/conversations/${conversationToUse.id}/messages`, {
@@ -134,7 +239,6 @@ function App() {
       await loadConversations();
     } catch (error) {
       console.error('Error sending message:', error);
-      // Add error message
       const errorMessage = {
         id: Date.now().toString(),
         conversation_id: conversationToUse.id,
@@ -144,7 +248,7 @@ function App() {
       };
       setMessages(prev => [...prev, errorMessage]);
     } finally {
-      setIsLoading(false);
+      setIsMessageLoading(false);
     }
   };
 
@@ -155,22 +259,263 @@ function App() {
     }
   };
 
-  // Mock starred conversations (you can implement real starring logic later)
-  const isStarred = (conversationId) => {
-    return starredConversations.includes(conversationId);
+  const loadAdminStats = async () => {
+    try {
+      const response = await axios.get(`${API}/admin/stats`);
+      setAdminStats(response.data);
+    } catch (error) {
+      console.error('Error loading admin stats:', error);
+    }
   };
 
-  const toggleStar = (conversationId) => {
-    setStarredConversations(prev => 
-      prev.includes(conversationId) 
-        ? prev.filter(id => id !== conversationId)
-        : [...prev, conversationId]
+  const toggleAdmin = () => {
+    if (!showAdmin) {
+      loadAdminStats();
+    }
+    setShowAdmin(!showAdmin);
+  };
+
+  // Loading screen
+  if (isLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-black">
+        <div className="text-center space-y-4">
+          <div className="w-12 h-12 bg-gradient-to-br from-gray-700 to-gray-800 rounded-full flex items-center justify-center mx-auto animate-pulse">
+            <Bot className="w-6 h-6 text-white" />
+          </div>
+          <div className="text-white">BİLGİN AI Yükleniyor...</div>
+        </div>
+      </div>
     );
-  };
+  }
 
-  const recentConversations = conversations.filter(conv => !isStarred(conv.id));
-  const starred = conversations.filter(conv => isStarred(conv.id));
+  // Authentication screen
+  if (!isAuthenticated) {
+    return (
+      <div className="flex h-screen bg-black">
+        <div className="flex-1 flex items-center justify-center p-8">
+          <div className="w-full max-w-md space-y-8">
+            <div className="text-center">
+              <div className="w-20 h-20 bg-gradient-to-br from-gray-700 to-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Bot className="w-10 h-10 text-white" />
+              </div>
+              <h1 className="text-3xl font-bold text-white mb-2">BİLGİN AI</h1>
+              <p className="text-gray-400">Yapay zeka destekli asistanınız</p>
+            </div>
 
+            <div className="bg-gray-900 p-6 rounded-lg border border-gray-800">
+              <div className="flex space-x-1 mb-6">
+                <Button
+                  onClick={() => setAuthMode('login')}
+                  variant={authMode === 'login' ? 'default' : 'ghost'}
+                  className="flex-1"
+                >
+                  Giriş Yap
+                </Button>
+                <Button
+                  onClick={() => setAuthMode('register')}
+                  variant={authMode === 'register' ? 'default' : 'ghost'}
+                  className="flex-1"
+                >
+                  Kayıt Ol
+                </Button>
+              </div>
+
+              {authMode === 'login' ? (
+                <form onSubmit={handleLogin} className="space-y-4">
+                  <Input
+                    type="text"
+                    placeholder="Kullanıcı Adı"
+                    value={loginData.username}
+                    onChange={(e) => setLoginData({...loginData, username: e.target.value})}
+                    className="bg-gray-800 border-gray-700 text-white"
+                    required
+                  />
+                  <Input
+                    type="password"
+                    placeholder="Şifre"
+                    value={loginData.password}
+                    onChange={(e) => setLoginData({...loginData, password: e.target.value})}
+                    className="bg-gray-800 border-gray-700 text-white"
+                    required
+                  />
+                  <Button type="submit" className="w-full bg-gray-700 hover:bg-gray-600">
+                    Giriş Yap
+                  </Button>
+                </form>
+              ) : (
+                <form onSubmit={handleRegister} className="space-y-4">
+                  <Input
+                    type="text"
+                    placeholder="Kullanıcı Adı"
+                    value={registerData.username}
+                    onChange={(e) => setRegisterData({...registerData, username: e.target.value})}
+                    className="bg-gray-800 border-gray-700 text-white"
+                    required
+                  />
+                  <Input
+                    type="email"
+                    placeholder="E-posta"
+                    value={registerData.email}
+                    onChange={(e) => setRegisterData({...registerData, email: e.target.value})}
+                    className="bg-gray-800 border-gray-700 text-white"
+                    required
+                  />
+                  <Input
+                    type="password"
+                    placeholder="Şifre"
+                    value={registerData.password}
+                    onChange={(e) => setRegisterData({...registerData, password: e.target.value})}
+                    className="bg-gray-800 border-gray-700 text-white"
+                    required
+                  />
+                  <Button type="submit" className="w-full bg-gray-700 hover:bg-gray-600">
+                    Kayıt Ol
+                  </Button>
+                </form>
+              )}
+
+              <div className="mt-4">
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-gray-700"></div>
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-2 bg-gray-900 text-gray-400">veya</span>
+                  </div>
+                </div>
+                <Button
+                  onClick={handleGoogleLogin}
+                  variant="outline"
+                  className="w-full mt-4 bg-white text-gray-900 hover:bg-gray-100"
+                >
+                  Google ile Giriş Yap
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Admin Panel
+  if (showAdmin && user?.is_admin) {
+    return (
+      <div className="flex h-screen bg-black text-white">
+        <div className="w-80 bg-black border-r border-gray-800 p-4 flex flex-col">
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-xl font-bold text-white">BİLGİN Admin</h1>
+            <Button
+              onClick={toggleAdmin}
+              variant="ghost"
+              size="sm"
+              className="text-gray-400 hover:text-white"
+            >
+              ←
+            </Button>
+          </div>
+          
+          <div className="space-y-4 flex-1">
+            <div className="text-sm text-gray-400">Admin: {user.username}</div>
+            
+            {adminStats && (
+              <div className="space-y-4">
+                <Card className="bg-gray-900 border-gray-800">
+                  <CardContent className="p-4">
+                    <div className="grid grid-cols-2 gap-4 text-center">
+                      <div>
+                        <div className="text-2xl font-bold text-blue-400">{adminStats.total_users}</div>
+                        <div className="text-xs text-gray-400">Toplam Üye</div>
+                      </div>
+                      <div>
+                        <div className="text-2xl font-bold text-green-400">{adminStats.verified_users}</div>
+                        <div className="text-xs text-gray-400">Doğrulanmış</div>
+                      </div>
+                      <div>
+                        <div className="text-2xl font-bold text-purple-400">{adminStats.total_conversations}</div>
+                        <div className="text-xs text-gray-400">Sohbet</div>
+                      </div>
+                      <div>
+                        <div className="text-2xl font-bold text-orange-400">{adminStats.total_messages}</div>
+                        <div className="text-xs text-gray-400">Mesaj</div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <div>
+                  <h3 className="text-sm font-medium mb-2">Son Kayıt Olanlar</h3>
+                  <div className="space-y-2">
+                    {adminStats.recent_users.slice(0, 5).map((recentUser) => (
+                      <div key={recentUser.id} className="flex items-center space-x-2 p-2 bg-gray-900 rounded text-xs">
+                        <div className="w-6 h-6 bg-gray-700 rounded-full flex items-center justify-center">
+                          <User className="w-3 h-3" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="truncate">{recentUser.username}</div>
+                          <div className="text-gray-400 truncate">{recentUser.email}</div>
+                        </div>
+                        {recentUser.is_verified && (
+                          <Badge variant="secondary" className="text-xs">✓</Badge>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="flex-1 p-8">
+          <h2 className="text-2xl font-bold mb-6">Üye Yönetimi</h2>
+          
+          {adminStats && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {adminStats.recent_users.map((adminUser) => (
+                <Card key={adminUser.id} className="bg-gray-900 border-gray-800">
+                  <CardContent className="p-4">
+                    <div className="flex items-center space-x-3 mb-3">
+                      <Avatar className="w-10 h-10">
+                        <AvatarFallback className="bg-gray-700 text-white">
+                          {adminUser.username.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium truncate">{adminUser.username}</div>
+                        <div className="text-sm text-gray-400 truncate">{adminUser.email}</div>
+                      </div>
+                      {adminUser.is_admin && (
+                        <Shield className="w-4 h-4 text-red-400" />
+                      )}
+                    </div>
+                    
+                    <div className="space-y-2 text-xs text-gray-400">
+                      <div>Kayıt: {new Date(adminUser.created_at).toLocaleDateString('tr-TR')}</div>
+                      {adminUser.last_login && (
+                        <div>Son Giriş: {new Date(adminUser.last_login).toLocaleDateString('tr-TR')}</div>
+                      )}
+                      <div className="flex space-x-2">
+                        <Badge variant={adminUser.is_verified ? "default" : "secondary"} className="text-xs">
+                          {adminUser.is_verified ? "Doğrulandı" : "Beklemede"}
+                        </Badge>
+                        {adminUser.is_admin && (
+                          <Badge variant="destructive" className="text-xs">Admin</Badge>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Main Chat Interface
   return (
     <div className="flex h-screen bg-black">
       {/* Sidebar */}
@@ -200,36 +545,14 @@ function App() {
         {/* Conversations List */}
         <ScrollArea className="flex-1">
           <div className="p-2 space-y-4">
-            {/* Starred Section */}
-            {starred.length > 0 && (
-              <div className="space-y-1">
-                <div className="flex items-center space-x-2 px-3 py-2">
-                  <Star className="w-4 h-4 text-gray-400" />
-                  <span className="text-sm font-medium text-white">Yıldızlı</span>
-                </div>
-                {starred.map((conversation) => (
-                  <ConversationItem 
-                    key={conversation.id}
-                    conversation={conversation}
-                    isActive={currentConversation?.id === conversation.id}
-                    onSelect={() => selectConversation(conversation)}
-                    onDelete={(e) => deleteConversation(conversation.id, e)}
-                  />
-                ))}
-              </div>
-            )}
-
             {/* Recent Section */}
-            {recentConversations.length > 0 && (
+            {conversations.length > 0 && (
               <div className="space-y-1">
                 <div className="flex items-center space-x-2 px-3 py-2">
                   <Clock className="w-4 h-4 text-gray-400" />
                   <span className="text-sm font-medium text-white">Son Sohbetler</span>
-                  {recentConversations.length > 5 && (
-                    <span className="text-xs text-gray-500 ml-auto">Tümünü Gör</span>
-                  )}
                 </div>
-                {recentConversations.slice(0, 10).map((conversation) => (
+                {conversations.slice(0, 10).map((conversation) => (
                   <ConversationItem 
                     key={conversation.id}
                     conversation={conversation}
@@ -256,12 +579,14 @@ function App() {
               <div className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-900 cursor-pointer transition-colors">
                 <Avatar className="w-8 h-8">
                   <AvatarFallback className="bg-gray-700 text-white text-sm">
-                    U
+                    {user?.username?.charAt(0).toUpperCase() || 'U'}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium text-white truncate">Kullanıcı</div>
-                  <div className="text-xs text-gray-500">Free Plan</div>
+                  <div className="text-sm font-medium text-white truncate">{user?.username}</div>
+                  <div className="text-xs text-gray-500">
+                    {user?.is_admin ? 'Admin' : 'Free Plan'}
+                  </div>
                 </div>
                 <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
               </div>
@@ -271,11 +596,17 @@ function App() {
                 <Settings className="w-4 h-4 mr-2" />
                 Ayarlar
               </DropdownMenuItem>
+              {user?.is_admin && (
+                <DropdownMenuItem onClick={toggleAdmin}>
+                  <Shield className="w-4 h-4 mr-2" />
+                  Admin Panel
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem>
                 <CreditCard className="w-4 h-4 mr-2" />
                 Üyelik Yükselt
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={handleLogout}>
                 <LogOut className="w-4 h-4 mr-2" />
                 Çıkış Yap
               </DropdownMenuItem>
@@ -345,7 +676,7 @@ function App() {
                     </div>
                   </div>
                 ))}
-                {isLoading && (
+                {isMessageLoading && (
                   <div className="flex items-start space-x-4">
                     <Avatar className="w-8 h-8">
                       <AvatarFallback className="bg-gray-800 text-white">
@@ -378,11 +709,11 @@ function App() {
                     onKeyPress={handleKeyPress}
                     placeholder="BİLGİN'e mesajınızı yazın..."
                     className="flex-1 border-0 bg-transparent focus:ring-0 text-white placeholder-gray-500"
-                    disabled={isLoading}
+                    disabled={isMessageLoading}
                   />
                   <Button
                     onClick={sendMessage}
-                    disabled={!inputMessage.trim() || isLoading}
+                    disabled={!inputMessage.trim() || isMessageLoading}
                     className="bg-gray-700 hover:bg-gray-600 text-white rounded-xl"
                     size="sm"
                   >
@@ -403,9 +734,9 @@ function App() {
                 <Bot className="w-10 h-10 text-white" />
               </div>
               <div>
-                <h2 className="text-3xl font-bold text-white mb-3">BİLGİN AI</h2>
+                <h2 className="text-3xl font-bold text-white mb-3">Hoş Geldiniz, {user?.username}!</h2>
                 <p className="text-gray-400 mb-6 leading-relaxed">
-                  Yapay zeka destekli asistanınız ile sohbet etmeye başlayın. 
+                  BİLGİN AI ile sohbet etmeye başlayın. 
                   Sorularınızı sorabilir, yardım alabilir ve bilgi edinebilirsiniz.
                 </p>
                 <div className="space-y-3 text-sm text-gray-500">
