@@ -147,8 +147,8 @@ body {
 .login-form-section {
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  padding: 3rem;
+  justify-content: center;
+  padding: 4rem;
   background: #000000;
   position: relative;
 }
@@ -156,94 +156,97 @@ body {
 .brand-section {
   display: flex;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
 }
 
 .brand-logo {
-  width: 50px;
-  height: 50px;
-  margin-right: 0;
+  width: 40px;
+  height: 40px;
+  margin-right: 1rem;
 }
 
 .brand-text {
-  display: none;
+  font-family: 'Inter', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+  letter-spacing: 0.05em;
 }
 
 .welcome-title {
   font-family: 'Inter', sans-serif;
-  font-size: 2rem;
-  font-weight: 400;
-  color: #ffffff;
-  margin-bottom: 1.5rem;
+  font-size: 3rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 2rem;
 }
 
 .social-buttons {
   display: flex;
   flex-direction: column;
-  gap: 0.8rem;
-  margin-bottom: 1.5rem;
+  gap: 1rem;
+  margin-bottom: 2rem;
 }
 
 .social-button {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.7rem;
+  padding: 1rem;
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 6px;
+  border-radius: 8px;
   color: white;
   text-decoration: none;
   transition: all 0.3s ease;
   font-weight: 500;
-  font-size: 0.85rem;
 }
 
 .social-button:hover {
   background: rgba(255, 255, 255, 0.15);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
 }
 
 .social-button svg {
-  width: 16px;
-  height: 16px;
-  margin-right: 0.6rem;
+  width: 20px;
+  height: 20px;
+  margin-right: 0.75rem;
 }
 
 .divider {
   text-align: center;
-  margin: 1.5rem 0;
+  margin: 2rem 0;
   color: rgba(255, 255, 255, 0.5);
-  font-size: 0.8rem;
+  font-size: 0.9rem;
 }
 
 .form-group {
-  margin-bottom: 1.2rem;
+  margin-bottom: 1.5rem;
 }
 
 .form-label {
   display: block;
   color: white;
   font-weight: 500;
-  margin-bottom: 0.4rem;
-  font-size: 0.8rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
 }
 
 .form-input {
   width: 100%;
-  padding: 0.7rem;
+  padding: 1rem;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 6px;
+  border-radius: 8px;
   color: white;
-  font-size: 0.85rem;
+  font-size: 1rem;
   transition: all 0.3s ease;
 }
 
 .form-input:focus {
   outline: none;
   border-color: #7c3aed;
-  box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.1);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
 }
 
 .form-input::placeholder {
@@ -257,35 +260,35 @@ body {
 .forgot-password {
   color: rgba(255, 255, 255, 0.6);
   text-decoration: underline;
-  font-size: 0.75rem;
+  font-size: 0.85rem;
   float: right;
-  margin-top: 0.4rem;
+  margin-top: 0.5rem;
 }
 
 .login-button {
   width: 100%;
-  padding: 0.7rem;
+  padding: 1rem;
   background: #7c3aed;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   color: white;
-  font-size: 0.85rem;
+  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  margin-top: 0.8rem;
+  margin-top: 1rem;
 }
 
 .login-button:hover {
   background: #6d28d9;
-  transform: translateY(-1px);
+  transform: translateY(-2px);
 }
 
 .signup-link {
   text-align: center;
-  margin-top: 1.5rem;
+  margin-top: 2rem;
   color: rgba(255, 255, 255, 0.6);
-  font-size: 0.75rem;
+  font-size: 0.9rem;
 }
 
 .signup-link a {
