@@ -520,8 +520,8 @@ function App() {
 
         {/* Welcome Section */}
         <div className="welcome-section">
-          <h1 className="welcome-title">WELCOME</h1>
-          <p className="welcome-subtitle">Yapay Zeka Geleceğine Hoş Geldiniz</p>
+          <h1 className="welcome-title">HOSGELDINIZ</h1>
+          <p className="welcome-subtitle typing-text">Bilgin'in Yapay Zeka Merkezine</p>
           
           <div className="logo-container">
             <div className="animated-logo-main">
