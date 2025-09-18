@@ -409,15 +409,6 @@ function App() {
   if (!isAuthenticated) {
     return (
       <div className="futuristic-login-container">
-        {/* 3D Wave Background */}
-        <div className="wave-background">
-          <div className="wave-lines">
-            <div className="wave-line"></div>
-            <div className="wave-line"></div>
-            <div className="wave-line"></div>
-          </div>
-        </div>
-        
         {/* Login Form Section */}
         <div className="login-form-section">
           <h1 className="page-title">BİLGİN AI</h1>
@@ -440,7 +431,7 @@ function App() {
               </div>
 
               {authMode === 'login' ? (
-                <form onSubmit={handleLogin} className="space-y-6">
+                <form onSubmit={handleLogin} className="space-y-4">
                   <input
                     type="text"
                     placeholder="Kullanıcı Adı"
@@ -462,7 +453,7 @@ function App() {
                   </button>
                 </form>
               ) : (
-                <form onSubmit={handleRegister} className="space-y-6">
+                <form onSubmit={handleRegister} className="space-y-4">
                   <input
                     type="text"
                     placeholder="Kullanıcı Adı"
@@ -493,7 +484,7 @@ function App() {
                 </form>
               )}
 
-              <div className="mt-8">
+              <div className="mt-6">
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
                     <div className="w-full border-t border-white/20"></div>
@@ -504,7 +495,7 @@ function App() {
                 </div>
                 <button
                   onClick={handleGoogleLogin}
-                  className="futuristic-button w-full mt-6 !bg-white !text-gray-900 hover:!bg-gray-100"
+                  className="futuristic-button w-full mt-4 !bg-white !text-gray-900 hover:!bg-gray-100"
                 >
                   Google ile Giriş Yap
                 </button>
