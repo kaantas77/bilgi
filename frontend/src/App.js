@@ -582,11 +582,6 @@ function App() {
 
         {/* Matrix Section */}
         <div className="matrix-section">
-          <div className="matrix-stats">
-            <h2>400K+ users, 50M+ AI<br />generated graphics.</h2>
-            <button className="join-button">Join Now</button>
-          </div>
-          
           <canvas className="matrix-canvas" id="matrixCanvas"></canvas>
           <div className="matrix-overlay"></div>
         </div>
