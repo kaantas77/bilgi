@@ -515,7 +515,6 @@ function App() {
               <div className="form-group">
                 <div className="password-group">
                   <label className="form-label">Password</label>
-                  <a href="#" className="forgot-password">Forgot password?</a>
                 </div>
                 <input
                   type="password"
@@ -530,6 +529,8 @@ function App() {
               <button type="submit" className="login-button">
                 Log in
               </button>
+              
+              <a href="#" className="forgot-password">Forgot password?</a>
             </form>
           ) : (
             <form onSubmit={handleRegister}>
