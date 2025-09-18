@@ -841,7 +841,7 @@ function App() {
             {/* Input Area */}
             <div className="bg-black border-t border-gray-900 p-4">
               <div className="max-w-4xl mx-auto">
-                <div className="flex items-end space-x-3 bg-gray-900 rounded-2xl p-3 border border-gray-800">
+                <div className="flex items-end space-x-3 bg-gray-900 rounded-2xl p-3 border border-gray-900">
                   <Input
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
