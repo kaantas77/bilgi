@@ -144,22 +144,36 @@ body {
 }
 
 .login-form-section {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
-  position: relative;
-}
-
-.login-form-section::before {
-  content: '';
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(10px);
+  display: flex;
+  flex-direction: column;
+  padding: 3rem;
+  z-index: 20;
+}
+
+.welcome-section {
+  display: none;
+}
+
+.page-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 4rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 3rem;
+  background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.login-panel {
+  max-width: 400px;
+  width: 100%;
 }
 
 .futuristic-form {
