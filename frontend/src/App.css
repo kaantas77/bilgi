@@ -219,9 +219,9 @@ body {
 
 .divider {
   text-align: center;
-  margin: 2rem 0;
+  margin: 10px 0;
   color: rgba(255, 255, 255, 0.5);
-  font-size: 0.9rem;
+  font-size: 0.8rem;
 }
 
 .form-group {
