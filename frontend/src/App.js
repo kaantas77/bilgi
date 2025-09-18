@@ -924,17 +924,17 @@ function App() {
         ) : (
           /* Welcome Screen */
           <div className="flex-1 flex items-center justify-center p-8 bg-black">
-            <div className="text-center space-y-8 max-w-4xl">
+            <div className="text-center space-y-6 max-w-3xl">
               <div>
-                <h2 className="text-5xl md:text-6xl font-bold text-white mb-6 animate-fade-in">
+                <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 animate-fade-in">
                   Merhaba {user?.name || user?.username}, ne öğrenmek istersin?
                 </h2>
-                <p className="text-gray-300 mb-10 text-xl animate-fade-in-delay">
+                <p className="text-gray-300 mb-8 text-base animate-fade-in-delay">
                   Merak ettiğin her şeyi sorabilirsin!
                 </p>
                 <button
                   onClick={createNewConversation}
-                  className="bg-transparent border border-gray-500 hover:border-white text-white px-10 py-4 rounded-full transition-all duration-500 hover:bg-white/10 animate-bounce-subtle text-lg"
+                  className="bg-transparent border border-gray-500 hover:border-white text-white px-6 py-2.5 rounded-full transition-all duration-500 hover:bg-white/10 animate-bounce-subtle text-sm"
                 >
                   Ayrıca yeni bir sohbet başlatmak için tıkla
                 </button>
