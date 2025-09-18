@@ -815,7 +815,7 @@ function App() {
                 <Bot className="w-10 h-10 text-white" />
               </div>
               <div>
-                <h2 className="text-3xl font-bold text-white mb-3">Hoş Geldiniz, {user?.username}!</h2>
+                <h2 className="text-3xl font-bold text-white mb-3">Hoş Geldiniz, {user?.name || user?.username}!</h2>
                 <p className="text-gray-400 mb-6 leading-relaxed">
                   BİLGİN AI ile sohbet etmeye başlayın. 
                   Sorularınızı sorabilir, yardım alabilir ve bilgi edinebilirsiniz.
