@@ -451,6 +451,24 @@ async def logout_user(response: Response, user: dict = Depends(require_auth)):
 async def get_current_user_info(user: dict = Depends(require_auth)):
     return UserResponse(**user)
 
+@api_router.post("/auth/onboarding")
+async def complete_onboarding(onboarding_data: OnboardingData, user: dict = Depends(require_auth)):
+    """Complete user onboarding by setting their name"""
+    # Update user with name and mark onboarding as completed
+    await db.users.update_one(
+        {"id": user["id"]},
+        {"$set": {
+            "name": onboarding_data.name,
+            "onboarding_completed": True
+        }}
+    )
+    
+    # Get updated user
+    updated_user = await db.users.find_one({"id": user["id"]})
+    updated_user = parse_from_mongo(updated_user)
+    
+    return {"message": "Onboarding completed successfully", "user": UserResponse(**updated_user)}
+
 # Google OAuth Routes
 @api_router.get("/auth/google")
 async def google_auth():
