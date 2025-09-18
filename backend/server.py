@@ -77,12 +77,12 @@ class UserResponse(BaseModel):
     id: str
     username: str
     email: str
-    name: Optional[str]
+    name: Optional[str] = None
     is_verified: bool
     is_admin: bool
-    onboarding_completed: bool
+    onboarding_completed: bool = False
     created_at: datetime
-    last_login: Optional[datetime]
+    last_login: Optional[datetime] = None
 
 class Session(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
