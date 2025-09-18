@@ -92,11 +92,12 @@ function App() {
         setUser(response.data.user);
         setIsAuthenticated(true);
         
-        // Clean URL
-        window.history.replaceState({}, document.title, window.location.pathname);
-        
-        // Load conversations
-        loadConversations();
+        // Check if user needs onboarding
+        if (!response.data.user.onboarding_completed) {
+          setShowOnboarding(true);
+        } else {
+          loadConversations();
+        }
         
       } catch (error) {
         console.error('Google OAuth error:', error);
