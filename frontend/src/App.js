@@ -62,7 +62,13 @@ function App() {
       const response = await axios.get(`${API}/auth/me`);
       setUser(response.data);
       setIsAuthenticated(true);
-      loadConversations();
+      
+      // Check if user needs onboarding
+      if (!response.data.onboarding_completed) {
+        setShowOnboarding(true);
+      } else {
+        loadConversations();
+      }
     } catch (error) {
       setIsAuthenticated(false);
     } finally {
