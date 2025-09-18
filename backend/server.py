@@ -509,7 +509,9 @@ async def google_callback(request: Request, response: Response):
                 username=user_data["email"].split("@")[0],  # Use email prefix as username
                 email=user_data["email"],
                 password_hash="",  # No password for OAuth users
+                name=user_data.get("name", ""),  # Get name from Google if available
                 is_verified=True,  # Google users are auto-verified
+                onboarding_completed=bool(user_data.get("name")),  # Complete onboarding if name exists
                 oauth_provider="google",
                 oauth_id=user_data["id"]
             )
