@@ -208,23 +208,24 @@ body {
 }
 
 .welcome-title {
-  font-family: 'Orbitron', monospace;
+  font-family: 'Audiowide', cursive;
   font-size: 4rem;
-  font-weight: 900;
+  font-weight: 400;
   background: linear-gradient(135deg, 
-    #9333ea 0%, 
-    #3b82f6 25%, 
-    #ec4899 50%, 
-    #8b5cf6 75%, 
-    #06b6d4 100%);
+    #ff0000 0%, 
+    #ff6600 25%, 
+    #ffcc00 50%, 
+    #ff6600 75%, 
+    #ff0000 100%);
   background-size: 300% 300%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   animation: welcomeTextGlow 4s ease-in-out infinite, welcomeGradientShift 8s ease-in-out infinite;
   margin-bottom: 1rem;
-  text-shadow: 0 0 50px rgba(147, 51, 234, 0.5);
+  text-shadow: 0 0 50px rgba(255, 102, 0, 0.5);
   position: relative;
+  letter-spacing: 0.1em;
 }
 
 .welcome-subtitle {
