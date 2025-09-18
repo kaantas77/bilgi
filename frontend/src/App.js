@@ -660,9 +660,9 @@ function App() {
       {/* Sidebar */}
       <div className={`bg-black text-white transition-all duration-300 ${sidebarOpen ? 'w-64' : 'w-0'} overflow-hidden flex flex-col border-r border-gray-900`}>
         {/* Header */}
-        <div className="p-4 border-b border-gray-800">
+        <div className="p-4 border-b border-gray-900">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-xl font-bold text-white">BİLGİN</h1>
+            <h1 className="text-xl font-semibold text-white" style={{fontFamily: 'system-ui, -apple-system, sans-serif'}}>BİLGİN</h1>
             <Button
               onClick={() => setSidebarOpen(false)}
               variant="ghost"
@@ -674,7 +674,7 @@ function App() {
           </div>
           <Button
             onClick={createNewConversation}
-            className="w-full bg-gray-700 hover:bg-gray-600 text-white border-0"
+            className="w-full bg-gray-800 hover:bg-gray-700 text-white border-0"
           >
             <Plus className="w-4 h-4 mr-2" />
             Yeni Sohbet
