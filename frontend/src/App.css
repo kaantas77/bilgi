@@ -135,11 +135,12 @@ body {
 
 /* Login Form Styling */
 .futuristic-login-container {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   height: 100vh;
   position: relative;
   z-index: 10;
-  background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+  background: #000000;
   overflow: hidden;
 }
 
