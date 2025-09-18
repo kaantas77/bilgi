@@ -163,6 +163,18 @@ function App() {
     }
   };
 
+  const handleOnboarding = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post(`${API}/auth/onboarding`, onboardingData);
+      setUser(response.data.user);
+      setShowOnboarding(false);
+      loadConversations();
+    } catch (error) {
+      alert('Onboarding failed: ' + (error.response?.data?.detail || 'Unknown error'));
+    }
+  };
+
   const handleLogout = async () => {
     try {
       await axios.post(`${API}/auth/logout`);
