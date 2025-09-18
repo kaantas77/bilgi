@@ -306,19 +306,27 @@ function App() {
   // Loading screen
   if (isLoading) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="animated-bg"></div>
-        <div className="floating-particles">
-          {[...Array(9)].map((_, i) => (
-            <div key={i} className="particle"></div>
+      <div className="futuristic-loading">
+        <div className="futuristic-bg"></div>
+        <div className="grid-overlay"></div>
+        <div className="cosmic-particles">
+          {[...Array(15)].map((_, i) => (
+            <div 
+              key={i} 
+              className="cosmic-particle" 
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                animationDelay: `${Math.random() * 8}s`
+              }}
+            ></div>
           ))}
         </div>
-        <div className="loading-container text-center space-y-6">
-          <div className="animated-logo w-16 h-16 flex items-center justify-center mx-auto">
-            <Bot className="w-8 h-8 text-white" />
+        <div className="text-center">
+          <div className="loading-logo">
+            <img src="/bilgin-ai-logo.png" alt="BİLGİN AI" />
           </div>
-          <div className="loading-spinner mx-auto"></div>
-          <div className="text-white text-lg font-medium">BİLGİN AI Yükleniyor...</div>
+          <div className="loading-text">BİLGİN AI Yükleniyor...</div>
         </div>
       </div>
     );
