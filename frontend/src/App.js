@@ -336,26 +336,40 @@ function App() {
   if (isAuthenticated && showOnboarding) {
     return (
       <div className="flex h-screen">
-        <div className="animated-bg"></div>
-        <div className="floating-particles">
-          {[...Array(9)].map((_, i) => (
-            <div key={i} className="particle"></div>
+        <div className="futuristic-bg"></div>
+        <div className="grid-overlay"></div>
+        <div className="cosmic-particles">
+          {[...Array(15)].map((_, i) => (
+            <div 
+              key={i} 
+              className="cosmic-particle" 
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                animationDelay: `${Math.random() * 8}s`
+              }}
+            ></div>
           ))}
         </div>
         <div className="flex-1 flex items-center justify-center p-8 relative z-10">
-          <div className="w-full max-w-lg space-y-8">
-            <div className="text-center">
-              <div className="animated-logo w-24 h-24 flex items-center justify-center mx-auto mb-8">
-                <Bot className="w-12 h-12 text-white" />
+          <div className="w-full max-w-lg">
+            <div className="text-center mb-12">
+              <div className="logo-container mx-auto mb-8">
+                <div className="animated-logo-main">
+                  <img src="/bilgin-ai-logo.png" alt="BİLGİN AI" />
+                </div>
+                {[...Array(8)].map((_, i) => (
+                  <div key={i} className="logo-particle"></div>
+                ))}
               </div>
-              <h1 className="animated-title text-4xl font-bold mb-4">Hoş Geldiniz!</h1>
-              <p className="animated-subtitle text-lg mb-8">Size nasıl hitap etmemizi istiyorsuniz?</p>
+              <h1 className="welcome-title !text-5xl mb-4">Hoş Geldiniz!</h1>
+              <p className="welcome-subtitle text-xl">Size nasıl hitap etmemizi istiyorsunuz?</p>
             </div>
 
-            <div className="glass-card-intense p-8">
-              <form onSubmit={handleOnboarding} className="form-container space-y-8">
+            <div className="futuristic-form">
+              <form onSubmit={handleOnboarding} className="space-y-8">
                 <div>
-                  <label className="block text-lg font-semibold text-white mb-4">
+                  <label className="block text-xl font-bold text-white mb-6 text-center">
                     <span className="typing-animation">İsminiz Nedir?</span>
                   </label>
                   <input
@@ -363,26 +377,26 @@ function App() {
                     placeholder="Adınızı giriniz..."
                     value={onboardingData.name}
                     onChange={(e) => setOnboardingData({...onboardingData, name: e.target.value})}
-                    className="glass-input w-full py-4 px-6 text-lg"
+                    className="futuristic-input text-xl py-5"
                     required
                     autoFocus
                   />
-                  <p className="text-sm text-white/60 mt-3 ml-1">
+                  <p className="text-sm text-white/60 mt-4 text-center">
                     Bu isim ile size hitap edeceğiz ve sohbetlerinizde görünecektir.
                   </p>
                 </div>
                 
                 <button 
                   type="submit" 
-                  className="animated-button w-full py-4 text-lg font-semibold hover-lift"
+                  className="futuristic-button text-xl py-5"
                   disabled={!onboardingData.name.trim()}
                 >
-                  <span>Harika! Devam Edelim</span>
+                  Harika! Devam Edelim
                 </button>
               </form>
             </div>
 
-            <div className="text-center text-sm text-white/50">
+            <div className="text-center text-sm text-white/50 mt-8">
               Merhaba <span className="text-white font-medium">{user?.username}</span>, profilinizi tamamlayalım ✨
             </div>
           </div>
