@@ -386,105 +386,112 @@ function App() {
   // Authentication screen
   if (!isAuthenticated) {
     return (
-      <div className="flex h-screen bg-black">
-        <div className="flex-1 flex items-center justify-center p-8">
+      <div className="flex h-screen">
+        <div className="animated-bg"></div>
+        <div className="floating-particles">
+          {[...Array(9)].map((_, i) => (
+            <div key={i} className="particle"></div>
+          ))}
+        </div>
+        <div className="flex-1 flex items-center justify-center p-8 relative z-10">
           <div className="w-full max-w-md space-y-8">
             <div className="text-center">
-              <div className="w-20 h-20 bg-gradient-to-br from-gray-700 to-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Bot className="w-10 h-10 text-white" />
+              <div className="animated-logo w-24 h-24 flex items-center justify-center mx-auto mb-6">
+                <Bot className="w-12 h-12 text-white" />
               </div>
-              <h1 className="text-3xl font-bold text-white mb-2">BİLGİN AI</h1>
-              <p className="text-gray-400">Yapay zeka destekli asistanınız</p>
+              <h1 className="animated-title text-4xl font-bold mb-3">BİLGİN AI</h1>
+              <p className="animated-subtitle text-lg text-white/80">Yapay zeka destekli asistanınız</p>
             </div>
 
-            <div className="bg-gray-900 p-6 rounded-lg border border-gray-800">
-              <div className="flex space-x-1 mb-6">
-                <Button
+            <div className="glass-card p-8">
+              <div className="flex space-x-2 mb-8">
+                <button
                   onClick={() => setAuthMode('login')}
-                  variant={authMode === 'login' ? 'default' : 'ghost'}
-                  className="flex-1"
+                  className={`animated-tab flex-1 py-3 px-4 text-sm font-medium ${
+                    authMode === 'login' ? 'active' : ''
+                  }`}
                 >
                   Giriş Yap
-                </Button>
-                <Button
+                </button>
+                <button
                   onClick={() => setAuthMode('register')}
-                  variant={authMode === 'register' ? 'default' : 'ghost'}
-                  className="flex-1"
+                  className={`animated-tab flex-1 py-3 px-4 text-sm font-medium ${
+                    authMode === 'register' ? 'active' : ''
+                  }`}
                 >
                   Kayıt Ol
-                </Button>
+                </button>
               </div>
 
               {authMode === 'login' ? (
-                <form onSubmit={handleLogin} className="space-y-4">
-                  <Input
+                <form onSubmit={handleLogin} className="form-container space-y-6">
+                  <input
                     type="text"
                     placeholder="Kullanıcı Adı"
                     value={loginData.username}
                     onChange={(e) => setLoginData({...loginData, username: e.target.value})}
-                    className="bg-gray-800 border-gray-700 text-white"
+                    className="glass-input w-full py-4 px-6"
                     required
                   />
-                  <Input
+                  <input
                     type="password"
                     placeholder="Şifre"
                     value={loginData.password}
                     onChange={(e) => setLoginData({...loginData, password: e.target.value})}
-                    className="bg-gray-800 border-gray-700 text-white"
+                    className="glass-input w-full py-4 px-6"
                     required
                   />
-                  <Button type="submit" className="w-full bg-gray-700 hover:bg-gray-600">
-                    Giriş Yap
-                  </Button>
+                  <button type="submit" className="animated-button w-full py-4 font-semibold hover-lift">
+                    <span>Giriş Yap</span>
+                  </button>
                 </form>
               ) : (
-                <form onSubmit={handleRegister} className="space-y-4">
-                  <Input
+                <form onSubmit={handleRegister} className="form-container space-y-6">
+                  <input
                     type="text"
                     placeholder="Kullanıcı Adı"
                     value={registerData.username}
                     onChange={(e) => setRegisterData({...registerData, username: e.target.value})}
-                    className="bg-gray-800 border-gray-700 text-white"
+                    className="glass-input w-full py-4 px-6"
                     required
                   />
-                  <Input
+                  <input
                     type="email"
                     placeholder="E-posta"
                     value={registerData.email}
                     onChange={(e) => setRegisterData({...registerData, email: e.target.value})}
-                    className="bg-gray-800 border-gray-700 text-white"
+                    className="glass-input w-full py-4 px-6"
                     required
                   />
-                  <Input
+                  <input
                     type="password"
                     placeholder="Şifre"
                     value={registerData.password}
                     onChange={(e) => setRegisterData({...registerData, password: e.target.value})}
-                    className="bg-gray-800 border-gray-700 text-white"
+                    className="glass-input w-full py-4 px-6"
                     required
                   />
-                  <Button type="submit" className="w-full bg-gray-700 hover:bg-gray-600">
-                    Kayıt Ol
-                  </Button>
+                  <button type="submit" className="animated-button w-full py-4 font-semibold hover-lift">
+                    <span>Kayıt Ol</span>
+                  </button>
                 </form>
               )}
 
-              <div className="mt-4">
+              <div className="mt-8">
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-gray-700"></div>
+                    <div className="w-full border-t border-white/20"></div>
                   </div>
                   <div className="relative flex justify-center text-sm">
-                    <span className="px-2 bg-gray-900 text-gray-400">veya</span>
+                    <span className="px-4 bg-transparent text-white/60">veya</span>
                   </div>
                 </div>
-                <Button
+                <button
                   onClick={handleGoogleLogin}
-                  variant="outline"
-                  className="w-full mt-4 bg-white text-gray-900 hover:bg-gray-100"
+                  className="social-button w-full mt-6 py-4 font-semibold hover-lift"
                 >
-                  Google ile Giriş Yap
-                </Button>
+                  <span>Google ile Giriş Yap</span>
+                </button>
               </div>
             </div>
           </div>
