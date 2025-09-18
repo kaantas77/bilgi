@@ -184,9 +184,9 @@ body {
   bottom: 0;
   border-radius: 24px;
   background: linear-gradient(45deg, 
-    rgba(147, 51, 234, 0.1) 0%, 
-    rgba(59, 130, 246, 0.1) 50%, 
-    rgba(236, 72, 153, 0.1) 100%);
+    rgba(50, 50, 50, 0.1) 0%, 
+    rgba(80, 80, 80, 0.1) 50%, 
+    rgba(100, 100, 100, 0.1) 100%);
   opacity: 0;
   transition: opacity 0.3s ease;
   z-index: -1;
