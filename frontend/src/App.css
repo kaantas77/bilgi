@@ -340,16 +340,15 @@ body {
 
 /* Futuristic Input Styling */
 .futuristic-input {
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(100, 100, 100, 0.3);
-  border-radius: 12px;
-  padding: 1rem 1.5rem;
-  color: white;
-  font-size: 1rem;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(200, 200, 200, 0.3);
+  border-radius: 8px;
+  padding: 0.8rem 1rem;
+  color: #333;
+  font-size: 0.9rem;
   width: 100%;
   transition: all 0.3s ease;
   position: relative;
-  backdrop-filter: blur(10px);
 }
 
 .futuristic-input:focus {
