@@ -42,6 +42,11 @@ function App() {
   
   const messagesEndRef = useRef(null);
 
+  // Scroll to bottom when new messages arrive
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
   // Matrix animation effect
   useEffect(() => {
     if (!isAuthenticated) {
