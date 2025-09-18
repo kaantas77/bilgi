@@ -394,114 +394,130 @@ function App() {
   // Authentication screen
   if (!isAuthenticated) {
     return (
-      <div className="flex h-screen">
-        <div className="animated-bg"></div>
-        <div className="floating-particles">
-          {[...Array(9)].map((_, i) => (
-            <div key={i} className="particle"></div>
+      <div className="futuristic-login-container">
+        <div className="futuristic-bg"></div>
+        <div className="grid-overlay"></div>
+        <div className="cosmic-particles">
+          {[...Array(20)].map((_, i) => (
+            <div 
+              key={i} 
+              className="cosmic-particle" 
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                animationDelay: `${Math.random() * 8}s`
+              }}
+            ></div>
           ))}
         </div>
-        <div className="flex-1 flex items-center justify-center p-8 relative z-10">
-          <div className="w-full max-w-md space-y-8">
-            <div className="text-center">
-              <div className="animated-logo w-24 h-24 flex items-center justify-center mx-auto mb-6">
-                <Bot className="w-12 h-12 text-white" />
-              </div>
-              <h1 className="animated-title text-4xl font-bold mb-3">BİLGİN AI</h1>
-              <p className="animated-subtitle text-lg text-white/80">Yapay zeka destekli asistanınız</p>
+        
+        {/* Login Form Section */}
+        <div className="login-form-section">
+          <div className="futuristic-form">
+            <h2 className="form-title">BİLGİN AI</h2>
+            
+            <div className="futuristic-tabs">
+              <button
+                onClick={() => setAuthMode('login')}
+                className={`futuristic-tab ${authMode === 'login' ? 'active' : ''}`}
+              >
+                Giriş Yap
+              </button>
+              <button
+                onClick={() => setAuthMode('register')}
+                className={`futuristic-tab ${authMode === 'register' ? 'active' : ''}`}
+              >
+                Kayıt Ol
+              </button>
             </div>
 
-            <div className="glass-card p-8">
-              <div className="flex space-x-2 mb-8">
-                <button
-                  onClick={() => setAuthMode('login')}
-                  className={`animated-tab flex-1 py-3 px-4 text-sm font-medium ${
-                    authMode === 'login' ? 'active' : ''
-                  }`}
-                >
+            {authMode === 'login' ? (
+              <form onSubmit={handleLogin} className="space-y-6">
+                <input
+                  type="text"
+                  placeholder="Kullanıcı Adı"
+                  value={loginData.username}
+                  onChange={(e) => setLoginData({...loginData, username: e.target.value})}
+                  className="futuristic-input"
+                  required
+                />
+                <input
+                  type="password"
+                  placeholder="Şifre"
+                  value={loginData.password}
+                  onChange={(e) => setLoginData({...loginData, password: e.target.value})}
+                  className="futuristic-input"
+                  required
+                />
+                <button type="submit" className="futuristic-button">
                   Giriş Yap
                 </button>
-                <button
-                  onClick={() => setAuthMode('register')}
-                  className={`animated-tab flex-1 py-3 px-4 text-sm font-medium ${
-                    authMode === 'register' ? 'active' : ''
-                  }`}
-                >
+              </form>
+            ) : (
+              <form onSubmit={handleRegister} className="space-y-6">
+                <input
+                  type="text"
+                  placeholder="Kullanıcı Adı"
+                  value={registerData.username}
+                  onChange={(e) => setRegisterData({...registerData, username: e.target.value})}
+                  className="futuristic-input"
+                  required
+                />
+                <input
+                  type="email"
+                  placeholder="E-posta"
+                  value={registerData.email}
+                  onChange={(e) => setRegisterData({...registerData, email: e.target.value})}
+                  className="futuristic-input"
+                  required
+                />
+                <input
+                  type="password"
+                  placeholder="Şifre"
+                  value={registerData.password}
+                  onChange={(e) => setRegisterData({...registerData, password: e.target.value})}
+                  className="futuristic-input"
+                  required
+                />
+                <button type="submit" className="futuristic-button">
                   Kayıt Ol
                 </button>
-              </div>
+              </form>
+            )}
 
-              {authMode === 'login' ? (
-                <form onSubmit={handleLogin} className="form-container space-y-6">
-                  <input
-                    type="text"
-                    placeholder="Kullanıcı Adı"
-                    value={loginData.username}
-                    onChange={(e) => setLoginData({...loginData, username: e.target.value})}
-                    className="glass-input w-full py-4 px-6"
-                    required
-                  />
-                  <input
-                    type="password"
-                    placeholder="Şifre"
-                    value={loginData.password}
-                    onChange={(e) => setLoginData({...loginData, password: e.target.value})}
-                    className="glass-input w-full py-4 px-6"
-                    required
-                  />
-                  <button type="submit" className="animated-button w-full py-4 font-semibold hover-lift">
-                    <span>Giriş Yap</span>
-                  </button>
-                </form>
-              ) : (
-                <form onSubmit={handleRegister} className="form-container space-y-6">
-                  <input
-                    type="text"
-                    placeholder="Kullanıcı Adı"
-                    value={registerData.username}
-                    onChange={(e) => setRegisterData({...registerData, username: e.target.value})}
-                    className="glass-input w-full py-4 px-6"
-                    required
-                  />
-                  <input
-                    type="email"
-                    placeholder="E-posta"
-                    value={registerData.email}
-                    onChange={(e) => setRegisterData({...registerData, email: e.target.value})}
-                    className="glass-input w-full py-4 px-6"
-                    required
-                  />
-                  <input
-                    type="password"
-                    placeholder="Şifre"
-                    value={registerData.password}
-                    onChange={(e) => setRegisterData({...registerData, password: e.target.value})}
-                    className="glass-input w-full py-4 px-6"
-                    required
-                  />
-                  <button type="submit" className="animated-button w-full py-4 font-semibold hover-lift">
-                    <span>Kayıt Ol</span>
-                  </button>
-                </form>
-              )}
-
-              <div className="mt-8">
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-white/20"></div>
-                  </div>
-                  <div className="relative flex justify-center text-sm">
-                    <span className="px-4 bg-transparent text-white/60">veya</span>
-                  </div>
+            <div className="mt-8">
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-white/20"></div>
                 </div>
-                <button
-                  onClick={handleGoogleLogin}
-                  className="social-button w-full mt-6 py-4 font-semibold hover-lift"
-                >
-                  <span>Google ile Giriş Yap</span>
-                </button>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-4 bg-transparent text-white/60">veya</span>
+                </div>
               </div>
+              <button
+                onClick={handleGoogleLogin}
+                className="futuristic-button w-full mt-6 !bg-white !text-gray-900 hover:!bg-gray-100"
+              >
+                Google ile Giriş Yap
+              </button>
             </div>
+          </div>
+        </div>
+
+        {/* Welcome Section */}
+        <div className="welcome-section">
+          <h1 className="welcome-title">WELCOME</h1>
+          <p className="welcome-subtitle">Yapay Zeka Geleceğine Hoş Geldiniz</p>
+          
+          <div className="logo-container">
+            <div className="animated-logo-main">
+              <img src="/bilgin-ai-logo.png" alt="BİLGİN AI Logo" />
+            </div>
+            
+            {/* Logo Particles */}
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="logo-particle"></div>
+            ))}
           </div>
         </div>
       </div>
