@@ -184,7 +184,7 @@ body {
 .social-buttons {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 8px;
   margin-bottom: 1.5rem;
 }
 
@@ -192,7 +192,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.3rem;
+  padding: 8px 12px;
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 4px;
@@ -201,7 +201,9 @@ body {
   transition: all 0.3s ease;
   font-weight: 500;
   font-size: 0.65rem;
-  height: 28px;
+  height: 42px;
+  width: 65%;
+  max-width: 420px;
 }
 
 .social-button:hover {
@@ -210,9 +212,9 @@ body {
 }
 
 .social-button svg {
-  width: 10px;
-  height: 10px;
-  margin-right: 0.3rem;
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
 }
 
 .divider {
