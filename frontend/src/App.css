@@ -576,23 +576,20 @@ body {
   }
 }
 
-@keyframes welcomeTextGlow {
+@keyframes waveRotate {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+@keyframes wavePulse {
   0%, 100% { 
-    text-shadow: 0 0 20px rgba(255, 102, 0, 0.5);
+    transform: scale(1) rotate(0deg);
+    opacity: 0.2;
   }
   50% { 
-    text-shadow: 0 0 40px rgba(255, 0, 0, 0.8), 0 0 60px rgba(255, 204, 0, 0.6);
+    transform: scale(1.2) rotate(180deg);
+    opacity: 0.4;
   }
-}
-
-@keyframes typewriter {
-  from { width: 0; }
-  to { width: 100%; }
-}
-
-@keyframes blinkCursor {
-  from, to { border-color: transparent; }
-  50% { border-color: rgba(255, 255, 255, 0.7); }
 }
 
 @keyframes welcomeGradientShift {
