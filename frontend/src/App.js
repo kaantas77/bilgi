@@ -178,13 +178,7 @@ function App() {
         {/* Header */}
         <div className="p-4 border-b border-gray-800">
           <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center">
-              <img 
-                src="/bilgin-logo.png" 
-                alt="BİLGİN AI" 
-                className="h-8 w-auto"
-              />
-            </div>
+            <h1 className="text-xl font-bold text-white">BİLGİN</h1>
             <Button
               onClick={() => setSidebarOpen(false)}
               variant="ghost"
