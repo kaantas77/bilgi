@@ -148,7 +148,7 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  padding: 2rem;
+  padding: 1.5rem;
   background: #000000;
   position: relative;
 }
@@ -156,12 +156,12 @@ body {
 .brand-section {
   display: flex;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .brand-logo {
-  width: 60px;
-  height: 60px;
+  width: 40px;
+  height: 40px;
   margin-right: 0;
 }
 
@@ -171,79 +171,79 @@ body {
 
 .welcome-title {
   font-family: 'Inter', sans-serif;
-  font-size: 1.8rem;
+  font-size: 1.2rem;
   font-weight: 400;
   color: white;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .social-buttons {
   display: flex;
   flex-direction: column;
-  gap: 0.8rem;
-  margin-bottom: 1.5rem;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
 }
 
 .social-button {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.8rem;
+  padding: 0.6rem;
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 6px;
+  border-radius: 4px;
   color: white;
   text-decoration: none;
   transition: all 0.3s ease;
   font-weight: 500;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
 }
 
 .social-button:hover {
   background: rgba(255, 255, 255, 0.15);
-  transform: translateY(-2px);
+  transform: translateY(-1px);
 }
 
 .social-button svg {
-  width: 18px;
-  height: 18px;
-  margin-right: 0.6rem;
+  width: 14px;
+  height: 14px;
+  margin-right: 0.5rem;
 }
 
 .divider {
   text-align: center;
-  margin: 1.5rem 0;
+  margin: 1rem 0;
   color: rgba(255, 255, 255, 0.5);
-  font-size: 0.85rem;
+  font-size: 0.75rem;
 }
 
 .form-group {
-  margin-bottom: 1.2rem;
+  margin-bottom: 1rem;
 }
 
 .form-label {
   display: block;
   color: white;
   font-weight: 500;
-  margin-bottom: 0.4rem;
-  font-size: 0.85rem;
+  margin-bottom: 0.3rem;
+  font-size: 0.75rem;
 }
 
 .form-input {
   width: 100%;
-  padding: 0.8rem;
+  padding: 0.6rem;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 6px;
+  border-radius: 4px;
   color: white;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   transition: all 0.3s ease;
 }
 
 .form-input:focus {
   outline: none;
   border-color: #7c3aed;
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+  box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.1);
 }
 
 .form-input::placeholder {
@@ -257,35 +257,35 @@ body {
 .forgot-password {
   color: rgba(255, 255, 255, 0.6);
   text-decoration: underline;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   float: right;
-  margin-top: 0.4rem;
+  margin-top: 0.3rem;
 }
 
 .login-button {
   width: 100%;
-  padding: 0.8rem;
+  padding: 0.6rem;
   background: #7c3aed;
   border: none;
-  border-radius: 6px;
+  border-radius: 4px;
   color: white;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  margin-top: 0.8rem;
+  margin-top: 0.6rem;
 }
 
 .login-button:hover {
   background: #6d28d9;
-  transform: translateY(-2px);
+  transform: translateY(-1px);
 }
 
 .signup-link {
   text-align: center;
-  margin-top: 1.5rem;
+  margin-top: 1rem;
   color: rgba(255, 255, 255, 0.6);
-  font-size: 0.8rem;
+  font-size: 0.7rem;
 }
 
 .signup-link a {
