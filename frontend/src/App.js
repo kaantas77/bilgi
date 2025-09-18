@@ -131,7 +131,13 @@ function App() {
       const response = await axios.post(`${API}/auth/login`, loginData);
       setUser(response.data.user);
       setIsAuthenticated(true);
-      loadConversations();
+      
+      // Check if user needs onboarding
+      if (!response.data.user.onboarding_completed) {
+        setShowOnboarding(true);
+      } else {
+        loadConversations();
+      }
     } catch (error) {
       alert('Login failed: ' + (error.response?.data?.detail || 'Unknown error'));
     }
