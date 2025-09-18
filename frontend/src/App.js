@@ -793,7 +793,7 @@ function App() {
                           <User className="w-4 h-4" />
                         </AvatarFallback>
                       ) : (
-                        <AvatarFallback className="bg-gray-800 text-white">
+                        <AvatarFallback className="bg-gray-900 text-white">
                           <Bot className="w-4 h-4" />
                         </AvatarFallback>
                       )}
