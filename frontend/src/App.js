@@ -22,6 +22,7 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showLogin, setShowLogin] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const [conversations, setConversations] = useState([]);
   const [currentConversation, setCurrentConversation] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -32,6 +33,7 @@ function App() {
   // Auth states
   const [loginData, setLoginData] = useState({ username: '', password: '' });
   const [registerData, setRegisterData] = useState({ username: '', email: '', password: '' });
+  const [onboardingData, setOnboardingData] = useState({ name: '' });
   const [authMode, setAuthMode] = useState('login'); // 'login' or 'register'
   
   // Admin states
