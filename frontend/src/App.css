@@ -139,7 +139,7 @@ body {
   height: 100vh;
   position: relative;
   z-index: 10;
-  background: #000000;
+  background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
   overflow: hidden;
 }
 
