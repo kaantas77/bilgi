@@ -136,7 +136,7 @@ body {
 /* Login Form Styling */
 .futuristic-login-container {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 400px 1fr;
   height: 100vh;
   position: relative;
   z-index: 10;
