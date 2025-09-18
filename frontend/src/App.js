@@ -409,129 +409,107 @@ function App() {
   if (!isAuthenticated) {
     return (
       <div className="futuristic-login-container">
-        <div className="futuristic-bg"></div>
-        <div className="grid-overlay"></div>
-        <div className="cosmic-particles">
-          {[...Array(20)].map((_, i) => (
-            <div 
-              key={i} 
-              className="cosmic-particle" 
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 8}s`
-              }}
-            ></div>
-          ))}
+        {/* 3D Wave Background */}
+        <div className="wave-background">
+          <div className="wave-lines">
+            <div className="wave-line"></div>
+            <div className="wave-line"></div>
+            <div className="wave-line"></div>
+          </div>
         </div>
         
         {/* Login Form Section */}
         <div className="login-form-section">
-          <div className="futuristic-form">
-            <h2 className="form-title">BİLGİN AI</h2>
-            
-            <div className="futuristic-tabs">
-              <button
-                onClick={() => setAuthMode('login')}
-                className={`futuristic-tab ${authMode === 'login' ? 'active' : ''}`}
-              >
-                Giriş Yap
-              </button>
-              <button
-                onClick={() => setAuthMode('register')}
-                className={`futuristic-tab ${authMode === 'register' ? 'active' : ''}`}
-              >
-                Kayıt Ol
-              </button>
-            </div>
-
-            {authMode === 'login' ? (
-              <form onSubmit={handleLogin} className="space-y-6">
-                <input
-                  type="text"
-                  placeholder="Kullanıcı Adı"
-                  value={loginData.username}
-                  onChange={(e) => setLoginData({...loginData, username: e.target.value})}
-                  className="futuristic-input"
-                  required
-                />
-                <input
-                  type="password"
-                  placeholder="Şifre"
-                  value={loginData.password}
-                  onChange={(e) => setLoginData({...loginData, password: e.target.value})}
-                  className="futuristic-input"
-                  required
-                />
-                <button type="submit" className="futuristic-button">
+          <h1 className="page-title">HOŞGELDİNİZ</h1>
+          
+          <div className="login-panel">
+            <div className="futuristic-form">
+              <div className="futuristic-tabs">
+                <button
+                  onClick={() => setAuthMode('login')}
+                  className={`futuristic-tab ${authMode === 'login' ? 'active' : ''}`}
+                >
                   Giriş Yap
                 </button>
-              </form>
-            ) : (
-              <form onSubmit={handleRegister} className="space-y-6">
-                <input
-                  type="text"
-                  placeholder="Kullanıcı Adı"
-                  value={registerData.username}
-                  onChange={(e) => setRegisterData({...registerData, username: e.target.value})}
-                  className="futuristic-input"
-                  required
-                />
-                <input
-                  type="email"
-                  placeholder="E-posta"
-                  value={registerData.email}
-                  onChange={(e) => setRegisterData({...registerData, email: e.target.value})}
-                  className="futuristic-input"
-                  required
-                />
-                <input
-                  type="password"
-                  placeholder="Şifre"
-                  value={registerData.password}
-                  onChange={(e) => setRegisterData({...registerData, password: e.target.value})}
-                  className="futuristic-input"
-                  required
-                />
-                <button type="submit" className="futuristic-button">
+                <button
+                  onClick={() => setAuthMode('register')}
+                  className={`futuristic-tab ${authMode === 'register' ? 'active' : ''}`}
+                >
                   Kayıt Ol
                 </button>
-              </form>
-            )}
-
-            <div className="mt-8">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-white/20"></div>
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-4 bg-transparent text-white/60">veya</span>
-                </div>
               </div>
-              <button
-                onClick={handleGoogleLogin}
-                className="futuristic-button w-full mt-6 !bg-white !text-gray-900 hover:!bg-gray-100"
-              >
-                Google ile Giriş Yap
-              </button>
-            </div>
-          </div>
-        </div>
 
-        {/* Welcome Section */}
-        <div className="welcome-section">
-          <h1 className="welcome-title">HOSGELDINIZ</h1>
-          <p className="welcome-subtitle typing-text">Bilgin'in Yapay Zeka Merkezine</p>
-          
-          <div className="logo-container">
-            <div className="animated-logo-main">
-              <img src="/bilgin-ai-logo.png" alt="BİLGİN AI Logo" />
+              {authMode === 'login' ? (
+                <form onSubmit={handleLogin} className="space-y-6">
+                  <input
+                    type="text"
+                    placeholder="Kullanıcı Adı"
+                    value={loginData.username}
+                    onChange={(e) => setLoginData({...loginData, username: e.target.value})}
+                    className="futuristic-input"
+                    required
+                  />
+                  <input
+                    type="password"
+                    placeholder="Şifre"
+                    value={loginData.password}
+                    onChange={(e) => setLoginData({...loginData, password: e.target.value})}
+                    className="futuristic-input"
+                    required
+                  />
+                  <button type="submit" className="futuristic-button">
+                    Giriş Yap
+                  </button>
+                </form>
+              ) : (
+                <form onSubmit={handleRegister} className="space-y-6">
+                  <input
+                    type="text"
+                    placeholder="Kullanıcı Adı"
+                    value={registerData.username}
+                    onChange={(e) => setRegisterData({...registerData, username: e.target.value})}
+                    className="futuristic-input"
+                    required
+                  />
+                  <input
+                    type="email"
+                    placeholder="E-posta"
+                    value={registerData.email}
+                    onChange={(e) => setRegisterData({...registerData, email: e.target.value})}
+                    className="futuristic-input"
+                    required
+                  />
+                  <input
+                    type="password"
+                    placeholder="Şifre"
+                    value={registerData.password}
+                    onChange={(e) => setRegisterData({...registerData, password: e.target.value})}
+                    className="futuristic-input"
+                    required
+                  />
+                  <button type="submit" className="futuristic-button">
+                    Kayıt Ol
+                  </button>
+                </form>
+              )}
+
+              <div className="mt-8">
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-white/20"></div>
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-4 bg-transparent text-white/60">veya</span>
+                  </div>
+                </div>
+                <button
+                  onClick={handleGoogleLogin}
+                  className="futuristic-button w-full mt-6 !bg-white !text-gray-900 hover:!bg-gray-100"
+                >
+                  Google ile Giriş Yap
+                </button>
+              </div>
             </div>
-            
-            {/* Logo Particles */}
-            {[...Array(8)].map((_, i) => (
-              <div key={i} className="logo-particle"></div>
-            ))}
           </div>
         </div>
       </div>
