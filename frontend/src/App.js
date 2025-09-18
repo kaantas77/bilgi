@@ -184,6 +184,7 @@ function App() {
       setCurrentConversation(null);
       setMessages([]);
       setShowAdmin(false);
+      setShowOnboarding(false);
     } catch (error) {
       console.error('Logout error:', error);
     }
