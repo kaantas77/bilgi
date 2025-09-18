@@ -268,12 +268,12 @@ body {
 
 .login-button {
   width: 100%;
-  padding: 1rem;
+  padding: 0.8rem;
   background: #7c3aed;
   border: none;
   border-radius: 8px;
   color: white;
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
