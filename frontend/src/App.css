@@ -263,7 +263,7 @@ body {
 }
 
 .futuristic-button {
-  background: linear-gradient(135deg, #9333ea 0%, #3b82f6 100%);
+  background: linear-gradient(135deg, #333333 0%, #1a1a1a 100%);
   border: none;
   border-radius: 12px;
   padding: 1rem 2rem;
@@ -275,7 +275,7 @@ body {
   position: relative;
   overflow: hidden;
   transition: all 0.3s ease;
-  box-shadow: 0 10px 25px rgba(147, 51, 234, 0.3);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
 }
 
 .futuristic-button::before {
