@@ -924,38 +924,23 @@ function App() {
         ) : (
           /* Welcome Screen */
           <div className="flex-1 flex items-center justify-center p-8 bg-black">
-            <div className="text-center space-y-8 max-w-md">
+            <div className="text-center space-y-6 max-w-lg">
               <div className="w-20 h-20 bg-gradient-to-br from-gray-800 to-gray-900 rounded-full flex items-center justify-center mx-auto">
                 <Bot className="w-10 h-10 text-white" />
               </div>
               <div>
-                <h2 className="text-3xl font-bold text-white mb-3">Hoş Geldiniz, {user?.name || user?.username}!</h2>
-                <p className="text-gray-400 mb-6 leading-relaxed">
-                  BİLGİN AI ile sohbet etmeye başlayın. 
-                  Sorularınızı sorabilir, yardım alabilir ve bilgi edinebilirsiniz.
+                <h2 className="text-4xl font-bold text-white mb-4">
+                  Merhaba {user?.name || user?.username}, Ne Öğrenmek İstersin?
+                </h2>
+                <p className="text-gray-300 mb-8 text-lg">
+                  Merak ettiğin her şeyi sorabilirsin!
                 </p>
-                <div className="space-y-3 text-sm text-gray-500">
-                  <div className="flex items-center space-x-2">
-                    <MessageCircle className="w-4 h-4" />
-                    <span>Doğal dil işleme</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Bot className="w-4 h-4" />
-                    <span>Akıllı yanıtlar</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Clock className="w-4 h-4" />
-                    <span>7/24 erişim</span>
-                  </div>
-                </div>
-                <Button
+                <button
                   onClick={createNewConversation}
-                  className="bg-gradient-to-r from-gray-800 to-gray-900 hover:from-gray-700 hover:to-gray-800 text-white mt-8"
-                  size="lg"
+                  className="bg-transparent border border-gray-600 hover:border-gray-400 text-white px-8 py-3 rounded-lg transition-all duration-300 hover:bg-gray-900/30"
                 >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Yeni Sohbet Başlat
-                </Button>
+                  Sohbeti başlatmak için tıkla
+                </button>
               </div>
             </div>
           </div>
