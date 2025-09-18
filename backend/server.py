@@ -70,6 +70,9 @@ class UserLogin(BaseModel):
     username: str
     password: str
 
+class OnboardingData(BaseModel):
+    name: str
+
 class UserResponse(BaseModel):
     id: str
     username: str
