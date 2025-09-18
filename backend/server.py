@@ -52,8 +52,10 @@ class User(BaseModel):
     username: str
     email: EmailStr
     password_hash: str
+    name: Optional[str] = None  # User's display name
     is_verified: bool = False
     is_admin: bool = False
+    onboarding_completed: bool = False  # Track if user completed onboarding
     oauth_provider: Optional[str] = None
     oauth_id: Optional[str] = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
