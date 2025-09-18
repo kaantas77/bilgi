@@ -658,7 +658,7 @@ function App() {
   return (
     <div className="flex h-screen bg-black">
       {/* Sidebar */}
-      <div className={`bg-black text-white transition-all duration-300 ${sidebarOpen ? 'w-64' : 'w-0'} overflow-hidden flex flex-col border-r border-gray-900`}>
+      <div className={`bg-black text-white transition-all duration-300 ${sidebarOpen ? 'w-80' : 'w-0'} overflow-hidden flex flex-col border-r border-gray-800`}>
         {/* Header */}
         <div className="p-4 border-b border-gray-900">
           <div className="flex items-center justify-between mb-4">
