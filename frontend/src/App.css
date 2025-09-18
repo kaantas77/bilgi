@@ -151,6 +151,14 @@ body {
   padding: 4rem;
   background: #000000;
   position: relative;
+  border-right: 1px solid rgb(39 39 42);
+}
+
+@media (max-width: 768px) {
+  .login-form-section {
+    border-right: none;
+    padding-right: 4rem;
+  }
 }
 
 .brand-section {
