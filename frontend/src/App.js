@@ -317,6 +317,59 @@ function App() {
     );
   }
 
+  // Onboarding screen
+  if (isAuthenticated && showOnboarding) {
+    return (
+      <div className="flex h-screen bg-black">
+        <div className="flex-1 flex items-center justify-center p-8">
+          <div className="w-full max-w-md space-y-8">
+            <div className="text-center">
+              <div className="w-20 h-20 bg-gradient-to-br from-gray-700 to-gray-800 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Bot className="w-10 h-10 text-white" />
+              </div>
+              <h1 className="text-3xl font-bold text-white mb-2">Hoş Geldiniz!</h1>
+              <p className="text-gray-400 mb-8">Size nasıl hitap etmemizi istiyorsunuz?</p>
+            </div>
+
+            <div className="bg-gray-900 p-6 rounded-lg border border-gray-800">
+              <form onSubmit={handleOnboarding} className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    İsminiz Nedir?
+                  </label>
+                  <Input
+                    type="text"
+                    placeholder="Adınızı giriniz"
+                    value={onboardingData.name}
+                    onChange={(e) => setOnboardingData({...onboardingData, name: e.target.value})}
+                    className="bg-gray-800 border-gray-700 text-white text-lg py-3"
+                    required
+                    autoFocus
+                  />
+                  <p className="text-xs text-gray-500 mt-2">
+                    Bu isim ile size hitap edeceğiz ve sohbetlerinizde görünecektir.
+                  </p>
+                </div>
+                
+                <Button 
+                  type="submit" 
+                  className="w-full bg-gray-700 hover:bg-gray-600 py-3 text-lg"
+                  disabled={!onboardingData.name.trim()}
+                >
+                  Devam Et
+                </Button>
+              </form>
+            </div>
+
+            <div className="text-center text-xs text-gray-500">
+              Merhaba <span className="text-gray-300">{user?.username}</span>, profilinizi tamamlayalım
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // Authentication screen
   if (!isAuthenticated) {
     return (
