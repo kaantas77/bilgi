@@ -74,8 +74,10 @@ class UserResponse(BaseModel):
     id: str
     username: str
     email: str
+    name: Optional[str]
     is_verified: bool
     is_admin: bool
+    onboarding_completed: bool
     created_at: datetime
     last_login: Optional[datetime]
 
