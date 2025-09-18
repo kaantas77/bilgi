@@ -818,11 +818,11 @@ function App() {
                 {isMessageLoading && (
                   <div className="flex items-start space-x-4">
                     <Avatar className="w-8 h-8">
-                      <AvatarFallback className="bg-gray-800 text-white">
+                      <AvatarFallback className="bg-gray-900 text-white">
                         <Bot className="w-4 h-4" />
                       </AvatarFallback>
                     </Avatar>
-                    <div className="bg-gray-900 border border-gray-800 p-4 rounded-2xl">
+                    <div className="bg-gray-900 border border-gray-900 p-4 rounded-2xl">
                       <div className="flex items-center space-x-2">
                         <div className="flex space-x-1">
                           <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
