@@ -420,7 +420,7 @@ function App() {
         
         {/* Login Form Section */}
         <div className="login-form-section">
-          <h1 className="page-title">HOŞGELDİNİZ</h1>
+          <h1 className="page-title">BİLGİN AI</h1>
           
           <div className="login-panel">
             <div className="futuristic-form">
