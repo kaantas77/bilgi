@@ -356,7 +356,14 @@ def generate_conversation_title(message_content: str) -> str:
 
 # Initialize admin user
 async def init_admin():
-    """Initialize admin user if not exists"""
+    """Initialize admin user and update existing users"""
+    # Update existing users with missing fields
+    await db.users.update_many(
+        {"name": {"$exists": False}},
+        {"$set": {"name": None, "onboarding_completed": False}}
+    )
+    
+    # Create admin user if not exists
     admin_user = await db.users.find_one({"username": ADMIN_USERNAME})
     if not admin_user:
         admin = User(
@@ -371,6 +378,15 @@ async def init_admin():
         admin_dict = prepare_for_mongo(admin.dict())
         await db.users.insert_one(admin_dict)
         logging.info("Admin user created")
+    else:
+        # Update admin with missing fields if needed
+        await db.users.update_one(
+            {"username": ADMIN_USERNAME},
+            {"$set": {
+                "name": "Admin",
+                "onboarding_completed": True
+            }}
+        )
 
 # Authentication Routes
 @api_router.post("/auth/register")
