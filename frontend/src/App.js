@@ -327,49 +327,55 @@ function App() {
   // Onboarding screen
   if (isAuthenticated && showOnboarding) {
     return (
-      <div className="flex h-screen bg-black">
-        <div className="flex-1 flex items-center justify-center p-8">
-          <div className="w-full max-w-md space-y-8">
+      <div className="flex h-screen">
+        <div className="animated-bg"></div>
+        <div className="floating-particles">
+          {[...Array(9)].map((_, i) => (
+            <div key={i} className="particle"></div>
+          ))}
+        </div>
+        <div className="flex-1 flex items-center justify-center p-8 relative z-10">
+          <div className="w-full max-w-lg space-y-8">
             <div className="text-center">
-              <div className="w-20 h-20 bg-gradient-to-br from-gray-700 to-gray-800 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Bot className="w-10 h-10 text-white" />
+              <div className="animated-logo w-24 h-24 flex items-center justify-center mx-auto mb-8">
+                <Bot className="w-12 h-12 text-white" />
               </div>
-              <h1 className="text-3xl font-bold text-white mb-2">Hoş Geldiniz!</h1>
-              <p className="text-gray-400 mb-8">Size nasıl hitap etmemizi istiyorsunuz?</p>
+              <h1 className="animated-title text-4xl font-bold mb-4">Hoş Geldiniz!</h1>
+              <p className="animated-subtitle text-lg mb-8">Size nasıl hitap etmemizi istiyorsuniz?</p>
             </div>
 
-            <div className="bg-gray-900 p-6 rounded-lg border border-gray-800">
-              <form onSubmit={handleOnboarding} className="space-y-6">
+            <div className="glass-card-intense p-8">
+              <form onSubmit={handleOnboarding} className="form-container space-y-8">
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    İsminiz Nedir?
+                  <label className="block text-lg font-semibold text-white mb-4">
+                    <span className="typing-animation">İsminiz Nedir?</span>
                   </label>
-                  <Input
+                  <input
                     type="text"
-                    placeholder="Adınızı giriniz"
+                    placeholder="Adınızı giriniz..."
                     value={onboardingData.name}
                     onChange={(e) => setOnboardingData({...onboardingData, name: e.target.value})}
-                    className="bg-gray-800 border-gray-700 text-white text-lg py-3"
+                    className="glass-input w-full py-4 px-6 text-lg"
                     required
                     autoFocus
                   />
-                  <p className="text-xs text-gray-500 mt-2">
+                  <p className="text-sm text-white/60 mt-3 ml-1">
                     Bu isim ile size hitap edeceğiz ve sohbetlerinizde görünecektir.
                   </p>
                 </div>
                 
-                <Button 
+                <button 
                   type="submit" 
-                  className="w-full bg-gray-700 hover:bg-gray-600 py-3 text-lg"
+                  className="animated-button w-full py-4 text-lg font-semibold hover-lift"
                   disabled={!onboardingData.name.trim()}
                 >
-                  Devam Et
-                </Button>
+                  <span>Harika! Devam Edelim</span>
+                </button>
               </form>
             </div>
 
-            <div className="text-center text-xs text-gray-500">
-              Merhaba <span className="text-gray-300">{user?.username}</span>, profilinizi tamamlayalım
+            <div className="text-center text-sm text-white/50">
+              Merhaba <span className="text-white font-medium">{user?.username}</span>, profilinizi tamamlayalım ✨
             </div>
           </div>
         </div>
