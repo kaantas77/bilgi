@@ -717,7 +717,7 @@ function App() {
             <DropdownMenuTrigger asChild>
               <div className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-900 cursor-pointer transition-colors">
                 <Avatar className="w-8 h-8">
-                  <AvatarFallback className="bg-gray-800 text-white text-sm">
+                  <AvatarFallback className="bg-gray-700 text-white text-sm">
                     {user?.username?.charAt(0).toUpperCase() || 'U'}
                   </AvatarFallback>
                 </Avatar>
