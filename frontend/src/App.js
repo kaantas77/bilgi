@@ -789,7 +789,7 @@ function App() {
                   >
                     <Avatar className="w-8 h-8 flex-shrink-0">
                       {message.role === 'user' ? (
-                        <AvatarFallback className="bg-gray-700 text-white">
+                        <AvatarFallback className="bg-gray-900 text-white">
                           <User className="w-4 h-4" />
                         </AvatarFallback>
                       ) : (
