@@ -363,8 +363,10 @@ async def init_admin():
             username=ADMIN_USERNAME,
             email="admin@bilgin.ai",
             password_hash=ADMIN_PASSWORD_HASH.decode('utf-8'),
+            name="Admin",
             is_verified=True,
-            is_admin=True
+            is_admin=True,
+            onboarding_completed=True
         )
         admin_dict = prepare_for_mongo(admin.dict())
         await db.users.insert_one(admin_dict)
