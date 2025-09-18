@@ -236,6 +236,16 @@ body {
   animation: fadeInUp 1.5s ease-out;
 }
 
+/* Typing Text Animation */
+.typing-text {
+  overflow: hidden;
+  white-space: nowrap;
+  width: 0;
+  animation: typewriter 3s steps(30, end) forwards;
+  border-right: 2px solid rgba(255, 255, 255, 0.7);
+  animation: typewriter 3s steps(30, end) forwards, blinkCursor 0.75s step-end infinite;
+}
+
 /* Futuristic Input Styling */
 .futuristic-input {
   background: rgba(0, 0, 0, 0.3);
