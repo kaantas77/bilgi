@@ -1082,7 +1082,70 @@ function App() {
         )}
       </div>
 
-      {/* Bug Report Modal */}
+      {/* Settings Modal */}
+    <Dialog open={showSettingsModal} onOpenChange={setShowSettingsModal}>
+      <DialogContent className="bg-black border border-gray-800 text-white max-w-md">
+        <DialogHeader>
+          <DialogTitle className="text-white flex items-center">
+            <User className="w-5 h-5 mr-2 text-blue-500" />
+            Ayarlar
+          </DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div className="space-y-3">
+            <button
+              onClick={toggleNotifications}
+              className="w-full flex items-center justify-between p-3 bg-gray-900 border border-gray-700 rounded-lg hover:bg-gray-800 transition-colors"
+            >
+              <div className="flex items-center">
+                <Bell className="w-4 h-4 mr-3" />
+                <span>Bildirimler</span>
+              </div>
+              <span className={`text-sm ${notifications ? 'text-green-400' : 'text-red-400'}`}>
+                {notifications ? 'Açık' : 'Kapalı'}
+              </span>
+            </button>
+
+            <button
+              onClick={toggleDarkMode}
+              className="w-full flex items-center justify-between p-3 bg-gray-900 border border-gray-700 rounded-lg hover:bg-gray-800 transition-colors"
+            >
+              <div className="flex items-center">
+                {isDarkMode ? <Sun className="w-4 h-4 mr-3" /> : <Moon className="w-4 h-4 mr-3" />}
+                <span>Tema</span>
+              </div>
+              <span className="text-sm text-gray-400">
+                {isDarkMode ? 'Koyu' : 'Açık'}
+              </span>
+            </button>
+
+            <button
+              onClick={toggleLanguage}
+              className="w-full flex items-center justify-between p-3 bg-gray-900 border border-gray-700 rounded-lg hover:bg-gray-800 transition-colors"
+            >
+              <div className="flex items-center">
+                <Globe className="w-4 h-4 mr-3" />
+                <span>Dil</span>
+              </div>
+              <span className="text-sm text-gray-400">
+                {language === 'tr' ? 'Türkçe' : 'English'}
+              </span>
+            </button>
+          </div>
+          
+          <div className="flex justify-end mt-6">
+            <Button
+              onClick={() => setShowSettingsModal(false)}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              Tamam
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+
+    {/* Bug Report Modal */}
       <Dialog open={showReportModal} onOpenChange={setShowReportModal}>
         <DialogContent className="bg-black border border-gray-800 text-white max-w-md">
           <DialogHeader>
