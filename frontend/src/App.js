@@ -404,9 +404,35 @@ function App() {
   };
 
   // Toggle functions
-  const toggleNotifications = () => setNotifications(!notifications);
-  const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
-  const toggleLanguage = () => setLanguage(language === 'tr' ? 'en' : 'tr');
+  const toggleNotifications = () => {
+    setNotifications(!notifications);
+    toast({
+      description: `Bildirimler ${!notifications ? 'açıldı' : 'kapatıldı'}`,
+    });
+  };
+  
+  const toggleDarkMode = () => {
+    setIsDarkMode(!isDarkMode);
+    // Apply theme to document
+    if (!isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    toast({
+      description: `${!isDarkMode ? 'Koyu' : 'Açık'} tema etkinleştirildi`,
+    });
+  };
+  
+  const toggleLanguage = () => {
+    const newLang = language === 'tr' ? 'en' : 'tr';
+    setLanguage(newLang);
+    // Store in localStorage for persistence
+    localStorage.setItem('language', newLang);
+    toast({
+      description: `Dil ${newLang === 'tr' ? 'Türkçe' : 'İngilizce'} olarak değiştirildi`,
+    });
+  };
   // Load admin reports
   const loadAdminReports = async () => {
     try {
