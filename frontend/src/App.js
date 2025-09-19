@@ -385,7 +385,9 @@ function App() {
 
   const loadAdminStats = async () => {
     try {
-      const response = await axios.get(`${API}/admin/stats`);
+      const response = await axios.get(`${BACKEND_URL}/api/admin/stats`, {
+        withCredentials: true
+      });
       setAdminStats(response.data);
     } catch (error) {
       console.error('Error loading admin stats:', error);
