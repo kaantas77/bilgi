@@ -432,15 +432,20 @@ function App() {
   };
   
   const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
-    // Apply theme to document
-    if (!isDarkMode) {
+    const newTheme = !isDarkMode;
+    setIsDarkMode(newTheme);
+    
+    // Apply theme to document and save to localStorage
+    if (newTheme) {
       document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
     } else {
       document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
     }
+    
     toast({
-      description: `${!isDarkMode ? 'Koyu' : 'Açık'} tema etkinleştirildi`,
+      description: `${newTheme ? 'Koyu' : 'Açık'} tema etkinleştirildi`,
     });
   };
   
