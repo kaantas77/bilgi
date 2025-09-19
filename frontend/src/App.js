@@ -410,8 +410,6 @@ function App() {
         message: reportText,
         user_agent: navigator.userAgent,
         url: window.location.href
-      }, {
-        withCredentials: true
       });
       
       toast({
