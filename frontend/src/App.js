@@ -837,9 +837,35 @@ function App() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="w-56 mb-2">
               <DropdownMenuItem>
-                <Settings className="w-4 h-4 mr-2" />
-                Ayarlar
+                <User className="w-4 h-4 mr-2" />
+                Profil Ayarları
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={toggleNotifications}>
+                <Bell className="w-4 h-4 mr-2" />
+                Bildirimler {notifications ? '(Açık)' : '(Kapalı)'}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={toggleDarkMode}>
+                {isDarkMode ? <Sun className="w-4 h-4 mr-2" /> : <Moon className="w-4 h-4 mr-2" />}
+                {isDarkMode ? 'Açık Tema' : 'Koyu Tema'}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={toggleLanguage}>
+                <Globe className="w-4 h-4 mr-2" />
+                Dil ({language === 'tr' ? 'Türkçe' : 'English'})
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => setShowReportModal(true)}>
+                <AlertTriangle className="w-4 h-4 mr-2" />
+                Hata Bildir
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setShowPrivacyModal(true)}>
+                <FileText className="w-4 h-4 mr-2" />
+                Kullanıcı Sözleşmesi
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <HelpCircle className="w-4 h-4 mr-2" />
+                Yardım & Destek
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
               {user?.is_admin && (
                 <DropdownMenuItem onClick={toggleAdmin}>
                   <Shield className="w-4 h-4 mr-2" />
