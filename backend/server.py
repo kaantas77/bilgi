@@ -9,6 +9,7 @@ from pathlib import Path
 from pydantic import BaseModel, Field, EmailStr
 from typing import List, Optional
 import uuid
+from uuid import uuid4
 from datetime import datetime, timezone, timedelta
 import httpx
 import bcrypt
