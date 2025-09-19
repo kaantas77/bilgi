@@ -42,6 +42,16 @@ function App() {
   const [showAdmin, setShowAdmin] = useState(false);
   const [adminStats, setAdminStats] = useState(null);
   
+  // Modal states
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
+  const [reportText, setReportText] = useState('');
+  
+  // Settings states
+  const [isDarkMode, setIsDarkMode] = useState(true);
+  const [language, setLanguage] = useState('tr');
+  const [notifications, setNotifications] = useState(true);
+  
   const messagesEndRef = useRef(null);
 
   // Scroll to bottom when new messages arrive
