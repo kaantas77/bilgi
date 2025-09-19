@@ -85,6 +85,29 @@ class UserResponse(BaseModel):
     created_at: datetime
     last_login: Optional[datetime] = None
 
+class ReportCreate(BaseModel):
+    message: str
+    user_agent: Optional[str] = None
+    url: Optional[str] = None
+
+class Report(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid4()))
+    user_id: str
+    message: str
+    user_agent: Optional[str] = None
+    url: Optional[str] = None
+    status: str = "open"  # open, investigating, resolved
+    created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    
+class ReportResponse(BaseModel):
+    id: str
+    user_id: str
+    message: str
+    user_agent: Optional[str] = None
+    url: Optional[str] = None
+    status: str
+    created_at: str
+
 class Session(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     user_id: str
