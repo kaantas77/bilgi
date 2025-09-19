@@ -440,9 +440,19 @@ async def register_user(user_data: UserCreate):
 
 @api_router.post("/auth/login")
 async def login_user(user_data: UserLogin, response: Response):
+    print(f"Login attempt - Username: {user_data.username}, Password: {user_data.password}")
+    
     # Find user
     user = await db.users.find_one({"username": user_data.username})
+    print(f"User found: {user is not None}")
+    
+    if user:
+        print(f"Password hash exists: {bool(user.get('password_hash'))}")
+        password_valid = verify_password(user_data.password, user["password_hash"])
+        print(f"Password valid: {password_valid}")
+    
     if not user or not verify_password(user_data.password, user["password_hash"]):
+        print("Login failed - invalid credentials")
         raise HTTPException(status_code=400, detail="Invalid credentials")
     
     user = parse_from_mongo(user)
