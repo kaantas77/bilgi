@@ -463,10 +463,17 @@ function App() {
   // Load admin reports
   const loadAdminReports = async () => {
     try {
-      const response = await axios.get(`${BACKEND_URL}/api/admin/reports`);
+      const response = await axios.get(`${BACKEND_URL}/api/admin/reports`, {
+        withCredentials: true
+      });
       setAdminReports(response.data);
+      console.log('Admin reports loaded:', response.data);
     } catch (error) {
       console.error('Error loading reports:', error);
+      toast({
+        description: "Hata raporları yüklenirken sorun oluştu",
+        variant: "destructive"
+      });
     }
   };
 
