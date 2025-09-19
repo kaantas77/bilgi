@@ -64,6 +64,26 @@ function App() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  // Load settings from localStorage on component mount
+  useEffect(() => {
+    const savedLanguage = localStorage.getItem('language');
+    const savedTheme = localStorage.getItem('theme');
+    const savedNotifications = localStorage.getItem('notifications');
+
+    if (savedLanguage) {
+      setLanguage(savedLanguage);
+    }
+    if (savedTheme) {
+      setIsDarkMode(savedTheme === 'dark');
+      if (savedTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+      }
+    }
+    if (savedNotifications !== null) {
+      setNotifications(savedNotifications === 'true');
+    }
+  }, []);
+
   // Matrix animation effect
   useEffect(() => {
     if (!isAuthenticated) {
