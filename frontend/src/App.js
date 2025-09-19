@@ -474,9 +474,7 @@ function App() {
   // Load admin reports
   const loadAdminReports = async () => {
     try {
-      const response = await axios.get(`${BACKEND_URL}/api/admin/reports`, {
-        withCredentials: true
-      });
+      const response = await axios.get(`${BACKEND_URL}/api/admin/reports`);
       setAdminReports(response.data);
       console.log('Admin reports loaded:', response.data);
     } catch (error) {
