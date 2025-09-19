@@ -425,9 +425,11 @@ function App() {
 
   // Toggle functions
   const toggleNotifications = () => {
-    setNotifications(!notifications);
+    const newNotifications = !notifications;
+    setNotifications(newNotifications);
+    localStorage.setItem('notifications', newNotifications.toString());
     toast({
-      description: `Bildirimler ${!notifications ? 'açıldı' : 'kapatıldı'}`,
+      description: `Bildirimler ${newNotifications ? 'açıldı' : 'kapatıldı'}`,
     });
   };
   
