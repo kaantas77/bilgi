@@ -42,6 +42,8 @@ function App() {
   // Admin states
   const [showAdmin, setShowAdmin] = useState(false);
   const [adminStats, setAdminStats] = useState(null);
+  const [adminReports, setAdminReports] = useState([]);
+  const [adminActiveTab, setAdminActiveTab] = useState('stats');
   
   // Modal states
   const [showReportModal, setShowReportModal] = useState(false);
