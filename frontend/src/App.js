@@ -678,7 +678,31 @@ function App() {
           <div className="space-y-4 flex-1">
             <div className="text-sm text-gray-400">Admin: {user.username}</div>
             
-            {adminStats && (
+            {/* Admin Tabs */}
+            <div className="flex space-x-2 mb-4">
+              <button
+                onClick={() => setAdminActiveTab('stats')}
+                className={`px-3 py-1 rounded text-sm ${
+                  adminActiveTab === 'stats' 
+                    ? 'bg-blue-600 text-white' 
+                    : 'bg-gray-800 text-gray-400 hover:text-white'
+                }`}
+              >
+                İstatistikler
+              </button>
+              <button
+                onClick={() => setAdminActiveTab('reports')}
+                className={`px-3 py-1 rounded text-sm ${
+                  adminActiveTab === 'reports' 
+                    ? 'bg-orange-600 text-white' 
+                    : 'bg-gray-800 text-gray-400 hover:text-white'
+                }`}
+              >
+                Hata Raporları ({adminReports.length})
+              </button>
+            </div>
+
+            {adminActiveTab === 'stats' && adminStats && (
               <div className="space-y-4">
                 <Card className="bg-gray-900 border-gray-800">
                   <CardContent className="p-4">
@@ -722,6 +746,46 @@ function App() {
                     ))}
                   </div>
                 </div>
+              </div>
+            )}
+
+            {adminActiveTab === 'reports' && (
+              <div className="space-y-4">
+                <div className="text-sm text-gray-300 mb-4">
+                  Kullanıcılardan gelen hata raporları:
+                </div>
+                {adminReports.length === 0 ? (
+                  <div className="text-center text-gray-500 py-8">
+                    Henüz hata raporu bulunmuyor
+                  </div>
+                ) : (
+                  <div className="space-y-3 max-h-96 overflow-y-auto">
+                    {adminReports.map((report) => (
+                      <Card key={report.id} className="bg-gray-900 border-gray-800">
+                        <CardContent className="p-3">
+                          <div className="flex justify-between items-start mb-2">
+                            <span className={`text-xs px-2 py-1 rounded ${
+                              report.status === 'open' ? 'bg-red-600' :
+                              report.status === 'investigating' ? 'bg-yellow-600' :
+                              'bg-green-600'
+                            }`}>
+                              {report.status === 'open' ? 'Açık' :
+                               report.status === 'investigating' ? 'İnceleniyor' :
+                               'Çözüldü'}
+                            </span>
+                            <span className="text-xs text-gray-400">
+                              {new Date(report.created_at).toLocaleDateString('tr-TR')}
+                            </span>
+                          </div>
+                          <p className="text-sm text-gray-300 mb-2">{report.message}</p>
+                          <div className="text-xs text-gray-500">
+                            Kullanıcı ID: {report.user_id}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </div>
