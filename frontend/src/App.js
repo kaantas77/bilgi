@@ -54,6 +54,7 @@ function App() {
   const [notifications, setNotifications] = useState(true);
   
   const messagesEndRef = useRef(null);
+  const { toast } = useToast();
 
   // Scroll to bottom when new messages arrive
   const scrollToBottom = () => {
