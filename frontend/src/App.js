@@ -838,19 +838,7 @@ function App() {
             <DropdownMenuContent align="start" className="w-56 mb-2">
               <DropdownMenuItem>
                 <User className="w-4 h-4 mr-2" />
-                Profil Ayarları
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={toggleNotifications}>
-                <Bell className="w-4 h-4 mr-2" />
-                Bildirimler {notifications ? '(Açık)' : '(Kapalı)'}
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={toggleDarkMode}>
-                {isDarkMode ? <Sun className="w-4 h-4 mr-2" /> : <Moon className="w-4 h-4 mr-2" />}
-                {isDarkMode ? 'Açık Tema' : 'Koyu Tema'}
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={toggleLanguage}>
-                <Globe className="w-4 h-4 mr-2" />
-                Dil ({language === 'tr' ? 'Türkçe' : 'English'})
+                Ayarlar
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => setShowReportModal(true)}>
@@ -872,10 +860,6 @@ function App() {
                   Admin Panel
                 </DropdownMenuItem>
               )}
-              <DropdownMenuItem>
-                <CreditCard className="w-4 h-4 mr-2" />
-                Üyelik Yükselt
-              </DropdownMenuItem>
               <DropdownMenuItem onClick={handleLogout}>
                 <LogOut className="w-4 h-4 mr-2" />
                 Çıkış Yap
