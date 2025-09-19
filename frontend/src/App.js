@@ -404,6 +404,12 @@ function App() {
   const toggleNotifications = () => setNotifications(!notifications);
   const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
   const toggleLanguage = () => setLanguage(language === 'tr' ? 'en' : 'tr');
+  const toggleAdmin = () => {
+    if (!showAdmin) {
+      loadAdminStats();
+    }
+    setShowAdmin(!showAdmin);
+  };
 
   // Loading screen
   if (isLoading) {
