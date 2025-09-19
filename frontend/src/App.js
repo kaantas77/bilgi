@@ -10,7 +10,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './components/ui/dialog';
 import { Textarea } from './components/ui/textarea';
 import { Badge } from './components/ui/badge';
-import { useToast } from './components/ui/use-toast';
+import { useToast } from './hooks/use-toast';
 import { MessageCircle, Plus, Trash2, Send, Bot, User, Star, Clock, Settings, LogOut, CreditCard, Shield, Bell, FileText, AlertTriangle, HelpCircle, Moon, Sun, Globe } from 'lucide-react';
 import axios from 'axios';
 
