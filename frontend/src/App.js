@@ -407,9 +407,21 @@ function App() {
   const toggleNotifications = () => setNotifications(!notifications);
   const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
   const toggleLanguage = () => setLanguage(language === 'tr' ? 'en' : 'tr');
+  // Load admin reports
+  const loadAdminReports = async () => {
+    try {
+      const response = await axios.get(`${BACKEND_URL}/api/admin/reports`);
+      setAdminReports(response.data);
+    } catch (error) {
+      console.error('Error loading reports:', error);
+    }
+  };
+
+  // Toggle admin view
   const toggleAdmin = () => {
     if (!showAdmin) {
       loadAdminStats();
+      loadAdminReports();
     }
     setShowAdmin(!showAdmin);
   };
