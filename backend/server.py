@@ -161,7 +161,9 @@ def prepare_for_mongo(data):
 def parse_from_mongo(item):
     if isinstance(item, dict):
         for key, value in item.items():
-            if key in ['created_at', 'updated_at', 'timestamp', 'last_login', 'expires_at'] and isinstance(value, str):
+            # Only convert datetime strings for models that expect datetime objects
+            # UserResponse expects strings, so we skip conversion for user objects
+            if key in ['expires_at'] and isinstance(value, str):
                 try:
                     item[key] = datetime.fromisoformat(value.replace('Z', '+00:00'))
                 except:
