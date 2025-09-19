@@ -409,6 +409,8 @@ function App() {
         message: reportText,
         user_agent: navigator.userAgent,
         url: window.location.href
+      }, {
+        withCredentials: true
       });
       
       toast({
@@ -417,7 +419,13 @@ function App() {
       
       setReportText('');
       setShowReportModal(false);
+      
+      // Refresh admin reports if admin panel is open
+      if (showAdmin) {
+        loadAdminReports();
+      }
     } catch (error) {
+      console.error('Report submission error:', error);
       toast({
         description: "Hata bildirimi gönderilirken bir sorun oluştu",
         variant: "destructive"
