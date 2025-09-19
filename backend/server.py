@@ -734,6 +734,44 @@ async def delete_conversation(conversation_id: str, user: dict = Depends(require
     
     return {"message": "Conversation deleted successfully"}
 
+# Report endpoints
+@api_router.post("/reports", response_model=ReportResponse)
+async def create_report(input: ReportCreate, user: dict = Depends(require_auth)):
+    """Create a new bug report"""
+    report = Report(
+        user_id=user["id"],
+        message=input.message,
+        user_agent=input.user_agent,
+        url=input.url
+    )
+    
+    report_dict = prepare_for_mongo(report.dict())
+    await db.reports.insert_one(report_dict)
+    
+    return ReportResponse(**report.dict())
+
+@api_router.get("/admin/reports", response_model=List[ReportResponse])
+async def get_reports(user: dict = Depends(require_admin)):
+    """Get all bug reports (admin only)"""
+    reports = await db.reports.find().sort("created_at", -1).to_list(length=None)
+    return [ReportResponse(**parse_from_mongo(report)) for report in reports]
+
+@api_router.patch("/admin/reports/{report_id}/status")
+async def update_report_status(report_id: str, status: str, user: dict = Depends(require_admin)):
+    """Update report status (admin only)"""
+    if status not in ["open", "investigating", "resolved"]:
+        raise HTTPException(status_code=400, detail="Invalid status")
+    
+    result = await db.reports.update_one(
+        {"id": report_id},
+        {"$set": {"status": status}}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Report not found")
+    
+    return {"message": "Report status updated successfully"}
+
 # Include the router in the main app
 app.include_router(api_router)
 
