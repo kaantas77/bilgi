@@ -82,8 +82,8 @@ class UserResponse(BaseModel):
     is_verified: bool
     is_admin: bool
     onboarding_completed: bool = False
-    created_at: datetime
-    last_login: Optional[datetime] = None
+    created_at: str
+    last_login: Optional[str] = None
 
 class ReportCreate(BaseModel):
     message: str
