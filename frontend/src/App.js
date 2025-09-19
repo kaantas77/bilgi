@@ -369,12 +369,41 @@ function App() {
     }
   };
 
-  const toggleAdmin = () => {
-    if (!showAdmin) {
-      loadAdminStats();
+  // Submit bug report
+  const submitReport = async () => {
+    if (!reportText.trim()) {
+      toast({
+        description: "Lütfen hata açıklamasını yazın",
+        variant: "destructive"
+      });
+      return;
     }
-    setShowAdmin(!showAdmin);
+
+    try {
+      await axios.post(`${BACKEND_URL}/api/reports`, {
+        message: reportText,
+        user_agent: navigator.userAgent,
+        url: window.location.href
+      });
+      
+      toast({
+        description: "Hata bildiriminiz başarıyla gönderildi!"
+      });
+      
+      setReportText('');
+      setShowReportModal(false);
+    } catch (error) {
+      toast({
+        description: "Hata bildirimi gönderilirken bir sorun oluştu",
+        variant: "destructive"
+      });
+    }
   };
+
+  // Toggle functions
+  const toggleNotifications = () => setNotifications(!notifications);
+  const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
+  const toggleLanguage = () => setLanguage(language === 'tr' ? 'en' : 'tr');
 
   // Loading screen
   if (isLoading) {
