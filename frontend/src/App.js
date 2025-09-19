@@ -1124,6 +1124,69 @@ function App() {
             </section>
 
             <section>
+              <h4 className="text-white font-medium mb-2">6. Kişisel Verilerin İşlenme Amaçları</h4>
+              <ul className="list-disc list-inside space-y-1">
+                <li>Platform hizmetlerinin sunulması, üyelik ve hesap yönetimi</li>
+                <li>Raporlama, analiz ve finansal çıktılar oluşturma</li>
+                <li>Güvenlik, dolandırıcılık önleme, bilgi güvenliği denetimleri</li>
+                <li>Kullanıcı deneyimini geliştirme</li>
+                <li>Hukuki yükümlülüklerin yerine getirilmesi</li>
+                <li>Meşru menfaatlerin korunması</li>
+                <li>Açık rıza varsa pazarlama ve iletişim faaliyetleri</li>
+              </ul>
+            </section>
+
+            <section>
+              <h4 className="text-white font-medium mb-2">7. Hukuki Sebepler</h4>
+              <ul className="list-disc list-inside space-y-1">
+                <li><strong>m.5/2-c:</strong> Sözleşmenin kurulması veya ifasıyla doğrudan ilgili olması</li>
+                <li><strong>m.5/2-ç:</strong> Veri sorumlusunun hukuki yükümlülüğünü yerine getirmesi</li>
+                <li><strong>m.5/2-f:</strong> İlgili kişinin temel hak ve özgürlüklerine zarar vermemek kaydıyla meşru menfaatler</li>
+                <li><strong>m.5/1:</strong> Açık rıza alınması gereken haller</li>
+              </ul>
+            </section>
+
+            <section>
+              <h4 className="text-white font-medium mb-2">8. Kişisel Verilerin Paylaşımı</h4>
+              <ul className="list-disc list-inside space-y-1">
+                <li><strong>Resmî kurumlar:</strong> Yalnızca yasal zorunluluk veya milli güvenlik/kamu düzeni durumlarında</li>
+                <li><strong>Hizmet sağlayıcılar:</strong> Barındırma, güvenlik, bakım, destek, ödeme altyapısı gibi zorunlu tedarikçiler</li>
+                <li><strong>İştirakler/iş ortakları:</strong> Sadece hizmetin ifası için gerekli olması halinde</li>
+                <li><strong>Üçüncü kişiler:</strong> Kişisel veriler pazarlama amacıyla paylaşılmaz</li>
+              </ul>
+            </section>
+
+            <section>
+              <h4 className="text-white font-medium mb-2">9. Yurt Dışı Aktarım</h4>
+              <p>Kullanıcı verileri yalnızca açık rızanız ile yurt dışına aktarılır.</p>
+              <p className="mt-2">Aktarımlar sırasında TLS/SSL şifreleme ve gerekli teknik/idari güvenlik tedbirleri uygulanır.</p>
+              <p className="mt-2">Veriler yalnızca hizmetin ifası için işlenir; model eğitimi, reklam veya üçüncü kişilerle paylaşım amacıyla kullanılmaz.</p>
+              <p className="mt-2 text-yellow-400">Üyelik işlemini tamamlayarak bu sözleşmeyi onayladığınızda, kişisel verilerinizin yurt dışına aktarılmasına dair bu sorumluluğu da kabul etmiş olursunuz.</p>
+            </section>
+
+            <section>
+              <h4 className="text-white font-medium mb-2">10. Saklama ve İmha</h4>
+              <ul className="list-disc list-inside space-y-1">
+                <li>Kişisel veriler, işleme amaçları için gerekli süre boyunca saklanır</li>
+                <li>Süre dolduğunda KVKK m.7 uyarınca silinir, yok edilir veya anonimleştirilir</li>
+                <li>Hukuki uyuşmazlıklarda zamanaşımı sürelerince saklama yapılabilir</li>
+                <li>Bilgin, Kişisel Veri Saklama ve İmha Politikası oluşturmuştur</li>
+              </ul>
+            </section>
+
+            <section>
+              <h4 className="text-white font-medium mb-2">11. Güvenlik Önlemleri</h4>
+              <ul className="list-disc list-inside space-y-1">
+                <li><strong>Teknik önlemler:</strong> Şifreleme, loglama, erişim kontrolleri, düzenli sızma testleri</li>
+                <li><strong>İdari önlemler:</strong> Personel eğitimi, gizlilik taahhütnameleri, yetki sınırlamaları</li>
+                <li><strong>Sözleşmesel önlemler:</strong> Tedarikçi sözleşmelerine veri güvenliği hükümleri eklenmesi</li>
+              </ul>
+              <p className="mt-2 text-red-300 text-xs">
+                <strong>Gerçekçi güvenlik uyarısı:</strong> Kişisel verileri kayıp, kötüye kullanım ve yetkisiz erişim, açıklama, değiştirme veya imhaya karşı korumak için ticari açıdan makul teknik, idari ve organizasyonel önlemler uygulanır. Ancak hiçbir internet veya e-posta iletimi tamamen güvenli ya da hatasız değildir. Bu nedenle kullanıcıların Hizmetlere hangi bilgileri sağlayacaklarına karar verirken dikkatli olmaları gerekir.
+              </p>
+            </section>
+
+            <section>
               <h4 className="text-white font-medium mb-2">12. Veri Sahiplerinin Hakları (KVKK m.11)</h4>
               <p>Veri sahipleri, Bilgin'e başvurarak şu haklara sahiptir:</p>
               <ul className="list-disc list-inside mt-2 space-y-1">
@@ -1137,6 +1200,20 @@ function App() {
                 <li>Zarara uğraması hâlinde tazminat talep etme</li>
               </ul>
               <p className="mt-2">Başvurular: privacy@bilgin.com<br />Yanıt süresi: 30 gün</p>
+            </section>
+
+            <section>
+              <h4 className="text-white font-medium mb-2">13. İstisnalar</h4>
+              <p>KVKK m.28 uyarınca; milli güvenlik, kamu düzeni, suç soruşturması, araştırma, sanat, tarih, bilimsel amaçlı anonim işleme hallerinde bu haklar sınırlanabilir.</p>
+            </section>
+
+            <section>
+              <h4 className="text-white font-medium mb-2">14. Çocukların Verileri</h4>
+              <ul className="list-disc list-inside space-y-1">
+                <li>Platform 18 yaş altı kişiler için tasarlanmamıştır</li>
+                <li>18 yaşından küçüklerin verileri yalnızca veli/vasi izni ile işlenir</li>
+                <li>13 yaş altından bilinçli veri toplanmaz, tespit edilirse silinir</li>
+              </ul>
             </section>
 
             <section>
