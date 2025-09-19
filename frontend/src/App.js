@@ -837,7 +837,7 @@ function App() {
               </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="w-56 mb-2">
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setShowSettingsModal(true)}>
                 <User className="w-4 h-4 mr-2" />
                 Ayarlar
               </DropdownMenuItem>
