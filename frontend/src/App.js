@@ -14,6 +14,9 @@ import { useToast } from './hooks/use-toast';
 import { MessageCircle, Plus, Trash2, Send, Bot, User, Star, Clock, Settings, LogOut, CreditCard, Shield, Bell, FileText, AlertTriangle, HelpCircle, Moon, Sun, Globe } from 'lucide-react';
 import axios from 'axios';
 
+// Configure axios defaults
+axios.defaults.withCredentials = true;
+
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
