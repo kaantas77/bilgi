@@ -46,6 +46,7 @@ function App() {
   // Modal states
   const [showReportModal, setShowReportModal] = useState(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [reportText, setReportText] = useState('');
   
   // Settings states
