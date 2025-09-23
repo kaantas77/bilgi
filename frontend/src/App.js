@@ -3,15 +3,12 @@ import './App.css';
 import { Button } from './components/ui/button';
 import { Input } from './components/ui/input';
 import { Card, CardContent } from './components/ui/card';
-import { Separator } from './components/ui/separator';
 import { ScrollArea } from './components/ui/scroll-area';
 import { Avatar, AvatarImage, AvatarFallback } from './components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from './components/ui/dropdown-menu';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './components/ui/dialog';
-import { Textarea } from './components/ui/textarea';
-import { Badge } from './components/ui/badge';
 import { useToast } from './hooks/use-toast';
-import { MessageCircle, Plus, Trash2, Send, Bot, User, Star, Clock, Settings, LogOut, CreditCard, Shield, Bell, FileText, AlertTriangle, HelpCircle, Moon, Sun, Globe } from 'lucide-react';
+import { MessageCircle, Plus, Trash2, Send, Bot, User, Settings, Moon, Sun, Globe, Bell } from 'lucide-react';
 import MathRenderer from './components/MathRenderer';
 import axios from 'axios';
 
@@ -22,11 +19,8 @@ axios.defaults.headers.common['Content-Type'] = 'application/json';
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
-// Set axios to include credentials
-axios.defaults.withCredentials = true;
-
 function App() {
-  // Remove all auth states - direct to chat
+  // Main app states - no auth required
   const [conversations, setConversations] = useState([]);
   const [currentConversation, setCurrentConversation] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -34,7 +28,7 @@ function App() {
   const [isMessageLoading, setIsMessageLoading] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   
-  // Settings states only
+  // Settings states
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [language, setLanguage] = useState('tr');
@@ -75,10 +69,9 @@ function App() {
     scrollToBottom();
   }, [messages]);
 
-  // Remove all auth functions - direct access to chat
-
   const loadConversations = async () => {
     try {
+      // Remove auth requirement - load conversations directly
       const response = await axios.get(`${API}/conversations`);
       setConversations(response.data);
     } catch (error) {
@@ -94,8 +87,6 @@ function App() {
       console.error('Error loading messages:', error);
     }
   };
-
-  // Remove all auth functions - direct chat access
 
   const createNewConversation = async () => {
     try {
@@ -194,7 +185,7 @@ function App() {
     }
   };
 
-  // Settings toggle functions only
+  // Settings toggle functions
   const toggleNotifications = () => {
     const newNotifications = !notifications;
     setNotifications(newNotifications);
@@ -225,16 +216,13 @@ function App() {
   const toggleLanguage = () => {
     const newLang = language === 'tr' ? 'en' : 'tr';
     setLanguage(newLang);
-    // Store in localStorage for persistence
     localStorage.setItem('language', newLang);
     toast({
       description: `Dil ${newLang === 'tr' ? 'Türkçe' : 'İngilizce'} olarak değiştirildi`,
     });
   };
 
-  // Direct to main chat interface - no auth screens
-
-  // Main Chat Interface
+  // Main Chat Interface - Direct access, no auth
   return (
     <div className="flex h-screen bg-black">
       {/* Sidebar */}
@@ -268,7 +256,7 @@ function App() {
             {conversations.length > 0 && (
               <div className="space-y-1">
                 <div className="flex items-center space-x-2 px-3 py-2">
-                  <Clock className="w-4 h-4 text-gray-400" />
+                  <MessageCircle className="w-4 h-4 text-gray-400" />
                   <span className="text-sm font-medium text-white">Son Sohbetler</span>
                 </div>
                 {conversations.slice(0, 10).map((conversation) => (
@@ -291,53 +279,29 @@ function App() {
           </div>
         </ScrollArea>
 
-        {/* User Profile Section */}
+        {/* Settings Section */}
         <div className="border-t border-gray-800 p-3">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <div className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-900 cursor-pointer transition-colors">
                 <Avatar className="w-8 h-8">
                   <AvatarFallback className="bg-gray-700 text-white text-sm">
-                    {user?.username?.charAt(0).toUpperCase() || 'U'}
+                    AI
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium text-white truncate">{user?.username}</div>
+                  <div className="text-sm font-medium text-white truncate">BİLGİN AI</div>
                   <div className="text-xs text-gray-500">
-                    {user?.is_admin ? 'Admin' : 'Free Plan'}
+                    Matematik Desteği Aktif
                   </div>
                 </div>
-                <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
               </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="w-56 mb-2">
               <DropdownMenuItem onClick={() => setShowSettingsModal(true)}>
-                <User className="w-4 h-4 mr-2" />
+                <Settings className="w-4 h-4 mr-2" />
                 Ayarlar
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => setShowReportModal(true)}>
-                <AlertTriangle className="w-4 h-4 mr-2" />
-                Hata Bildir
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setShowPrivacyModal(true)}>
-                <FileText className="w-4 h-4 mr-2" />
-                Kullanıcı Sözleşmesi
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <HelpCircle className="w-4 h-4 mr-2" />
-                Yardım & Destek
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              {user?.is_admin && (
-                <DropdownMenuItem onClick={toggleAdmin}>
-                  <Shield className="w-4 h-4 mr-2" />
-                  Admin Panel
-                </DropdownMenuItem>
-              )}
-              <DropdownMenuItem onClick={handleLogout}>
-                <LogOut className="w-4 h-4 mr-2" />
-                Çıkış Yap
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -438,7 +402,7 @@ function App() {
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
                     onKeyPress={handleKeyPress}
-                    placeholder="BİLGİN'e mesajınızı yazın..."
+                    placeholder="BİLGİN'e matematik sorunuzu yazın... Örnek: $x^2 + y^2 = r^2$"
                     className="flex-1 border-0 bg-transparent focus:ring-0 text-white placeholder-gray-500"
                     disabled={isMessageLoading}
                   />
@@ -452,7 +416,7 @@ function App() {
                   </Button>
                 </div>
                 <div className="text-xs text-gray-500 text-center mt-2">
-                  BİLGİN AI hata yapabilir. Önemli bilgileri kontrol edin.
+                  BİLGİN AI matematik ifadelerini LaTeX formatında anlayabilir. KaTeX ile profesyonel render.
                 </div>
               </div>
             </div>
@@ -463,16 +427,16 @@ function App() {
             <div className="text-center space-y-6 max-w-3xl">
               <div>
                 <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 animate-fade-in">
-                  Merhaba {user?.name || user?.username}, ne öğrenmek istersin?
+                  Merhaba, ne öğrenmek istersin?
                 </h2>
                 <p className="text-gray-300 mb-8 text-base animate-fade-in-delay">
-                  Merak ettiğin her şeyi sorabilirsin!
+                  Matematik problemlerini KaTeX ile profesyonel kalitede görebilirsin!
                 </p>
                 <button
                   onClick={createNewConversation}
                   className="bg-transparent border border-gray-500 hover:border-white text-white px-6 py-2.5 rounded-full transition-all duration-500 hover:bg-white/10 animate-bounce-subtle text-sm"
                 >
-                  Ayrıca yeni bir sohbet başlatmak için tıkla
+                  Matematik sorusu sormak için tıkla
                 </button>
               </div>
             </div>
@@ -481,278 +445,64 @@ function App() {
       </div>
 
       {/* Settings Modal */}
-    <Dialog open={showSettingsModal} onOpenChange={setShowSettingsModal}>
-      <DialogContent className="bg-black border border-gray-800 text-white max-w-md">
-        <DialogHeader>
-          <DialogTitle className="text-white flex items-center">
-            <User className="w-5 h-5 mr-2 text-blue-500" />
-            Ayarlar
-          </DialogTitle>
-        </DialogHeader>
-        <div className="space-y-4">
-          <div className="space-y-3">
-            <button
-              onClick={toggleNotifications}
-              className="w-full flex items-center justify-between p-3 bg-gray-900 border border-gray-700 rounded-lg hover:bg-gray-800 transition-colors"
-            >
-              <div className="flex items-center">
-                <Bell className="w-4 h-4 mr-3" />
-                <span>Bildirimler</span>
-              </div>
-              <span className={`text-sm ${notifications ? 'text-green-400' : 'text-red-400'}`}>
-                {notifications ? 'Açık' : 'Kapalı'}
-              </span>
-            </button>
-
-            <button
-              onClick={toggleDarkMode}
-              className="w-full flex items-center justify-between p-3 bg-gray-900 border border-gray-700 rounded-lg hover:bg-gray-800 transition-colors"
-            >
-              <div className="flex items-center">
-                {isDarkMode ? <Sun className="w-4 h-4 mr-3" /> : <Moon className="w-4 h-4 mr-3" />}
-                <span>Tema</span>
-              </div>
-              <span className="text-sm text-gray-400">
-                {isDarkMode ? 'Koyu' : 'Açık'}
-              </span>
-            </button>
-
-            <button
-              onClick={toggleLanguage}
-              className="w-full flex items-center justify-between p-3 bg-gray-900 border border-gray-700 rounded-lg hover:bg-gray-800 transition-colors"
-            >
-              <div className="flex items-center">
-                <Globe className="w-4 h-4 mr-3" />
-                <span>Dil</span>
-              </div>
-              <span className="text-sm text-gray-400">
-                {language === 'tr' ? 'Türkçe' : 'English'}
-              </span>
-            </button>
-          </div>
-          
-          <div className="flex justify-end mt-6">
-            <Button
-              onClick={() => setShowSettingsModal(false)}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
-            >
-              Tamam
-            </Button>
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
-
-    {/* Bug Report Modal */}
-      <Dialog open={showReportModal} onOpenChange={setShowReportModal}>
+      <Dialog open={showSettingsModal} onOpenChange={setShowSettingsModal}>
         <DialogContent className="bg-black border border-gray-800 text-white max-w-md">
           <DialogHeader>
             <DialogTitle className="text-white flex items-center">
-              <AlertTriangle className="w-5 h-5 mr-2 text-orange-500" />
-              Hata Bildir
+              <Settings className="w-5 h-5 mr-2 text-blue-500" />
+              Ayarlar
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <p className="text-gray-300 text-sm">
-              Karşılaştığınız hatayı detaylı bir şekilde açıklayın:
-            </p>
-            <Textarea
-              value={reportText}
-              onChange={(e) => setReportText(e.target.value)}
-              placeholder="Hata açıklamasını buraya yazın..."
-              className="bg-gray-900 border-gray-700 text-white placeholder-gray-400 min-h-[100px]"
-            />
-            <div className="flex justify-end space-x-2">
-              <Button
-                onClick={() => setShowReportModal(false)}
-                variant="outline"
-                className="border-gray-600 text-gray-300 hover:bg-gray-800"
+            <div className="space-y-3">
+              <button
+                onClick={toggleNotifications}
+                className="w-full flex items-center justify-between p-3 bg-gray-900 border border-gray-700 rounded-lg hover:bg-gray-800 transition-colors"
               >
-                İptal
-              </Button>
-              <Button
-                onClick={submitReport}
-                className="bg-orange-600 hover:bg-orange-700 text-white"
+                <div className="flex items-center">
+                  <Bell className="w-4 h-4 mr-3" />
+                  <span>Bildirimler</span>
+                </div>
+                <span className={`text-sm ${notifications ? 'text-green-400' : 'text-red-400'}`}>
+                  {notifications ? 'Açık' : 'Kapalı'}
+                </span>
+              </button>
+
+              <button
+                onClick={toggleDarkMode}
+                className="w-full flex items-center justify-between p-3 bg-gray-900 border border-gray-700 rounded-lg hover:bg-gray-800 transition-colors"
               >
-                Gönder
+                <div className="flex items-center">
+                  {isDarkMode ? <Sun className="w-4 h-4 mr-3" /> : <Moon className="w-4 h-4 mr-3" />}
+                  <span>Tema</span>
+                </div>
+                <span className="text-sm text-gray-400">
+                  {isDarkMode ? 'Koyu' : 'Açık'}
+                </span>
+              </button>
+
+              <button
+                onClick={toggleLanguage}
+                className="w-full flex items-center justify-between p-3 bg-gray-900 border border-gray-700 rounded-lg hover:bg-gray-800 transition-colors"
+              >
+                <div className="flex items-center">
+                  <Globe className="w-4 h-4 mr-3" />
+                  <span>Dil</span>
+                </div>
+                <span className="text-sm text-gray-400">
+                  {language === 'tr' ? 'Türkçe' : 'English'}
+                </span>
+              </button>
+            </div>
+            
+            <div className="flex justify-end mt-6">
+              <Button
+                onClick={() => setShowSettingsModal(false)}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                Tamam
               </Button>
             </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Privacy Policy Modal */}
-      <Dialog open={showPrivacyModal} onOpenChange={setShowPrivacyModal}>
-        <DialogContent className="bg-black border border-gray-800 text-white max-w-4xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-white flex items-center text-lg">
-              <FileText className="w-5 h-5 mr-2 text-blue-500" />
-              Kullanıcı Sözleşmesi ve Gizlilik Politikası
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-6 text-sm text-gray-300 leading-relaxed">
-            <div>
-              <h3 className="text-white font-semibold mb-2">BİLGİN TEKNOLOJİ A.Ş.</h3>
-              <h4 className="text-blue-400 font-medium mb-3">Kişisel Verilerin Korunması, İşlenmesi ve Gizlilik Politikası</h4>
-            </div>
-
-            <section>
-              <h4 className="text-white font-medium mb-2">1. Amaç ve Kapsam</h4>
-              <p>Bu politika, 6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK"), ilgili ikincil mevzuat ve Kişisel Verileri Koruma Kurulu ("Kurul") kararları çerçevesinde, Bilgin Teknoloji A.Ş. ("Bilgin") tarafından işlenen kişisel verilerin korunması, işlenmesi, saklanması, silinmesi, yok edilmesi ve anonim hale getirilmesi süreçlerini düzenlemektedir.</p>
-            </section>
-
-            <section>
-              <h4 className="text-white font-medium mb-2">2. Veri Sorumlusu</h4>
-              <p>Bilgin Teknoloji A.Ş. KVKK uyarınca Veri Sorumlusu sıfatına sahiptir.</p>
-              <p className="mt-2">Adres: [adresinizi ekleyin]<br />E-posta: privacy@bilgin.com</p>
-            </section>
-
-            <section>
-              <h4 className="text-white font-medium mb-2">3. Temel İlkeler</h4>
-              <p>Bilgin, kişisel verileri aşağıdaki KVKK m.4'te sayılan ilkelere uygun olarak işler:</p>
-              <ul className="list-disc list-inside mt-2 space-y-1">
-                <li>Hukuka ve dürüstlük kurallarına uygunluk</li>
-                <li>Doğru ve güncel olma</li>
-                <li>Belirli, açık ve meşru amaçlarla işlenme</li>
-                <li>Amaçla bağlantılı, sınırlı ve ölçülü olma</li>
-                <li>İlgili mevzuatta öngörülen süreler veya işleme amaçları için gerekli olan süre kadar muhafaza edilme</li>
-              </ul>
-            </section>
-
-            <section>
-              <h4 className="text-white font-medium mb-2">4. İşlenen Kişisel Veri Kategorileri</h4>
-              <ul className="list-disc list-inside space-y-1">
-                <li><strong>Kimlik Bilgileri:</strong> Ad, soyad, doğum tarihi</li>
-                <li><strong>İletişim Bilgileri:</strong> Telefon, e-posta, adres</li>
-                <li><strong>Hesap Bilgileri:</strong> Kullanıcı adı, şifre, üyelik kayıtları, giriş/çıkış saatleri</li>
-                <li><strong>Finansal Veriler:</strong> Gelir-gider bilgileri, fatura ve ödeme bilgileri (kart verileri maskelenmiş)</li>
-                <li><strong>Kullanım Verileri:</strong> Uygulama içi işlemler, tercih bilgileri, oturum süreleri</li>
-                <li><strong>Teknik Veriler:</strong> IP adresi, cihaz bilgisi, log kayıtları, çerez verileri</li>
-                <li><strong>İçerik Verileri:</strong> Kullanıcıların yüklediği dosyalar, tablolar, metinler</li>
-                <li><strong>Hukuki İşlem Bilgileri:</strong> Talep, şikâyet, dava ve resmi makam yazışmaları</li>
-                <li><strong>Pazarlama Verileri (açık rıza ile):</strong> Kampanya tercihleri, kullanım alışkanlıklarına göre öneriler</li>
-                <li><strong>Özel Nitelikli Kişisel Veriler:</strong> Sağlık, biyometrik veya dini veriler talep edilmez</li>
-              </ul>
-            </section>
-
-            <section>
-              <h4 className="text-white font-medium mb-2">5. Veri Sahibi Grupları</h4>
-              <ul className="list-disc list-inside space-y-1">
-                <li>Kullanıcılar</li>
-                <li>Çalışanlar</li>
-                <li>Tedarikçiler</li>
-                <li>İş ortakları</li>
-                <li>Potansiyel müşteri adayları</li>
-                <li>Ziyaretçiler</li>
-              </ul>
-            </section>
-
-            <section>
-              <h4 className="text-white font-medium mb-2">6. Kişisel Verilerin İşlenme Amaçları</h4>
-              <ul className="list-disc list-inside space-y-1">
-                <li>Platform hizmetlerinin sunulması, üyelik ve hesap yönetimi</li>
-                <li>Raporlama, analiz ve finansal çıktılar oluşturma</li>
-                <li>Güvenlik, dolandırıcılık önleme, bilgi güvenliği denetimleri</li>
-                <li>Kullanıcı deneyimini geliştirme</li>
-                <li>Hukuki yükümlülüklerin yerine getirilmesi</li>
-                <li>Meşru menfaatlerin korunması</li>
-                <li>Açık rıza varsa pazarlama ve iletişim faaliyetleri</li>
-              </ul>
-            </section>
-
-            <section>
-              <h4 className="text-white font-medium mb-2">7. Hukuki Sebepler</h4>
-              <ul className="list-disc list-inside space-y-1">
-                <li><strong>m.5/2-c:</strong> Sözleşmenin kurulması veya ifasıyla doğrudan ilgili olması</li>
-                <li><strong>m.5/2-ç:</strong> Veri sorumlusunun hukuki yükümlülüğünü yerine getirmesi</li>
-                <li><strong>m.5/2-f:</strong> İlgili kişinin temel hak ve özgürlüklerine zarar vermemek kaydıyla meşru menfaatler</li>
-                <li><strong>m.5/1:</strong> Açık rıza alınması gereken haller</li>
-              </ul>
-            </section>
-
-            <section>
-              <h4 className="text-white font-medium mb-2">8. Kişisel Verilerin Paylaşımı</h4>
-              <ul className="list-disc list-inside space-y-1">
-                <li><strong>Resmî kurumlar:</strong> Yalnızca yasal zorunluluk veya milli güvenlik/kamu düzeni durumlarında</li>
-                <li><strong>Hizmet sağlayıcılar:</strong> Barındırma, güvenlik, bakım, destek, ödeme altyapısı gibi zorunlu tedarikçiler</li>
-                <li><strong>İştirakler/iş ortakları:</strong> Sadece hizmetin ifası için gerekli olması halinde</li>
-                <li><strong>Üçüncü kişiler:</strong> Kişisel veriler pazarlama amacıyla paylaşılmaz</li>
-              </ul>
-            </section>
-
-            <section>
-              <h4 className="text-white font-medium mb-2">9. Yurt Dışı Aktarım</h4>
-              <p>Kullanıcı verileri yalnızca açık rızanız ile yurt dışına aktarılır.</p>
-              <p className="mt-2">Aktarımlar sırasında TLS/SSL şifreleme ve gerekli teknik/idari güvenlik tedbirleri uygulanır.</p>
-              <p className="mt-2">Veriler yalnızca hizmetin ifası için işlenir; model eğitimi, reklam veya üçüncü kişilerle paylaşım amacıyla kullanılmaz.</p>
-              <p className="mt-2 text-yellow-400">Üyelik işlemini tamamlayarak bu sözleşmeyi onayladığınızda, kişisel verilerinizin yurt dışına aktarılmasına dair bu sorumluluğu da kabul etmiş olursunuz.</p>
-            </section>
-
-            <section>
-              <h4 className="text-white font-medium mb-2">10. Saklama ve İmha</h4>
-              <ul className="list-disc list-inside space-y-1">
-                <li>Kişisel veriler, işleme amaçları için gerekli süre boyunca saklanır</li>
-                <li>Süre dolduğunda KVKK m.7 uyarınca silinir, yok edilir veya anonimleştirilir</li>
-                <li>Hukuki uyuşmazlıklarda zamanaşımı sürelerince saklama yapılabilir</li>
-                <li>Bilgin, Kişisel Veri Saklama ve İmha Politikası oluşturmuştur</li>
-              </ul>
-            </section>
-
-            <section>
-              <h4 className="text-white font-medium mb-2">11. Güvenlik Önlemleri</h4>
-              <ul className="list-disc list-inside space-y-1">
-                <li><strong>Teknik önlemler:</strong> Şifreleme, loglama, erişim kontrolleri, düzenli sızma testleri</li>
-                <li><strong>İdari önlemler:</strong> Personel eğitimi, gizlilik taahhütnameleri, yetki sınırlamaları</li>
-                <li><strong>Sözleşmesel önlemler:</strong> Tedarikçi sözleşmelerine veri güvenliği hükümleri eklenmesi</li>
-              </ul>
-              <p className="mt-2 text-red-300 text-xs">
-                <strong>Gerçekçi güvenlik uyarısı:</strong> Kişisel verileri kayıp, kötüye kullanım ve yetkisiz erişim, açıklama, değiştirme veya imhaya karşı korumak için ticari açıdan makul teknik, idari ve organizasyonel önlemler uygulanır. Ancak hiçbir internet veya e-posta iletimi tamamen güvenli ya da hatasız değildir. Bu nedenle kullanıcıların Hizmetlere hangi bilgileri sağlayacaklarına karar verirken dikkatli olmaları gerekir.
-              </p>
-            </section>
-
-            <section>
-              <h4 className="text-white font-medium mb-2">12. Veri Sahiplerinin Hakları (KVKK m.11)</h4>
-              <p>Veri sahipleri, Bilgin'e başvurarak şu haklara sahiptir:</p>
-              <ul className="list-disc list-inside mt-2 space-y-1">
-                <li>Kişisel verilerinin işlenip işlenmediğini öğrenme</li>
-                <li>İşlenmişse buna ilişkin bilgi talep etme</li>
-                <li>İşlenme amacını öğrenme</li>
-                <li>Eksik/yanlış işlenmişse düzeltilmesini isteme</li>
-                <li>Silinmesini veya yok edilmesini talep etme</li>
-                <li>Aktarıldığı üçüncü kişilere bildirilmesini isteme</li>
-                <li>Otomatik işleme sonuçlarına itiraz etme</li>
-                <li>Zarara uğraması hâlinde tazminat talep etme</li>
-              </ul>
-              <p className="mt-2">Başvurular: privacy@bilgin.com<br />Yanıt süresi: 30 gün</p>
-            </section>
-
-            <section>
-              <h4 className="text-white font-medium mb-2">13. İstisnalar</h4>
-              <p>KVKK m.28 uyarınca; milli güvenlik, kamu düzeni, suç soruşturması, araştırma, sanat, tarih, bilimsel amaçlı anonim işleme hallerinde bu haklar sınırlanabilir.</p>
-            </section>
-
-            <section>
-              <h4 className="text-white font-medium mb-2">14. Çocukların Verileri</h4>
-              <ul className="list-disc list-inside space-y-1">
-                <li>Platform 18 yaş altı kişiler için tasarlanmamıştır</li>
-                <li>18 yaşından küçüklerin verileri yalnızca veli/vasi izni ile işlenir</li>
-                <li>13 yaş altından bilinçli veri toplanmaz, tespit edilirse silinir</li>
-              </ul>
-            </section>
-
-            <section>
-              <h4 className="text-white font-medium mb-2">15. Güncellemeler</h4>
-              <p>Bu politika, yasal düzenlemeler veya hizmetlerdeki değişikliklere bağlı olarak güncellenebilir. Güncel sürüm her zaman platformda yayımlanır.</p>
-              <p className="mt-2 text-blue-400 font-medium">Yürürlük tarihi: 19.09.2025</p>
-            </section>
-          </div>
-          <div className="flex justify-end mt-6">
-            <Button
-              onClick={() => setShowPrivacyModal(false)}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
-            >
-              Anladım
-            </Button>
           </div>
         </DialogContent>
       </Dialog>
