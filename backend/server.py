@@ -650,22 +650,25 @@ async def get_all_users(admin: dict = Depends(require_admin)):
     return [UserResponse(**parse_from_mongo(user)) for user in users]
 
 # Chat Routes (Protected)
+# Anonymous user - no auth required
+ANONYMOUS_USER_ID = "anonymous"
+
 @api_router.get("/conversations", response_model=List[Conversation])
-async def get_conversations(user: dict = Depends(require_auth)):
-    conversations = await db.conversations.find({"user_id": user["id"]}).sort("updated_at", -1).to_list(1000)
+async def get_conversations():
+    conversations = await db.conversations.find({"user_id": ANONYMOUS_USER_ID}).sort("updated_at", -1).to_list(1000)
     return [Conversation(**parse_from_mongo(conv)) for conv in conversations]
 
 @api_router.post("/conversations", response_model=Conversation)
-async def create_conversation(input: ConversationCreate, user: dict = Depends(require_auth)):
-    conversation = Conversation(user_id=user["id"], **input.dict())
+async def create_conversation(input: ConversationCreate):
+    conversation = Conversation(user_id=ANONYMOUS_USER_ID, **input.dict())
     conversation_dict = prepare_for_mongo(conversation.dict())
     await db.conversations.insert_one(conversation_dict)
     return conversation
 
 @api_router.get("/conversations/{conversation_id}/messages", response_model=List[MessageResponse])
-async def get_messages(conversation_id: str, user: dict = Depends(require_auth)):
-    # Check if conversation belongs to user
-    conversation = await db.conversations.find_one({"id": conversation_id, "user_id": user["id"]})
+async def get_messages(conversation_id: str):
+    # Check if conversation exists for anonymous user
+    conversation = await db.conversations.find_one({"id": conversation_id, "user_id": ANONYMOUS_USER_ID})
     if not conversation:
         raise HTTPException(status_code=404, detail="Conversation not found")
     
@@ -673,9 +676,9 @@ async def get_messages(conversation_id: str, user: dict = Depends(require_auth))
     return [MessageResponse(**parse_from_mongo(msg)) for msg in messages]
 
 @api_router.post("/conversations/{conversation_id}/messages", response_model=MessageResponse)
-async def send_message(conversation_id: str, input: MessageCreate, user: dict = Depends(require_auth)):
-    # Check if conversation belongs to user
-    conversation = await db.conversations.find_one({"id": conversation_id, "user_id": user["id"]})
+async def send_message(conversation_id: str, input: MessageCreate):
+    # Check if conversation exists for anonymous user
+    conversation = await db.conversations.find_one({"id": conversation_id, "user_id": ANONYMOUS_USER_ID})
     if not conversation:
         raise HTTPException(status_code=404, detail="Conversation not found")
     
