@@ -101,3 +101,48 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: "Kullanıcı matematiksel sembolleri ve diğer sembollerin daha anlaşılır görünmesi için BİLGİN uygulamasına matematik render sistemi eklenmesini istiyor. MathJax veya KaTeX entegrasyonu ile matematik formüllerinin düzgün gösterilmesi gerekiyor."
+
+backend:
+  - task: "Backend sunucusu ve API'lerin çalışması"
+    implemented: true
+    working: "unknown"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+        - working: "unknown"
+        - agent: "main"
+        - comment: "Backend API durumu kontrol edilecek"
+
+frontend:
+  - task: "MathJax/KaTeX matematik render sistemi entegrasyonu"
+    implemented: false
+    working: false
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: false
+        - agent: "main"
+        - comment: "Matematik sembol render sistemi henüz eklenmedi - kullanıcı matematik sembollerin kötü göründüğünü bildirdi"
+
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 1
+  run_ui: false
+
+test_plan:
+  current_focus:
+    - "MathJax/KaTeX matematik render sistemi entegrasyonu"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+    - agent: "main"
+    - message: "Matematik sembol render sistemi için MathJax/KaTeX entegrasyonu yapılacak. Kullanıcı LaTeX format ve basit sembollerin düzgün görüntülenmesini istiyor."
