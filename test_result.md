@@ -154,3 +154,5 @@ agent_communication:
     - message: "Matematik sembol render sistemi için MathJax/KaTeX entegrasyonu yapılacak. Kullanıcı LaTeX format ve basit sembollerin düzgün görüntülenmesini istiyor."
     - agent: "main"
     - message: "MathJax entegrasyonu tamamlandı: react-mathjax-preview paketi kuruldu, MathRenderer component oluşturuldu, App.js'te message render kısmına entegre edildi, CSS'te math styling eklendi. Login sistemi çalışmadığı için tam test edilemiyor. Frontend testing agent ile test edilmeli."
+    - agent: "testing"
+    - message: "CRITICAL ISSUE: MathJax entegrasyonu başarısız. react-mathjax-preview paketi React 19 ile uyumsuz. Alternatif çözümler: 1) KaTeX kullanımı (react-katex), 2) MathJax v4 ile direkt entegrasyon, 3) Server-side rendering. Öncelik: KaTeX entegrasyonu denenebilir."
