@@ -150,9 +150,8 @@ metadata:
 
 test_plan:
   current_focus:
-    - "MathJax/KaTeX matematik render sistemi entegrasyonu"
-  stuck_tasks:
-    - "MathJax/KaTeX matematik render sistemi entegrasyonu"
+    - "Backend sunucusu ve API'lerin çalışması"
+  stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
