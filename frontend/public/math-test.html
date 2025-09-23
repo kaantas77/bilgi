@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Rendering Test - BİLGİN</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #1a1a1a;
+            color: white;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #333;
+            border-radius: 8px;
+            background-color: #2a2a2a;
+        }
+        .test-title {
+            color: #4CAF50;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .math-content {
+            color: inherit;
+            line-height: 1.6;
+        }
+        .math-content .MathJax {
+            color: inherit !important;
+        }
+        .math-content .MathJax_Display {
+            margin: 1em 0;
+        }
+        .math-content mjx-container {
+            color: inherit !important;
+        }
+        .math-content mjx-container[jax="SVG"] {
+            color: inherit !important;
+        }
+        .math-content mjx-container[jax="SVG"] svg {
+            fill: currentColor !important;
+        }
+    </style>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true,
+                processEnvironments: true,
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+</head>
+<body>
+    <h1>BİLGİN Math Rendering Test</h1>
+    <p>This page tests the math rendering functionality that should be working in the BİLGİN chat application.</p>
+    
+    <div class="test-section">
+        <div class="test-title">Test 1: Inline Math</div>
+        <div class="math-content">
+            The Pythagorean theorem states that $x^2 + y^2 = r^2$ for a right triangle.
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <div class="test-title">Test 2: Display Math - Summation</div>
+        <div class="math-content">
+            The sum of the first n natural numbers is:
+            $$\sum_{i=1}^{n} x_i = \frac{n(n+1)}{2}$$
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <div class="test-title">Test 3: Fractions</div>
+        <div class="math-content">
+            A simple fraction: $\frac{1}{2}$ and a complex fraction: $\frac{a+b}{c+d}$
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <div class="test-title">Test 4: Greek Letters</div>
+        <div class="math-content">
+            Greek letters are commonly used in mathematics: $\alpha, \beta, \gamma, \delta, \pi, \sigma, \omega$
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <div class="test-title">Test 5: Complex Integral</div>
+        <div class="math-content">
+            The Gaussian integral:
+            $$\int_0^\infty e^{-x^2} dx = \frac{\sqrt{\pi}}{2}$$
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <div class="test-title">Test 6: Matrix</div>
+        <div class="math-content">
+            A 2x2 matrix:
+            $$\begin{pmatrix} a & b \\ c & d \end{pmatrix}$$
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <div class="test-title">Test 7: Limits</div>
+        <div class="math-content">
+            The definition of a derivative:
+            $$\lim_{h \to 0} \frac{f(x+h) - f(x)}{h}$$
+        </div>
+    </div>
+    
+    <script>
+        // Wait for MathJax to load and then check if math is rendered
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                const mathElements = document.querySelectorAll('.MathJax, mjx-container');
+                console.log('Found', mathElements.length, 'rendered math elements');
+                
+                if (mathElements.length > 0) {
+                    console.log('✅ Math rendering is working!');
+                    document.title = '✅ Math Test - WORKING';
+                } else {
+                    console.log('❌ Math rendering is not working');
+                    document.title = '❌ Math Test - FAILED';
+                }
+            }, 3000);
+        });
+    </script>
+</body>
+</html>
