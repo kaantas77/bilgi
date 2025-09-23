@@ -21,6 +21,32 @@ body {
   overflow: hidden;
 }
 
+/* Math content styling */
+.math-content {
+  color: inherit;
+  line-height: 1.6;
+}
+
+.math-content .MathJax {
+  color: inherit !important;
+}
+
+.math-content .MathJax_Display {
+  margin: 1em 0;
+}
+
+.math-content mjx-container {
+  color: inherit !important;
+}
+
+.math-content mjx-container[jax="SVG"] {
+  color: inherit !important;
+}
+
+.math-content mjx-container[jax="SVG"] svg {
+  fill: currentColor !important;
+}
+
 /* Futuristic Login Background */
 .futuristic-bg {
   position: fixed;
