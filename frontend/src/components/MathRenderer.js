@@ -121,5 +121,3 @@ const MathRenderer = ({ content }) => {
 };
 
 export default MathRenderer;
-
-export default MathRenderer;
