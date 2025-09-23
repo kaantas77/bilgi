@@ -75,61 +75,7 @@ function App() {
     scrollToBottom();
   }, [messages]);
 
-  // Check authentication on mount and handle Google OAuth
-  useEffect(() => {
-    checkAuth();
-    handleGoogleCallback();
-  }, []);
-
-  const checkAuth = async () => {
-    try {
-      const response = await axios.get(`${API}/auth/me`);
-      setUser(response.data);
-      setIsAuthenticated(true);
-      
-      // Check if user needs onboarding
-      if (!response.data.onboarding_completed) {
-        setShowOnboarding(true);
-      } else {
-        loadConversations();
-      }
-    } catch (error) {
-      setIsAuthenticated(false);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleGoogleCallback = async () => {
-    // Check for session_id in URL fragment
-    const fragment = window.location.hash.substring(1);
-    const params = new URLSearchParams(fragment);
-    const sessionId = params.get('session_id');
-    
-    if (sessionId) {
-      setIsLoading(true);
-      try {
-        const response = await axios.post(`${API}/auth/google/callback`, {
-          session_id: sessionId
-        });
-        
-        setUser(response.data.user);
-        setIsAuthenticated(true);
-        
-        // Check if user needs onboarding
-        if (!response.data.user.onboarding_completed) {
-          setShowOnboarding(true);
-        } else {
-          loadConversations();
-        }
-        
-      } catch (error) {
-        console.error('Google OAuth error:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-  };
+  // Remove all auth functions - direct access to chat
 
   const loadConversations = async () => {
     try {
