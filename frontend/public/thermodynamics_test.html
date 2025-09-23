@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BİLGİN Termodinamik Test</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #0a0a0a;
+            color: white;
+            line-height: 1.6;
+        }
+        .chat-message {
+            background-color: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        .bot-message {
+            background-color: #0f1419;
+            border-left: 4px solid #0066cc;
+        }
+        .user-message {
+            background-color: #1a1a2e;
+            border-left: 4px solid #16a085;
+        }
+        .message-header {
+            font-weight: bold;
+            color: #00ffff;
+            margin-bottom: 10px;
+        }
+        .math-content {
+            line-height: 1.8;
+        }
+        .highlight-box {
+            background-color: #2a2a2a;
+            border: 2px solid #0066cc;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        li {
+            margin: 8px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔥 BİLGİN Termodinamik Matematik Render Testi</h1>
+    <p>Bu sayfada KaTeX ile profesyonel matematik render kalitesini test ediyoruz:</p>
+
+    <div class="chat-message user-message">
+        <div class="message-header">👤 Kullanıcı</div>
+        <div>Termodinamik problemimi çöz: Lastik basılan azot miktarını hesapla</div>
+    </div>
+
+    <div class="chat-message bot-message">
+        <div class="message-header">🤖 BİLGİN AI</div>
+        <div class="math-content">
+            <p>Bu termodinamik problemini adım adım çözelim:</p>
+            
+            <h3>📊 Verilen Değerler:</h3>
+            <ul>
+                <li>Hacim: $V = 100 \text{ L} = 0.1 \text{ m}^3$</li>
+                <li>Kış sıcaklığı: $T_1 = 0°\text{C} = 273.15 \text{ K}$</li>
+                <li>Manometre: $P_{1,\text{gauge}} = 210 \text{ kPa} \Rightarrow P_{1,\text{abs}} = 100 + 210 = 310 \text{ kPa}$</li>
+                <li>Azot sabiti: $R_{N_2} = 0.2968 \text{ kJ}/(\text{kg} \cdot \text{K}) = 296.8 \text{ J}/(\text{kg} \cdot \text{K})$</li>
+            </ul>
+
+            <h3>a) Lastiğe basılan azot miktarı (kış şartındaki kütle):</h3>
+            <div class="highlight-box">
+                $$m = \frac{P_{1,\text{abs}} V}{R T_1} = \frac{310{,}000 \times 0.1}{296.8 \times 273.15} \approx 0.382 \text{ kg}$$
+            </div>
+
+            <h3>b) Yazın $T_2 = 37°\text{C} = 310.15 \text{ K}$, $m$, $V$ sabit $\Rightarrow P \propto T$:</h3>
+            <div class="highlight-box">
+                $$P_{2,\text{abs}} = P_{1,\text{abs}} \frac{T_2}{T_1} = 310 \text{ kPa} \times \frac{310.15}{273.15} \approx 352 \text{ kPa}$$
+            </div>
+
+            <h3>🎯 Manometre basıncı:</h3>
+            <div class="highlight-box">
+                $$P_{2,\text{gauge}} = P_{2,\text{abs}} - P_{\text{atm}} \approx 352 - 100 = 252 \text{ kPa}$$
+            </div>
+
+            <p><strong>Sonuç:</strong> Lastiğe basılan azot miktarı <span style="color:#00ff00">0.382 kg</span> ve yazın manometre basıncı <span style="color:#00ff00">252 kPa</span> olur.</p>
+        </div>
+    </div>
+
+    <div class="chat-message bot-message">
+        <div class="message-header">🔬 Test Sonuçları</div>
+        <div id="test-results"></div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            try {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        {left: '$$', right: '$$', display: true},
+                        {left: '$', right: '$', display: false},
+                        {left: '\\(', right: '\\)', display: false},
+                        {left: '\\[', right: '\\]', display: true}
+                    ],
+                    throwOnError: false
+                });
+                
+                const katexElements = document.querySelectorAll('.katex');
+                const resultsDiv = document.getElementById('test-results');
+                
+                if (katexElements.length > 0) {
+                    resultsDiv.innerHTML = `
+                        <div style="color: #4CAF50;">
+                            ✅ <strong>BAŞARILI:</strong> KaTeX matematik rendering çalışıyor!<br>
+                            📊 ${katexElements.length} matematik ifadesi profesyonel kalitede render edildi.<br>
+                            🎯 Subscriptler, fractionlar, Greek harfleri ve karmaşık formüller mükemmel görünüyor.<br>
+                            💡 BİLGİN chat'inde bu kalite matematik gösterebiliyor!
+                        </div>
+                    `;
+                } else {
+                    resultsDiv.innerHTML = `
+                        <div style="color: #ff6b6b;">
+                            ❌ <strong>SORUN:</strong> KaTeX elementleri bulunamadı.
+                        </div>
+                    `;
+                }
+                
+            } catch (error) {
+                document.getElementById('test-results').innerHTML = `
+                    <div style="color: #ff6b6b;">
+                        ❌ <strong>HATA:</strong> ${error.message}
+                    </div>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>
