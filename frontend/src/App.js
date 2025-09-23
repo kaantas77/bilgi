@@ -26,11 +26,7 @@ const API = `${BACKEND_URL}/api`;
 axios.defaults.withCredentials = true;
 
 function App() {
-  const [user, setUser] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [showLogin, setShowLogin] = useState(true);
-  const [isLoading, setIsLoading] = useState(true);
-  const [showOnboarding, setShowOnboarding] = useState(false);
+  // Remove all auth states - direct to chat
   const [conversations, setConversations] = useState([]);
   const [currentConversation, setCurrentConversation] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -38,25 +34,8 @@ function App() {
   const [isMessageLoading, setIsMessageLoading] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   
-  // Auth states
-  const [loginData, setLoginData] = useState({ username: '', password: '' });
-  const [registerData, setRegisterData] = useState({ username: '', email: '', password: '' });
-  const [onboardingData, setOnboardingData] = useState({ name: '' });
-  const [authMode, setAuthMode] = useState('login'); // 'login' or 'register'
-  
-  // Admin states
-  const [showAdmin, setShowAdmin] = useState(false);
-  const [adminStats, setAdminStats] = useState(null);
-  const [adminReports, setAdminReports] = useState([]);
-  const [adminActiveTab, setAdminActiveTab] = useState('stats');
-  
-  // Modal states
-  const [showReportModal, setShowReportModal] = useState(false);
-  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
+  // Settings states only
   const [showSettingsModal, setShowSettingsModal] = useState(false);
-  const [reportText, setReportText] = useState('');
-  
-  // Settings states
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [language, setLanguage] = useState('tr');
   const [notifications, setNotifications] = useState(true);
