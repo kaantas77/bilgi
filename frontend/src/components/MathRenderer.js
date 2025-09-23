@@ -1,5 +1,5 @@
 import React from 'react';
-import { MathJaxPreview } from 'react-mathjax-preview';
+import MathJaxPreview from 'react-mathjax-preview';
 
 // MathRenderer component for rendering mathematical expressions
 const MathRenderer = ({ content }) => {
