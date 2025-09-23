@@ -194,53 +194,7 @@ function App() {
     }
   };
 
-  const loadAdminStats = async () => {
-    try {
-      const response = await axios.get(`${BACKEND_URL}/api/admin/stats`);
-      setAdminStats(response.data);
-    } catch (error) {
-      console.error('Error loading admin stats:', error);
-    }
-  };
-
-  // Submit bug report
-  const submitReport = async () => {
-    if (!reportText.trim()) {
-      toast({
-        description: "Lütfen hata açıklamasını yazın",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    try {
-      await axios.post(`${BACKEND_URL}/api/reports`, {
-        message: reportText,
-        user_agent: navigator.userAgent,
-        url: window.location.href
-      });
-      
-      toast({
-        description: "Hata bildiriminiz başarıyla gönderildi!"
-      });
-      
-      setReportText('');
-      setShowReportModal(false);
-      
-      // Refresh admin reports if admin panel is open
-      if (showAdmin) {
-        loadAdminReports();
-      }
-    } catch (error) {
-      console.error('Report submission error:', error);
-      toast({
-        description: "Hata bildirimi gönderilirken bir sorun oluştu",
-        variant: "destructive"
-      });
-    }
-  };
-
-  // Toggle functions
+  // Settings toggle functions only
   const toggleNotifications = () => {
     const newNotifications = !notifications;
     setNotifications(newNotifications);
