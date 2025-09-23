@@ -1066,7 +1066,9 @@ function App() {
                           ? 'bg-gray-800 text-white' 
                           : 'bg-gray-900 text-white border border-gray-900'
                       }`}>
-                        <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                        <div className="text-sm leading-relaxed">
+                          <MathRenderer content={message.content} />
+                        </div>
                       </div>
                       <div className="text-xs text-gray-500 mt-2">
                         {new Date(message.timestamp).toLocaleTimeString('tr-TR', {
