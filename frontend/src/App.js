@@ -630,6 +630,18 @@ function App() {
           
           <div className="divider">OR</div>
           
+          {/* Math Rendering Test Section */}
+          <div style={{marginBottom: '20px', padding: '15px', border: '1px solid #333', borderRadius: '8px', backgroundColor: '#2a2a2a'}}>
+            <div style={{color: '#4CAF50', fontWeight: 'bold', marginBottom: '10px'}}>Math Rendering Test:</div>
+            <div style={{fontSize: '14px', color: '#ccc'}}>
+              <MathRenderer content="Inline math: $x^2 + y^2 = r^2$" />
+              <br />
+              <MathRenderer content="Display math: $$\sum_{i=1}^{n} x_i$$" />
+              <br />
+              <MathRenderer content="Fraction: $\frac{1}{2}$" />
+            </div>
+          </div>
+          
           {authMode === 'login' ? (
             <form onSubmit={handleLogin}>
               <div className="form-group">
