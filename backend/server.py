@@ -748,16 +748,15 @@ async def send_message(conversation_id: str, input: MessageCreate):
     return MessageResponse(**ai_message.dict())
 
 @api_router.delete("/conversations/{conversation_id}")
-async def delete_conversation(conversation_id: str, user: dict = Depends(require_auth)):
-    # Check if conversation belongs to user
-    conversation = await db.conversations.find_one({"id": conversation_id, "user_id": user["id"]})
+async def delete_conversation(conversation_id: str):
+    # Check if conversation exists for anonymous user
+    conversation = await db.conversations.find_one({"id": conversation_id, "user_id": ANONYMOUS_USER_ID})
     if not conversation:
         raise HTTPException(status_code=404, detail="Conversation not found")
     
-    # Delete messages first
-    await db.messages.delete_many({"conversation_id": conversation_id})
-    # Delete conversation
+    # Delete conversation and associated messages
     await db.conversations.delete_one({"id": conversation_id})
+    await db.messages.delete_many({"conversation_id": conversation_id})
     
     return {"message": "Conversation deleted successfully"}
 
