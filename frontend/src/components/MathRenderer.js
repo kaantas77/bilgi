@@ -28,7 +28,7 @@ const MathRenderer = ({ content }) => {
 
   return (
     <div className="math-content">
-      <MathJax 
+      <MathJaxPreview 
         math={content}
         config={mathConfig}
         className="text-inherit"
