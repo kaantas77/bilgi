@@ -442,49 +442,66 @@ async def register_user(user_data: UserCreate):
 
 @api_router.post("/auth/login")
 async def login_user(user_data: UserLogin, response: Response):
-    # Find user by username or email
-    user = await db.users.find_one({
-        "$or": [
-            {"username": user_data.username},
-            {"email": user_data.username}  # Allow login with email in username field
-        ]
-    })
-    if not user or not verify_password(user_data.password, user["password_hash"]):
-        raise HTTPException(status_code=400, detail="Invalid credentials")
-    
-    user = parse_from_mongo(user)
-    
-    # Create session token
-    session_token, expires_at = create_access_token({"user_id": user["id"]})
-    
-    # Save session to database
-    session = Session(
-        user_id=user["id"],
-        session_token=session_token,
-        expires_at=expires_at
-    )
-    session_dict = prepare_for_mongo(session.dict())
-    await db.sessions.insert_one(session_dict)
-    
-    # Update last login
-    await db.users.update_one(
-        {"id": user["id"]},
-        {"$set": {"last_login": datetime.now(timezone.utc).isoformat()}}
-    )
-    
-    # Set cookie
-    response.set_cookie(
-        key="session_token",
-        value=session_token,
-        httponly=True,
-        secure=True,
-        samesite="none",
-        path="/",
-        expires=expires_at
-    )
-    
-    user_response = UserResponse(**user)
-    return {"user": user_response, "message": "Login successful"}
+    try:
+        logging.info(f"Login attempt for user: {user_data.username}")
+        
+        # Find user by username or email
+        user = await db.users.find_one({
+            "$or": [
+                {"username": user_data.username},
+                {"email": user_data.username}  # Allow login with email in username field
+            ]
+        })
+        
+        if not user:
+            logging.warning(f"User not found: {user_data.username}")
+            raise HTTPException(status_code=400, detail="Invalid credentials")
+            
+        if not verify_password(user_data.password, user["password_hash"]):
+            logging.warning(f"Invalid password for user: {user_data.username}")
+            raise HTTPException(status_code=400, detail="Invalid credentials")
+        
+        user = parse_from_mongo(user)
+        logging.info(f"User login successful: {user['username']}")
+        
+        # Create session token
+        session_token, expires_at = create_access_token({"user_id": user["id"]})
+        
+        # Save session to database
+        session = Session(
+            user_id=user["id"],
+            session_token=session_token,
+            expires_at=expires_at
+        )
+        session_dict = prepare_for_mongo(session.dict())
+        await db.sessions.insert_one(session_dict)
+        
+        # Update last login
+        await db.users.update_one(
+            {"id": user["id"]},
+            {"$set": {"last_login": datetime.now(timezone.utc).isoformat()}}
+        )
+        
+        # Set cookie
+        response.set_cookie(
+            key="session_token",
+            value=session_token,
+            httponly=True,
+            secure=True,
+            samesite="none",
+            path="/",
+            expires=expires_at
+        )
+        
+        user_response = UserResponse(**user)
+        return {"user": user_response, "message": "Login successful"}
+        
+    except HTTPException:
+        # Re-raise HTTP exceptions (like invalid credentials)
+        raise
+    except Exception as e:
+        logging.error(f"Unexpected error during login for user {user_data.username}: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 @api_router.post("/auth/logout")
 async def logout_user(response: Response, user: dict = Depends(require_auth)):
