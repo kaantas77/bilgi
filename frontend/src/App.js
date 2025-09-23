@@ -228,7 +228,11 @@ function App() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(`${API}/auth/login`, loginData);
+      const response = await axios.post(`${API}/auth/login`, loginData, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
       setUser(response.data.user);
       setIsAuthenticated(true);
       
@@ -239,6 +243,7 @@ function App() {
         loadConversations();
       }
     } catch (error) {
+      console.error('Login error:', error);
       alert('Login failed: ' + (error.response?.data?.detail || 'Unknown error'));
     }
   };
