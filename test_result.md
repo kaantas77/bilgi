@@ -120,11 +120,11 @@ backend:
 frontend:
   - task: "MathJax/KaTeX matematik render sistemi entegrasyonu"
     implemented: true
-    working: "unknown"
+    working: false
     file: "/app/frontend/src/App.js"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: false
         - agent: "main"
@@ -132,6 +132,9 @@ frontend:
         - working: "unknown" 
         - agent: "main"
         - comment: "MathJax react-mathjax-preview paketi kuruldu, MathRenderer component oluşturuldu ve App.js'te entegre edildi. Login problemi nedeniyle test edilemiyor."
+        - working: false
+        - agent: "testing"
+        - comment: "CRITICAL: MathJax entegrasyonu çalışmıyor. react-mathjax-preview paketi React 19 ile uyumsuz. Import hatası: 'React.createElement: type is invalid'. MathJax CDN ile direkt entegrasyon da 'window.MathJax.typesetPromise is not a function' hatası veriyor. Alternatif çözüm gerekli."
 
 metadata:
   created_by: "main_agent"
