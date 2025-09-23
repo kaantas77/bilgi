@@ -251,10 +251,15 @@ function App() {
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(`${API}/auth/register`, registerData);
+      await axios.post(`${API}/auth/register`, registerData, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
       alert('Registration successful! Please login.');
       setAuthMode('login');
     } catch (error) {
+      console.error('Register error:', error);
       alert('Registration failed: ' + (error.response?.data?.detail || 'Unknown error'));
     }
   };
