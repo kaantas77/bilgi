@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KaTeX Test - BİLGİN</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #1a1a1a;
+            color: white;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #333;
+            border-radius: 8px;
+            background-color: #2a2a2a;
+        }
+        .test-title {
+            color: #4CAF50;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .math-content {
+            line-height: 1.6;
+            margin: 10px 0;
+        }
+        .error {
+            color: #ff6b6b;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>BİLGİN KaTeX Math Rendering Test</h1>
+    <p>This page tests the KaTeX math rendering functionality that should work in the BİLGİN chat application.</p>
+
+    <div class="test-section">
+        <div class="test-title">Test 1: Inline Math</div>
+        <div class="math-content" id="test1">
+            Test inline math: $x^2 + y^2 = r^2$ in the middle of text.
+        </div>
+    </div>
+
+    <div class="test-section">
+        <div class="test-title">Test 2: Display Math - Summation</div>
+        <div class="math-content" id="test2">
+            Display math test: $$\sum_{i=1}^{n} x_i$$
+        </div>
+    </div>
+
+    <div class="test-section">
+        <div class="test-title">Test 3: Fractions</div>
+        <div class="math-content" id="test3">
+            Fraction test: $\frac{1}{2}$ and $\frac{a+b}{c-d}$
+        </div>
+    </div>
+
+    <div class="test-section">
+        <div class="test-title">Test 4: Greek Letters</div>
+        <div class="math-content" id="test4">
+            Greek letters: $\alpha, \beta, \gamma, \delta, \pi, \sigma$
+        </div>
+    </div>
+
+    <div class="test-section">
+        <div class="test-title">Test 5: Complex Expression</div>
+        <div class="math-content" id="test5">
+            Complex integral: $$\int_0^\infty e^{-x^2} dx = \frac{\sqrt{\pi}}{2}$$
+        </div>
+    </div>
+
+    <div class="test-section">
+        <div class="test-title">Test 6: Mixed Content</div>
+        <div class="math-content" id="test6">
+            Mixed text with $\sqrt{a^2 + b^2}$ inline and $$\lim_{x \to \infty} \frac{1}{x} = 0$$ display math.
+        </div>
+    </div>
+
+    <div class="test-section">
+        <div class="test-title">Test Results</div>
+        <div id="results"></div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Test KaTeX rendering
+            try {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        {left: '$$', right: '$$', display: true},
+                        {left: '$', right: '$', display: false},
+                        {left: '\\(', right: '\\)', display: false},
+                        {left: '\\[', right: '\\]', display: true}
+                    ],
+                    throwOnError: false
+                });
+                
+                // Check if rendering was successful
+                const katexElements = document.querySelectorAll('.katex');
+                const resultsDiv = document.getElementById('results');
+                
+                if (katexElements.length > 0) {
+                    resultsDiv.innerHTML = `
+                        <div style="color: #4CAF50;">
+                            ✅ SUCCESS: KaTeX rendering working!<br>
+                            Found ${katexElements.length} rendered math expressions.<br>
+                            KaTeX version: ${katex.version || 'Unknown'}
+                        </div>
+                    `;
+                } else {
+                    resultsDiv.innerHTML = `
+                        <div class="error">
+                            ❌ FAILED: No KaTeX elements found after rendering.
+                        </div>
+                    `;
+                }
+                
+            } catch (error) {
+                document.getElementById('results').innerHTML = `
+                    <div class="error">
+                        ❌ ERROR: ${error.message}
+                    </div>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>
