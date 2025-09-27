@@ -499,7 +499,16 @@ function App() {
                 ) : (
                   <div className="space-y-1 p-2">
                     {normalConversations
-                      .sort((a, b) => new Date(b.lastMessageAt) - new Date(a.lastMessageAt))
+                      .sort((a, b) => {
+                        try {
+                          const dateA = new Date(a.lastMessageAt);
+                          const dateB = new Date(b.lastMessageAt);
+                          return dateB - dateA;
+                        } catch (error) {
+                          console.error('Sorting error in normal conversations:', error);
+                          return 0;
+                        }
+                      })
                       .map((conversation) => (
                         <div
                           key={conversation.id}
