@@ -453,19 +453,42 @@ def can_anythingllm_answer(anythingllm_response: str) -> bool:
         "bilmiyorum", "erişemiyorum", "güncel", "gerçek zamanlı", 
         "şu anda", "maalesef", "üzgünüm", "sorry", "i don't",
         "can't access", "unable to", "real-time", "current",
-        "yanıt veremedi", "bağlantı hatası", "erişilemedi"
+        "yanıt veremedi", "bağlantı hatası", "erişilemedi",
+        "teknik bir sorun", "yardımcı olamıyorum", "o konuda",
+        "başka bir şey", "technical difficulties", "experiencing",
+        "cevap veremiyorum", "bilgi bulamıyorum", "emin değilim",
+        "tam olarak bilmiyorum", "detaylı bilgi yok", "web'de arayın"
     ]
     
-    response_lower = anythingllm_response.lower()
+    # Patterns that indicate AnythingLLM is asking questions back (couldn't directly answer)
+    question_back_patterns = [
+        r'hangi.*\?', r'ne.*istiyorsun.*\?', r'daha spesifik.*\?',
+        r'hangi konuda.*\?', r'ne hakkında.*\?', r'hangi.*aklında.*\?',
+        r'daha fazla bilgi.*\?', r'daha detaylı.*\?'
+    ]
+    
+    response_lower = anythingllm_response.lower().strip()
     
     # If response is too short, probably not useful
-    if len(anythingllm_response.strip()) < 20:
+    if len(anythingllm_response.strip()) < 15:
         return False
     
     # Check for weak response indicators
     for indicator in weak_response_indicators:
         if indicator in response_lower:
+            logging.info(f"Weak response detected: '{indicator}' found in response")
             return False
+    
+    # Check if AnythingLLM is asking questions back instead of answering
+    for pattern in question_back_patterns:
+        if re.search(pattern, response_lower):
+            logging.info(f"Question back pattern detected: '{pattern}'")
+            return False
+    
+    # If response has multiple question marks, likely asking for clarification
+    if response_lower.count('?') >= 2:
+        logging.info("Multiple questions detected - likely asking for clarification")
+        return False
     
     return True
 
