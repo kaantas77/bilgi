@@ -256,6 +256,31 @@ function App() {
               ←
             </Button>
           </div>
+          
+          {/* Tab Buttons - TEST */}
+          <div className="flex space-x-1 mb-4 bg-gray-900 rounded-lg p-1">
+            <button
+              onClick={() => setActiveTab('normal')}
+              className={`flex-1 px-3 py-2 text-sm rounded-md transition-colors ${
+                activeTab === 'normal' 
+                  ? 'bg-blue-600 text-white' 
+                  : 'text-gray-400 hover:text-white hover:bg-gray-800'
+              }`}
+            >
+              Normal Sohbet
+            </button>
+            <button
+              onClick={() => setActiveTab('modes')}
+              className={`flex-1 px-3 py-2 text-sm rounded-md transition-colors ${
+                activeTab === 'modes' 
+                  ? 'bg-purple-600 text-white' 
+                  : 'text-gray-400 hover:text-white hover:bg-gray-800'
+              }`}
+            >
+              Konuşma Modları
+            </button>
+          </div>
+          
           <Button
             onClick={createNewConversation}
             className="w-full bg-gray-700 hover:bg-gray-600 text-white border-0"
