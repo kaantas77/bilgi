@@ -400,14 +400,24 @@ async def get_anythingllm_response(question: str, conversation_mode: str = 'norm
             
             if response.status_code == 200:
                 ai_response = response.json()
-                return ai_response.get("textResponse", "AnythingLLM yanıt veremedi.")
+                raw_response = ai_response.get("textResponse", "AnythingLLM yanıt veremedi.")
+                
+                # Fix common English error messages
+                if "sorry, i'm experiencing technical difficulties" in raw_response.lower():
+                    return "Üzgünüm, şu anda teknik bir sorun yaşıyorum. Lütfen sorunuzu tekrar deneyin."
+                elif "sorry" in raw_response.lower() and "technical" in raw_response.lower():
+                    return "Teknik bir sorun nedeniyle yanıt veremedim. Lütfen tekrar deneyin."
+                elif "i cannot" in raw_response.lower() or "i can't" in raw_response.lower():
+                    return "Bu konuda yardımcı olamıyorum. Başka bir şey sorabilirsiniz."
+                
+                return raw_response
             else:
                 logging.error(f"AnythingLLM error: {response.status_code}")
-                return "AnythingLLM'e erişilemedi."
+                return "AnythingLLM'e şu anda erişilemedi. Lütfen tekrar deneyin."
                 
     except Exception as e:
         logging.error(f"AnythingLLM request error: {e}")
-        return "AnythingLLM bağlantı hatası."
+        return "AnythingLLM ile bağlantı sorunu yaşandı. Lütfen tekrar deneyin."
 
 async def handle_web_search_question(question: str) -> str:
     """Handle questions that require web search using Serper API"""
