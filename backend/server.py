@@ -37,66 +37,64 @@ api_router = APIRouter(prefix="/api")
 ANYTHINGLLM_API_URL = os.environ.get("ANYTHINGLLM_API_URL", "https://pilj1jbx.rcsrv.com/api/v1/workspace/bilgin/chat")
 ANYTHINGLLM_API_KEY = os.environ.get("ANYTHINGLLM_API_KEY", "FC6CT8Q-QRE433A-J9K8SV8-S7E2M4N")
 
-# Serper API configuration  
-SERPER_API_KEY = os.environ.get("SERPER_API_KEY")
-SERPER_API_URL = "https://google.serper.dev/search"
+# OpenAI API configuration for web search replacement
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
+OPENAI_API_URL = "https://api.openai.com/v1/chat/completions"
 
-# Web search functions using Serper API
-async def web_search(query: str, num_results: int = 3) -> List[dict]:
-    """Perform web search using Serper API (faster and better than Google Custom Search)"""
-    if not SERPER_API_KEY:
-        logging.warning("Serper API key not configured")
-        return []
+# OpenAI web search replacement functions
+async def web_search_with_openai(query: str) -> str:
+    """Use OpenAI GPT-4 to answer questions that would normally require web search"""
+    if not OPENAI_API_KEY:
+        logging.warning("OpenAI API key not configured")
+        return "OpenAI API anahtarı yapılandırılmamış."
     
     try:
         async with httpx.AsyncClient() as client:
+            # Create a prompt for OpenAI to act as a web search replacement
+            system_prompt = """Sen güncel bilgilere erişimi olan bir asistansın. Sorulan soruya mümkün olduğunca güncel ve detaylı yanıt ver. 
+            Eğer kesin güncel bilgi gerekiyorsa (bugünkü hava durumu, döviz kurları, spor skorları gibi), bunun güncel veri gerektirdiğini belirt.
+            Türkçe yanıt ver ve bilgilendirici ol."""
+            
+            user_prompt = f"Soru: {query}\n\nLütfen bu soruya detaylı ve bilgilendirici yanıt ver."
+            
             payload = {
-                "q": query,
-                "num": min(num_results, 10),  # Serper supports up to 10 results per call
-                "hl": "tr",  # Turkish language preference
-                "gl": "tr"   # Turkey geographic location
+                "model": "gpt-4",
+                "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt}
+                ],
+                "max_tokens": 500,
+                "temperature": 0.7
             }
             
             headers = {
-                "X-API-KEY": SERPER_API_KEY,
+                "Authorization": f"Bearer {OPENAI_API_KEY}",
                 "Content-Type": "application/json"
             }
             
             response = await client.post(
-                SERPER_API_URL,
+                OPENAI_API_URL,
                 json=payload,
                 headers=headers,
-                timeout=8.0
+                timeout=15.0
             )
             
             if response.status_code == 200:
                 data = response.json()
-                results = []
+                content = data["choices"][0]["message"]["content"]
                 
-                # Process organic results
-                if "organic" in data:
-                    for item in data["organic"][:num_results]:
-                        results.append({
-                            "title": item.get("title", ""),
-                            "snippet": item.get("snippet", ""),
-                            "link": item.get("link", "")
-                        })
+                # Add source indicator
+                response_text = f"OpenAI araştırması sonucunda:\n\n{content}\n\n*GPT-4 ile analiz edilmiştir*"
                 
-                # Include featured snippet if available
-                if "answerBox" in data and len(results) > 0:
-                    answer_box = data["answerBox"]
-                    if "answer" in answer_box:
-                        results[0]["featured_answer"] = answer_box["answer"]
-                
-                logging.info(f"Serper API returned {len(results)} search results")
-                return results
+                logging.info(f"OpenAI web search replacement completed successfully")
+                return response_text
             else:
-                logging.error(f"Serper API error: {response.status_code} - {response.text}")
-                return []
+                logging.error(f"OpenAI API error: {response.status_code} - {response.text}")
+                return "OpenAI API ile bağlantı sorunu yaşandı."
                 
     except Exception as e:
-        logging.error(f"Web search error with Serper API: {e}")
-        return []
+        logging.error(f"OpenAI web search replacement error: {e}")
+        return f"OpenAI sorgusunda hata: {str(e)}"
 
 def extract_factual_claims(text: str) -> List[str]:
     """Extract potential factual claims from AI response"""
