@@ -64,8 +64,10 @@ function SimpleApp() {
       }, {
         headers: {
           'Authorization': `Bearer ${ANYTHINGLLM_API_KEY}`,
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        timeout: 30000
       });
 
       const botMessage = {
