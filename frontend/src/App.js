@@ -1241,6 +1241,30 @@ function App() {
               </div>
             </div>
 
+            {/* Uploaded Files Section */}
+            {uploadedFiles.length > 0 && (
+              <div className="bg-gray-900 border-b border-gray-800 p-3">
+                <div className="max-w-4xl mx-auto">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <FileText className="w-4 h-4 text-gray-400" />
+                    <span className="text-sm text-gray-400">Yüklenen Dosyalar:</span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {uploadedFiles.map((file) => (
+                      <div
+                        key={file.id}
+                        className="flex items-center space-x-2 bg-gray-800 rounded-lg px-3 py-1 text-sm"
+                      >
+                        <FileText className="w-3 h-3 text-blue-400" />
+                        <span className="text-gray-300">{file.name}</span>
+                        <span className="text-xs text-gray-500">({file.type.toUpperCase()})</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Messages Area */}
             <div className="flex-1 p-6 bg-black overflow-y-auto">
               <div className="space-y-6 max-w-4xl mx-auto">
