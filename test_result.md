@@ -168,6 +168,9 @@ frontend:
         - working: true
         - agent: "testing"
         - comment: "✅ CRITICAL RUNTIME ERROR FIXED! No more 'Cannot read properties of undefined (reading 'role')' errors. App loads without red error overlay. Tab switching works. Conversation creation/selection works. Console shows validation logs instead of errors. However, NEW ISSUE: Messages not displaying in chat interface despite successful API calls (200 response). Console shows 'Setting 0 valid messages out of 0 total' - message processing/display logic needs investigation."
+        - working: false
+        - agent: "testing"
+        - comment: "❌ SAME MESSAGE DISPLAY ISSUE IN MODES: Konuşma Modları tab has identical issue - API calls successful (console shows proper message objects being sent/received), mode selection works (Arkadaş Canlısı selected), conversations created in sidebar, but messages don't appear in chat interface. Same root cause as Normal Sohbet: setCurrentMessages receives empty array instead of actual messages. Both tabs affected by message state management issue."
   
   - task: "MathJax/KaTeX matematik render sistemi entegrasyonu"
     implemented: true
