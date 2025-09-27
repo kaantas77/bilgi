@@ -160,27 +160,9 @@ function App() {
 
   const sendMessage = async () => {
     if (!inputMessage.trim() || isMessageLoading) return;
-    
-    let conversationToUse = currentConversation;
-    
-    if (!conversationToUse) {
-      // Create new conversation first
-      try {
-        const response = await axios.post(`${API}/conversations`, {
-          title: "Yeni Sohbet"
-        });
-        conversationToUse = response.data;
-        setCurrentConversation(conversationToUse);
-        setConversations([conversationToUse, ...conversations]);
-      } catch (error) {
-        console.error('Error creating conversation:', error);
-        return;
-      }
-    }
 
     const userMessage = {
       id: Date.now().toString(),
-      conversation_id: conversationToUse.id,
       role: 'user',
       content: inputMessage,
       timestamp: new Date().toISOString()
@@ -191,22 +173,49 @@ function App() {
     setIsMessageLoading(true);
 
     try {
-      const response = await axios.post(`${API}/conversations/${conversationToUse.id}/messages`, {
-        content: inputMessage,
-        mode: activeTab === 'modes' ? selectedMode : 'chat',
-        conversationMode: activeTab === 'modes' ? selectedMode : null
+      // Add mode prefix to message if in modes tab
+      let finalMessage = inputMessage;
+      if (activeTab === 'modes' && selectedMode !== 'normal') {
+        const modePrompts = {
+          friend: "Lütfen samimi, motive edici ve esprili bir şekilde yanıtla. 3 küçük adım önerebilirsin. Arkadaş canlısı ol:",
+          realistic: "Eleştirel ve kanıt odaklı düşün. Güçlü ve zayıf yönleri belirt. Test planı öner. Gerçekci ol:",
+          coach: "Soru sorarak kullanıcının düşünmesini sağla. Hedef ve adım listesi çıkar. Koç gibi yaklaş:",
+          lawyer: "Bilinçli karşı argüman üret. Kör noktaları göster. Avukat perspektifiyle yaklaş:",
+          teacher: "Adım adım öğret. Örnek ver ve mini quiz ekle. Öğretmen gibi açıkla:",
+          minimalist: "En kısa, madde işaretli, süssüz yanıt ver. Minimalist ol:"
+        };
+        if (modePrompts[selectedMode]) {
+          finalMessage = `${modePrompts[selectedMode]} ${inputMessage}`;
+        }
+      }
+
+      const response = await axios.post(ANYTHINGLLM_API_URL, {
+        message: finalMessage,
+        mode: "chat",
+        sessionId: "bilgin-session"
+      }, {
+        headers: {
+          'Authorization': `Bearer ${ANYTHINGLLM_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        timeout: 30000
       });
+
+      const botMessage = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: response.data.textResponse || 'Üzgünüm, bir sorun oluştu.',
+        timestamp: new Date().toISOString()
+      };
       
-      setMessages(prev => [...prev, response.data]);
+      setMessages(prev => [...prev, botMessage]);
       
-      // DON'T refresh conversation list here - it causes state reset
     } catch (error) {
       console.error('Error sending message:', error);
       const errorMessage = {
-        id: Date.now().toString(),
-        conversation_id: conversationToUse.id,
+        id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: 'Üzgünüm, bir hata oluştu. Lütfen tekrar deneyin.',
+        content: 'Üzgünüm, bir bağlantı sorunu yaşıyoruz. Lütfen tekrar deneyin.',
         timestamp: new Date().toISOString()
       };
       setMessages(prev => [...prev, errorMessage]);
