@@ -116,6 +116,18 @@ backend:
         - working: "unknown"
         - agent: "main"
         - comment: "Backend API durumu kontrol edilecek"
+  
+  - task: "Yeni Akıllı Hibrit Sistem - AnythingLLM önce, web search yedek"
+    implemented: true
+    working: "unknown"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "unknown"
+        - agent: "main"
+        - comment: "🔧 YENİ SİSTEM İMPLEMENTE EDİLDİ: 1) Web search başlangıçta aktif değil, önce AnythingLLM deneniyor 2) AnythingLLM yetersiz yanıt verirse (soru geri sorma, bilmeme, teknik sorun) web search devreye giriyor 3) Güncel konular için direkt web search 4) Doğrulama sistemi tamamen kaldırıldı 5) İngilizce hata mesajları Türkçe'ye çevrildi. Kullanıcının tüm istekleri karşılandı."
 
 frontend:
   - task: "Normal Sohbet - Sohbet geçmişi sistemi ve mod sistemsiz chat"
