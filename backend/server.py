@@ -1563,7 +1563,23 @@ async def send_message(conversation_id: str, input: MessageCreate):
         # SMART HYBRID SYSTEM: Quick analysis and intelligent routing
         logging.info(f"Using SMART HYBRID SYSTEM for question: {input.content}")
         
-        ai_content = await smart_hybrid_response(input.content, input.conversationMode)
+        # Check if there are uploaded files in this conversation
+        file_content = None
+        file_name = None
+        
+        # Get the most recent uploaded file for this conversation (if any)
+        recent_file = await db.file_uploads.find_one(
+            {"conversation_id": conversation_id},
+            sort=[("uploaded_at", -1)]
+        )
+        
+        if recent_file and os.path.exists(recent_file["file_path"]):
+            # Extract text from the most recent uploaded file
+            file_content = await extract_text_from_file(recent_file["file_path"], recent_file["file_type"])
+            file_name = recent_file["file_name"]
+            logging.info(f"Using uploaded file for context: {file_name}")
+        
+        ai_content = await smart_hybrid_response(input.content, input.conversationMode, file_content, file_name)
         logging.info("Smart hybrid system completed successfully")
                 
     except Exception as e:
