@@ -414,6 +414,8 @@ async def handle_web_search_question(question: str) -> str:
     # Format web search results into natural response
     response = format_web_search_response(question, search_results)
     return response
+
+def can_anythingllm_answer(anythingllm_response: str) -> bool:
     """Check if AnythingLLM provided a useful answer"""
     
     # Indicators that AnythingLLM couldn't answer properly
