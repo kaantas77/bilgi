@@ -1415,11 +1415,11 @@ async def send_message(conversation_id: str, input: MessageCreate):
         )
     
     try:
-        # NEW HYBRID SYSTEM: Always use both AnythingLLM and web search for better answers
-        logging.info(f"Using HYBRID RESPONSE SYSTEM for question: {input.content}")
+        # SMART HYBRID SYSTEM: Quick analysis and intelligent routing
+        logging.info(f"Using SMART HYBRID SYSTEM for question: {input.content}")
         
-        ai_content = await hybrid_response_system(input.content, input.conversationMode)
-        logging.info("Hybrid response system completed successfully")
+        ai_content = await smart_hybrid_response(input.content, input.conversationMode)
+        logging.info("Smart hybrid system completed successfully")
                 
     except Exception as e:
         logging.error(f"AnythingLLM API error: {e}")
