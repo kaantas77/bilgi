@@ -164,7 +164,7 @@ function App() {
         timestamp: new Date().toISOString()
       };
       
-      setMessages(prev => [...prev, botMessage]);
+      setCurrentMessages(prev => [...prev, botMessage]);
       
     } catch (error) {
       console.error('Error sending message:', error);
