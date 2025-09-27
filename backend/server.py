@@ -705,6 +705,20 @@ async def send_message(conversation_id: str, input: MessageCreate):
         )
     
     try:
+        # Konuşma Modları Test - Mod prefix'i ekle
+        final_message = input.content
+        if input.conversationMode and input.conversationMode != 'normal':
+            mode_prompts = {
+                'friend': "Lütfen samimi, motive edici ve esprili bir şekilde yanıtla. 3 küçük adım önerebilirsin. Arkadaş canlısı ol:",
+                'realistic': "Eleştirel ve kanıt odaklı düşün. Güçlü ve zayıf yönleri belirt. Test planı öner. Gerçekci ol:",
+                'coach': "Soru sorarak kullanıcının düşünmesini sağla. Hedef ve adım listesi çıkar. Koç gibi yaklaş:",
+                'lawyer': "Bilinçli karşı argüman üret. Kör noktaları göster. Avukat perspektifiyle yaklaş:",
+                'teacher': "Adım adım öğret. Örnek ver ve mini quiz ekle. Öğretmen gibi açıkla:",
+                'minimalist': "En kısa, madde işaretli, süssüz yanıt ver. Minimalist ol:"
+            }
+            if input.conversationMode in mode_prompts:
+                final_message = f"{mode_prompts[input.conversationMode]} {input.content}"
+        
         # Call AnythingLLM API
         async with httpx.AsyncClient() as client:
             response = await client.post(
@@ -714,7 +728,7 @@ async def send_message(conversation_id: str, input: MessageCreate):
                     "Content-Type": "application/json"
                 },
                 json={
-                    "message": input.content,
+                    "message": final_message,
                     "mode": input.mode,
                     "sessionId": conversation_id
                 },
