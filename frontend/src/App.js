@@ -16,12 +16,10 @@ import axios from 'axios';
 axios.defaults.withCredentials = true;
 axios.defaults.headers.common['Content-Type'] = 'application/json';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
+const ANYTHINGLLM_API_URL = "https://pilj1jbx.rcsrv.com/api/v1/workspace/bilgin/chat";
+const ANYTHINGLLM_API_KEY = "FC6CT8Q-QRE433A-J9K8SV8-S7E2M4N";
 
-// Debug backend URL
-console.log('🔗 BACKEND_URL:', BACKEND_URL);
-console.log('🔗 API URL:', API);
+// No backend needed - direct AnythingLLM integration
 
 function App() {
   // Main app states - no auth required
