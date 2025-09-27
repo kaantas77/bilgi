@@ -686,7 +686,7 @@ function App() {
             {/* Chat Header */}
             <div className="bg-black border-b border-gray-900 p-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-white">{currentConversation.title}</h2>
+                <h2 className="text-lg font-semibold text-white">{getCurrentConversation().title}</h2>
               </div>
             </div>
 
