@@ -245,9 +245,17 @@ function App() {
     }
   };
 
-  // Get current messages based on active tab
+  // Get current messages and conversations based on active tab
   const getCurrentMessages = () => {
     return activeTab === 'normal' ? normalMessages : modesMessages;
+  };
+
+  const getCurrentConversations = () => {
+    return activeTab === 'normal' ? normalConversations : modesConversations;
+  };
+
+  const getCurrentConversation = () => {
+    return activeTab === 'normal' ? currentNormalConversation : currentModesConversation;
   };
 
   const setCurrentMessages = (messages) => {
