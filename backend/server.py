@@ -1247,78 +1247,11 @@ async def send_message(conversation_id: str, input: MessageCreate):
         )
     
     try:
-        # SMART ROUTING: Check if question requires web search
-        if requires_web_search(input.content):
-            logging.info(f"Web search required for question: {input.content}")
-            
-            # Handle with Serper web search
-            ai_content = await handle_web_search_question(input.content)
-            logging.info("Web search completed successfully")
-            
-        else:
-            # Standard AnythingLLM flow
-            logging.info("Using AnythingLLM flow")
-            
-            # Apply conversation mode prompts if needed
-            final_message = input.content
-            if input.conversationMode and input.conversationMode != 'normal':
-                mode_prompts = {
-                    'friend': "Lütfen samimi, motive edici ve esprili bir şekilde yanıtla. 3 küçük adım önerebilirsin. Arkadaş canlısı ol:",
-                    'realistic': "Eleştirel ve kanıt odaklı düşün. Güçlü ve zayıf yönleri belirt. Test planı öner. Gerçekci ol:",
-                    'coach': "Soru sorarak kullanıcının düşünmesini sağla. Hedef ve adım listesi çıkar. Koç gibi yaklaş:",
-                    'lawyer': "Bilinçli karşı argüman üret. Kör noktaları göster. Avukat perspektifiyle yaklaş:",
-                    'teacher': "Adım adım öğret. Örnek ver ve mini quiz ekle. Öğretmen gibi açıkla:",
-                    'minimalist': "En kısa, madde işaretli, süssüz yanıt ver. Minimalist ol:"
-                }
-                if input.conversationMode in mode_prompts:
-                    final_message = f"{mode_prompts[input.conversationMode]} {input.content}"
-            
-            # Call AnythingLLM API
-            logging.info(f"Calling AnythingLLM API with message: {final_message}")
-            
-            async with httpx.AsyncClient() as client:
-                api_payload = {
-                    "message": final_message,
-                    "mode": "chat",  # AnythingLLM only accepts "chat" or "query"
-                    "sessionId": conversation_id
-                }
-                logging.info(f"AnythingLLM API payload: {api_payload}")
-                
-                response = await client.post(
-                    ANYTHINGLLM_API_URL,
-                    headers={
-                        "Authorization": f"Bearer {ANYTHINGLLM_API_KEY}",
-                        "Content-Type": "application/json"
-                    },
-                    json=api_payload,
-                    timeout=30.0
-                )
-                
-                logging.info(f"AnythingLLM response status: {response.status_code}")
-                
-                if response.status_code == 200:
-                    ai_response = response.json()
-                    ai_content = ai_response.get("textResponse", "Sorry, I couldn't process your request.")
-                    
-                    # Apply fact-checking using Serper web search if needed  
-                    if should_fact_check(ai_content):
-                        logging.info("Applying fact-checking with Serper web search...")
-                        try:
-                            ai_content = await asyncio.wait_for(
-                                fact_check_with_serper(ai_content, input.content), 
-                                timeout=10.0
-                            )
-                            logging.info("Fact-checking completed successfully")
-                        except asyncio.TimeoutError:
-                            logging.warning("Fact-checking timed out, using original response")
-                        except Exception as fc_error:
-                            logging.error(f"Fact-checking error: {fc_error}")
-                            # Continue with original response if fact-checking fails
-                    
-                else:
-                    error_text = response.text
-                    logging.error(f"AnythingLLM API error: {response.status_code} - {error_text}")
-                    ai_content = f"AnythingLLM API Error {response.status_code}: {error_text}"
+        # NEW HYBRID SYSTEM: Always use both AnythingLLM and web search for better answers
+        logging.info(f"Using HYBRID RESPONSE SYSTEM for question: {input.content}")
+        
+        ai_content = await hybrid_response_system(input.content, input.conversationMode)
+        logging.info("Hybrid response system completed successfully")
                 
     except Exception as e:
         logging.error(f"AnythingLLM API error: {e}")
