@@ -675,12 +675,17 @@ def are_responses_similar(response1: str, response2: str) -> bool:
     logging.info(f"Response similarity: {similarity:.2f} (threshold: 0.6)")
     return similarity >= 0.6
 
-async def smart_hybrid_response(question: str, conversation_mode: str = 'normal') -> str:
-    """Smart hybrid system - AnythingLLM first, web search only if needed"""
+async def smart_hybrid_response(question: str, conversation_mode: str = 'normal', file_content: str = None, file_name: str = None) -> str:
+    """Smart hybrid system - AnythingLLM first, web search only if needed, OpenAI for file processing"""
     
     logging.info(f"Starting smart hybrid analysis for: {question}")
     
-    # Quick question categorization
+    # Check if this is a file processing question or we have file content
+    if file_content or is_file_processing_question(question):
+        logging.info("File processing question detected - using OpenAI GPT-4o mini")
+        return await process_with_openai(question, file_content, file_name)
+    
+    # Quick question categorization for non-file questions
     category = get_question_category(question)
     logging.info(f"Question category: {category}")
     
