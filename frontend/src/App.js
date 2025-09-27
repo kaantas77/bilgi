@@ -362,6 +362,17 @@ function App() {
 
     console.log('Sending message - userMessage:', userMessage);
     
+    // Get current messages directly from state based on active tab
+    const currentMessages = activeTab === 'normal' ? normalMessages : modesMessages;
+    console.log('Current messages before adding:', currentMessages.length);
+    
+    // Add user message immediately to UI
+    if (activeTab === 'normal') {
+      setNormalMessages(prev => [...(Array.isArray(prev) ? prev : []), userMessage]);
+    } else {
+      setModesMessages(prev => [...(Array.isArray(prev) ? prev : []), userMessage]);
+    }
+    
     setInputMessage('');
     setIsMessageLoading(true);
 
@@ -415,14 +426,16 @@ function App() {
       
       console.log('Received response - botMessage:', botMessage);
       
-      // Add both messages at once to avoid state conflict
-      setCurrentMessages(prev => {
-        const currentMessages = Array.isArray(prev) ? prev : [];
-        console.log('Adding messages to existing array of length:', currentMessages.length);
-        const newMessages = [...currentMessages, userMessage, botMessage];
-        console.log('New messages array length:', newMessages.length);
-        return newMessages;
-      });
+      // Add bot message directly to appropriate state
+      if (activeTab === 'normal') {
+        setNormalMessages(prev => [...(Array.isArray(prev) ? prev : []), botMessage]);
+      } else {
+        setModesMessages(prev => [...(Array.isArray(prev) ? prev : []), botMessage]);
+      }
+      
+      // Update conversation with both messages
+      const bothMessages = [...currentMessages, userMessage, botMessage];
+      updateConversationMessages(bothMessages);
       
     } catch (error) {
       console.error('Error sending message:', error);
@@ -433,11 +446,16 @@ function App() {
         timestamp: new Date().toISOString()
       };
       
-      // Add both messages at once - user message and error message
-      setCurrentMessages(prev => {
-        const currentMessages = Array.isArray(prev) ? prev : [];
-        return [...currentMessages, userMessage, errorMessage];
-      });
+      // Add error message directly to appropriate state
+      if (activeTab === 'normal') {
+        setNormalMessages(prev => [...(Array.isArray(prev) ? prev : []), errorMessage]);
+      } else {
+        setModesMessages(prev => [...(Array.isArray(prev) ? prev : []), errorMessage]);
+      }
+      
+      // Update conversation with both messages
+      const bothMessages = [...currentMessages, userMessage, errorMessage];
+      updateConversationMessages(bothMessages);
     } finally {
       setIsMessageLoading(false);
     }
