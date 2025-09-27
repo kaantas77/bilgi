@@ -1156,6 +1156,15 @@ function App() {
             <div className="bg-black border-t border-gray-900 p-4">
               <div className="max-w-4xl mx-auto">
                 <div className="flex items-end space-x-3 bg-gray-900 rounded-2xl p-3 border border-gray-900">
+                  <Button
+                    onClick={handleFileSelect}
+                    disabled={isUploading}
+                    variant="ghost"
+                    size="sm"
+                    className="text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg"
+                  >
+                    <Paperclip className="w-4 h-4" />
+                  </Button>
                   <Input
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
@@ -1177,6 +1186,13 @@ function App() {
                     <Send className="w-4 h-4" />
                   </Button>
                 </div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf,.xlsx,.xls,.docx,.txt"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                />
                 <div className="text-xs text-gray-500 text-center mt-2">
                   {activeTab === 'modes' 
                     ? `${conversationModes[selectedMode]?.name || 'Normal'} modunda. LaTeX matematik desteği aktif.`
