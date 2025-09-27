@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Kullanıcı matematiksel sembolleri ve diğer sembollerin daha anlaşılır görünmesi için BİLGİN uygulamasına matematik render sistemi eklenmesini istiyor. MathJax veya KaTeX entegrasyonu ile matematik formüllerinin düzgün gösterilmesi gerekiyor."
+user_problem_statement: "Kullanıcı BİLGİN uygulamasında iki önemli değişiklik istedi: 1) Normal Sohbet kısmında placeholder content'i kaldırıp sohbet geçmişi eklemek (tarihsel sıralama, kısa başlıklar, yeni konuşma/silme butonları) ve HİÇBİR MOD aktif olmamasını sağlamak 2) Konuşma modlarının sadece 'Konuşma Modları' sekmesinde aktif olması"
 
 backend:
   - task: "Backend sunucusu ve API'lerin çalışması"
