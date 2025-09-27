@@ -298,14 +298,21 @@ function App() {
   };
 
   const setCurrentMessages = (messages) => {
+    // Ensure messages is always an array and filter invalid ones
+    const validMessages = Array.isArray(messages) 
+      ? messages.filter(msg => msg && typeof msg === 'object' && msg.role && msg.content && msg.id)
+      : [];
+      
+    console.log(`Setting ${validMessages.length} valid messages out of ${Array.isArray(messages) ? messages.length : 0} total`);
+    
     if (activeTab === 'normal') {
-      setNormalMessages(messages);
+      setNormalMessages(validMessages);
     } else {
-      setModesMessages(messages);
+      setModesMessages(validMessages);
     }
     
     // Update the conversation with new messages
-    updateConversationMessages(messages);
+    updateConversationMessages(validMessages);
   };
 
   const sendMessage = async () => {
