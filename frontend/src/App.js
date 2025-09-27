@@ -557,59 +557,121 @@ function App() {
             </div>
           </>
         ) : (
-          /* Welcome Screen */
-          <div className="flex-1 flex items-center justify-center p-8 bg-black">
-            <div className="text-center space-y-6 max-w-3xl">
-              <div>
-                <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 animate-fade-in">
-                  Merhaba, ne öğrenmek istersin?
-                </h2>
-                <p className="text-gray-300 mb-8 text-base animate-fade-in-delay">
-                  Matematik problemlerini KaTeX ile profesyonel kalitede görebilirsin!
-                </p>
-                <button
-                  onClick={async () => {
-                    console.log('STEP 1: Button clicked!');
-                    alert('STEP 2: Alert works!');
-                    
-                    console.log('STEP 2.1: Checking variables...');
-                    console.log('BACKEND_URL:', BACKEND_URL);
-                    console.log('API:', API);
-                    console.log('axios:', typeof axios);
-                    
-                    if (!API) {
-                      alert('HATA: API undefined!');
-                      return;
+          /* Direct Chat - Always show chat interface */
+          <div className="flex-1 flex flex-col bg-black">
+            {/* Chat Header */}
+            <div className="bg-black border-b border-gray-900 p-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-white">BİLGİN - {conversationModes[selectedMode]?.name} Modu</h2>
+              </div>
+            </div>
+
+            {/* Messages Area */}
+            <div className="flex-1 p-6 bg-black overflow-y-auto">
+              <div className="space-y-6 max-w-4xl mx-auto">
+                {messages.length === 0 && (
+                  <div className="text-center text-gray-300 mt-20">
+                    <h3 className="text-2xl font-bold mb-4">Merhaba! Ne öğrenmek istersin?</h3>
+                    <p className="text-lg mb-4">
+                      {conversationModes[selectedMode]?.name} modunda matematik sorularınızı yanıtlıyorum.
+                    </p>
+                    <p className="text-sm text-gray-400">
+                      LaTeX desteği: $x^2 + y^2 = r^2$
+                    </p>
+                  </div>
+                )}
+
+                {messages.map((message) => (
+                  <div
+                    key={message.id}
+                    className={`flex items-start space-x-4 ${
+                      message.role === 'user' ? 'flex-row-reverse space-x-reverse' : ''
+                    }`}
+                  >
+                    <Avatar className="w-8 h-8 flex-shrink-0">
+                      {message.role === 'user' ? (
+                        <AvatarFallback className="bg-blue-600 text-white">
+                          <User className="w-4 h-4" />
+                        </AvatarFallback>
+                      ) : (
+                        <AvatarFallback className="bg-gray-700 text-white">
+                          <Bot className="w-4 h-4" />
+                        </AvatarFallback>
+                      )}
+                    </Avatar>
+                    <div className={`flex-1 ${message.role === 'user' ? 'text-right' : ''}`}>
+                      <div className={`inline-block max-w-3xl p-4 rounded-2xl ${
+                        message.role === 'user' 
+                          ? 'bg-blue-600 text-white' 
+                          : 'bg-gray-800 text-white border border-gray-900'
+                      }`}>
+                        <div className="text-sm leading-relaxed">
+                          <MathRenderer content={message.content} />
+                        </div>
+                      </div>
+                      <div className="text-xs text-gray-500 mt-2">
+                        {new Date(message.timestamp).toLocaleTimeString('tr-TR', {
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                
+                {isMessageLoading && (
+                  <div className="flex items-start space-x-4">
+                    <Avatar className="w-8 h-8">
+                      <AvatarFallback className="bg-gray-700 text-white">
+                        <Bot className="w-4 h-4" />
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="bg-gray-800 border border-gray-900 p-4 rounded-2xl">
+                      <div className="flex items-center space-x-2">
+                        <div className="flex space-x-1">
+                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                        </div>
+                        <span className="text-sm text-gray-400">BİLGİN yazıyor...</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Input Area */}
+            <div className="bg-black border-t border-gray-900 p-4">
+              <div className="max-w-4xl mx-auto">
+                <div className="flex items-end space-x-3 bg-gray-900 rounded-2xl p-3 border border-gray-900">
+                  <Input
+                    value={inputMessage}
+                    onChange={(e) => setInputMessage(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder={
+                      activeTab === 'modes' 
+                        ? `${conversationModes[selectedMode]?.name || 'Normal'} modda matematik sorunuzu yazın...`
+                        : "Matematik sorunuzu yazın... Örnek: $x^2 + y^2 = r^2$"
                     }
-                    
-                    console.log('STEP 3: Variables OK, starting API call...');
-                    
-                    try {
-                      console.log('STEP 4: Making axios call to:', `${API}/conversations`);
-                      
-                      const response = await axios.post(`${API}/conversations`, {
-                        title: "Test Sohbet"
-                      });
-                      
-                      console.log('STEP 5: Success! Response:', response.data);
-                      alert('SUCCESS!');
-                      
-                    } catch (error) {
-                      console.error('STEP ERROR:', error);
-                      alert('API HATASI: ' + error.message);
-                    }
-                  }}
-                  style={{
-                    background: 'red',
-                    color: 'white',
-                    padding: '20px',
-                    fontSize: '18px',
-                    border: 'none',
-                    cursor: 'pointer'
-                  }}
-                >
-                  ACİL TEST BUTONU - TIKLA!
-                </button>
+                    className="flex-1 border-0 bg-transparent focus:ring-0 text-white placeholder-gray-500"
+                    disabled={isMessageLoading}
+                  />
+                  <Button
+                    onClick={sendMessage}
+                    disabled={!inputMessage.trim() || isMessageLoading}
+                    className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl"
+                    size="sm"
+                  >
+                    <Send className="w-4 h-4" />
+                  </Button>
+                </div>
+                <div className="text-xs text-gray-500 text-center mt-2">
+                  {activeTab === 'modes' 
+                    ? `${conversationModes[selectedMode]?.name || 'Normal'} modunda. LaTeX matematik desteği aktif.`
+                    : 'BİLGİN AI matematik ifadelerini LaTeX formatında anlayabilir. KaTeX ile profesyonel render.'
+                  }
+                </div>
               </div>
             </div>
           </div>
