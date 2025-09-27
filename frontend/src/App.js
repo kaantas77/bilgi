@@ -546,7 +546,7 @@ function App() {
                   </div>
                 )}
 
-                {messages.map((message) => (
+                {getCurrentMessages().map((message) => (
                   <div
                     key={message.id}
                     className={`flex items-start space-x-4 ${
