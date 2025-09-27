@@ -135,15 +135,18 @@ frontend:
   
   - task: "Konuşma Modları - Sadece modes sekmesinde aktif mod sistemi"
     implemented: true
-    working: true
+    working: false
     file: "/app/frontend/src/App.js"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: false
     status_history:
         - working: true
         - agent: "main"
         - comment: "✅ Konuşma Modları implementasyonu tamamlandı: Modlar sadece 'Konuşma Modları' sekmesinde aktif, ayrı sohbet geçmişi sistemi, mode-specific prompts çalışıyor (Arkadaş Canlısı testi başarılı), Normal sohbetten tamamen izole. Test edildi ve çalışıyor."
+        - working: false
+        - agent: "testing"
+        - comment: "❌ SAME RUNTIME ERROR affects Konuşma Modları: 'Cannot read properties of undefined (reading 'role')' error also occurs in modes tab when sending messages or clicking conversations. Same root cause as Normal Sohbet - message objects are undefined or missing 'role' property in message rendering."
   
   - task: "MathJax/KaTeX matematik render sistemi entegrasyonu"
     implemented: true
