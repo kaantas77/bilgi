@@ -1391,6 +1391,13 @@ function App() {
                     <Send className="w-4 h-4" />
                   </Button>
                 </div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf,.xlsx,.xls,.docx,.txt"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                />
                 <div className="text-xs text-gray-500 text-center mt-2">
                   {activeTab === 'modes' 
                     ? `${conversationModes[selectedMode]?.name || 'Normal'} modunda. LaTeX matematik desteği aktif.`
