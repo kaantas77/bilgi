@@ -217,40 +217,60 @@ function App() {
     }
   };
 
-  // Update conversation with new messages
+  // Update conversation with new messages - with validation
   const updateConversationMessages = (messages) => {
+    // Validate messages array
+    if (!Array.isArray(messages)) {
+      console.warn('updateConversationMessages called with non-array:', messages);
+      return;
+    }
+    
+    // Filter and validate messages
+    const validMessages = messages.filter(msg => 
+      msg && 
+      typeof msg === 'object' && 
+      msg.role && 
+      msg.content && 
+      msg.id && 
+      msg.timestamp
+    );
+    
+    if (validMessages.length !== messages.length) {
+      console.warn(`Filtered out ${messages.length - validMessages.length} invalid messages`);
+    }
+    
     if (activeTab === 'normal' && currentNormalConversation) {
       const updatedConversation = {
         ...currentNormalConversation,
-        messages,
+        messages: validMessages,
         lastMessageAt: new Date().toISOString()
       };
       
       // Update title if this is the first user message
-      if (messages.length === 1 && messages[0].role === 'user') {
-        updatedConversation.title = generateConversationTitle(messages[0].content);
+      if (validMessages.length === 1 && validMessages[0].role === 'user') {
+        updatedConversation.title = generateConversationTitle(validMessages[0].content);
       }
       
       setCurrentNormalConversation(updatedConversation);
       setNormalConversations(prev => 
-        prev.map(c => c.id === updatedConversation.id ? updatedConversation : c)
+        Array.isArray(prev) ? prev.map(c => c.id === updatedConversation.id ? updatedConversation : c) : []
       );
     } else if (activeTab === 'modes' && currentModesConversation) {
       const updatedConversation = {
         ...currentModesConversation,
-        messages,
+        messages: validMessages,
         mode: selectedMode,
         lastMessageAt: new Date().toISOString()
       };
       
       // Update title if this is the first user message
-      if (messages.length === 1 && messages[0].role === 'user') {
-        updatedConversation.title = generateConversationTitle(messages[0].content);
+      if (validMessages.length === 1 && validMessages[0].role === 'user') {
+        updatedConversation.title = generateConversationTitle(validMessages[0].content);
       }
       
       setCurrentModesConversation(updatedConversation);
       setModesConversations(prev => 
-        prev.map(c => c.id === updatedConversation.id ? updatedConversation : c)
+        Array.isArray(prev) ? prev.map(c => c.id === updatedConversation.id ? updatedConversation : c) : []
       );
     }
   };
