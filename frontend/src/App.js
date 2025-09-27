@@ -81,7 +81,7 @@ function App() {
   // No backend functions - remove all API dependencies
   const createNewConversation = () => {
     // Just clear messages for fresh start
-    setMessages([]);
+    setCurrentMessages([]);
   };
 
   const selectConversation = () => {
