@@ -447,7 +447,153 @@ def can_anythingllm_answer(anythingllm_response: str) -> bool:
     
     return True
 
-async def hybrid_response_system(question: str, conversation_mode: str = 'normal') -> str:
+def get_question_category(question: str) -> str:
+    """Quickly categorize question type for optimal routing"""
+    
+    question_lower = question.lower().strip()
+    
+    # Simple greetings and casual questions - AnythingLLM only
+    casual_patterns = [
+        r'^(merhaba|selam|naber|nasılsın|iyi misin)$',
+        r'^(hello|hi|hey)$',
+        r'(teşekkür|sağol|eyvallah)',
+        r'^(tamam|ok|peki|anladım)$',
+        r'(nasıl gidiyor|keyifler|ne yapıyorsun)',
+        r'^(iyi geceler|günaydın|tünaydın)$'
+    ]
+    
+    # Current/live information - Web search required
+    current_info_patterns = [
+        r'(bugün|şu an|anlık|canlı|güncel|son)\s+',
+        r'(hava durumu|sıcaklık|yağmur)',
+        r'(dolar|euro|bitcoin)\s+(kur|fiyat)',
+        r'(maç|skor|sonuç).*(ne|nedir|nasıl|kaç)',
+        r'(haber|gelişme|olay).*(son|yeni|bugün)',
+        r'(açık|kapalı).*(şu an|bugün)',
+        r'(2024|2025).*(çıkan|yayınlanan|son)'
+    ]
+    
+    # Check for casual questions first
+    for pattern in casual_patterns:
+        if re.search(pattern, question_lower):
+            return 'casual'
+    
+    # Check for current information needs
+    for pattern in current_info_patterns:
+        if re.search(pattern, question_lower):
+            return 'current'
+    
+    # Check if it's a factual knowledge question that might need verification
+    factual_patterns = [
+        r'(kim|hangi|ne zaman|nerede).*(yazdı|yaptı|oldu|kurdu)',
+        r'(kaç|ne kadar).*(yıl|metre|kilo|kişi)',
+        r'(başkenti|nüfusu|yüzölçümü)',
+        r'(doğum|ölüm).*(tarih|yıl)',
+        r'(eseri|kitabı|şiiri|filmi)'
+    ]
+    
+    for pattern in factual_patterns:
+        if re.search(pattern, question_lower):
+            return 'factual'
+    
+    # Math or calculation questions - AnythingLLM preferred
+    if re.search(r'(\d+\s*[\+\-\*\/x×÷]\s*\d+|matematik|hesap|kaç\s+eder)', question_lower):
+        return 'math'
+    
+    # Default to general knowledge
+    return 'general'
+
+def are_responses_similar(response1: str, response2: str) -> bool:
+    """Check if two responses contain similar information to avoid duplication"""
+    
+    if not response1 or not response2:
+        return False
+    
+    # Remove common prefixes/suffixes for comparison
+    clean1 = re.sub(r'(web araştırması sonucunda:?|bilgin cevabı:?)', '', response1.lower())
+    clean2 = re.sub(r'(web araştırması sonucunda:?|bilgin cevabı:?)', '', response2.lower())
+    
+    # Simple similarity check - if one response contains most words from the other
+    words1 = set(clean1.split())
+    words2 = set(clean2.split())
+    
+    if not words1 or not words2:
+        return False
+    
+    # Remove common short words
+    common_words = {'bir', 'bu', 'şu', 'da', 'de', 've', 'ile', 'için', 'olan', 'the', 'and', 'or', 'in', 'on', 'at'}
+    words1 = words1 - common_words
+    words2 = words2 - common_words
+    
+    if not words1 or not words2:
+        return False
+    
+    # Calculate overlap
+    intersection = len(words1.intersection(words2))
+    smaller_set_size = min(len(words1), len(words2))
+    
+    # If 60% or more words overlap, consider similar
+    similarity = intersection / smaller_set_size
+    
+    logging.info(f"Response similarity: {similarity:.2f} (threshold: 0.6)")
+    return similarity >= 0.6
+
+async def smart_hybrid_response(question: str, conversation_mode: str = 'normal') -> str:
+    """Smart hybrid system with quick analysis and deduplication"""
+    
+    logging.info(f"Starting smart hybrid analysis for: {question}")
+    
+    # Quick question categorization
+    category = get_question_category(question)
+    logging.info(f"Question category: {category}")
+    
+    if category == 'casual':
+        # Casual questions - only use AnythingLLM, no web search needed
+        logging.info("Casual question detected - using AnythingLLM only")
+        anythingllm_response = await get_anythingllm_response(question, conversation_mode)
+        return anythingllm_response
+        
+    elif category == 'current':
+        # Current information - prioritize web search but still check AnythingLLM
+        logging.info("Current information question - prioritizing web search")
+        
+        # Get web search first (faster for current info)
+        web_search_response = await handle_web_search_question(question)
+        anythingllm_response = await get_anythingllm_response(question, conversation_mode)
+        
+        # Check if AnythingLLM has useful info
+        if can_anythingllm_answer(anythingllm_response):
+            # Check similarity to avoid duplication
+            if are_responses_similar(anythingllm_response, web_search_response):
+                # Similar responses - return cleaned web search only
+                return await clean_web_search_with_anythingllm(web_search_response, question)
+            else:
+                # Different info - combine them
+                return f"""**BİLGİN Cevabı:**
+{anythingllm_response}
+
+**Güncel Web Bilgisi:**
+{await clean_web_search_with_anythingllm(web_search_response, question)}"""
+        else:
+            # Only web search has good info
+            return await clean_web_search_with_anythingllm(web_search_response, question)
+            
+    elif category == 'math':
+        # Math questions - AnythingLLM is usually better, but verify with web if needed
+        logging.info("Math question detected - using AnythingLLM primarily")
+        anythingllm_response = await get_anythingllm_response(question, conversation_mode)
+        
+        if can_anythingllm_answer(anythingllm_response):
+            return anythingllm_response
+        else:
+            # AnythingLLM failed, try web search as backup
+            web_search_response = await handle_web_search_question(question)
+            return await clean_web_search_with_anythingllm(web_search_response, question)
+            
+    else:
+        # Factual or general questions - use full hybrid system
+        logging.info("Factual/general question - using full hybrid system")
+        return await hybrid_response_system(question, conversation_mode)
     """Advanced hybrid system: Use both AnythingLLM and web search, validate and choose best"""
     
     logging.info(f"Starting hybrid response system for: {question}")
