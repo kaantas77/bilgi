@@ -290,31 +290,97 @@ function App() {
           </Button>
         </div>
 
-        {/* Conversations List */}
+        {/* Content Area - Based on Active Tab */}
         <ScrollArea className="flex-1">
           <div className="p-2 space-y-4">
-            {/* Recent Section */}
-            {conversations.length > 0 && (
-              <div className="space-y-1">
-                <div className="flex items-center space-x-2 px-3 py-2">
-                  <MessageCircle className="w-4 h-4 text-gray-400" />
-                  <span className="text-sm font-medium text-white">Son Sohbetler</span>
-                </div>
-                {conversations.slice(0, 10).map((conversation) => (
-                  <ConversationItem 
-                    key={conversation.id}
-                    conversation={conversation}
-                    isActive={currentConversation?.id === conversation.id}
-                    onSelect={() => selectConversation(conversation)}
-                    onDelete={(e) => deleteConversation(conversation.id, e)}
-                  />
-                ))}
-              </div>
-            )}
+            {activeTab === 'normal' ? (
+              // Normal Conversations
+              <>
+                {conversations.length > 0 && (
+                  <div className="space-y-1">
+                    <div className="flex items-center space-x-2 px-3 py-2">
+                      <MessageCircle className="w-4 h-4 text-gray-400" />
+                      <span className="text-sm font-medium text-white">Son Sohbetler</span>
+                    </div>
+                    {conversations.slice(0, 10).map((conversation) => (
+                      <ConversationItem 
+                        key={conversation.id}
+                        conversation={conversation}
+                        isActive={currentConversation?.id === conversation.id}
+                        onSelect={() => selectConversation(conversation)}
+                        onDelete={(e) => deleteConversation(conversation.id, e)}
+                      />
+                    ))}
+                  </div>
+                )}
 
-            {conversations.length === 0 && (
-              <div className="text-center text-gray-500 text-sm py-8">
-                Henüz sohbet bulunmuyor
+                {conversations.length === 0 && (
+                  <div className="text-center text-gray-500 text-sm py-8">
+                    Henüz sohbet bulunmuyor
+                  </div>
+                )}
+              </>
+            ) : (
+              // Conversation Modes Panel
+              <div className="space-y-4">
+                <div className="px-3 py-2">
+                  <h3 className="text-sm font-medium text-white mb-1">Konuşma Tarzını Seç</h3>
+                  <p className="text-xs text-gray-400">BİLGİN'in nasıl yanıt vermesini istiyorsun?</p>
+                </div>
+                
+                <div className="space-y-2">
+                  {Object.entries(conversationModes).map(([key, mode]) => (
+                    <button
+                      key={key}
+                      onClick={() => setSelectedMode(key)}
+                      className={`w-full p-3 rounded-lg text-left transition-all ${
+                        selectedMode === key 
+                          ? 'bg-gray-800 border border-gray-600' 
+                          : 'bg-gray-900 hover:bg-gray-800 border border-gray-800'
+                      }`}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className={`w-3 h-3 rounded-full ${mode.color}`}></div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-medium text-white">{mode.name}</div>
+                          <div className="text-xs text-gray-400 truncate">{mode.description}</div>
+                        </div>
+                        {selectedMode === key && (
+                          <div className="w-2 h-2 bg-white rounded-full"></div>
+                        )}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+
+                <div className="px-3 py-2 bg-gray-900 rounded-lg border border-gray-800">
+                  <div className="text-xs text-gray-400 mb-1">Seçili Mod:</div>
+                  <div className="text-sm text-white font-medium">
+                    {conversationModes[selectedMode]?.name || 'Normal'}
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1">
+                    {conversationModes[selectedMode]?.description || 'Standart BİLGİN'}
+                  </div>
+                </div>
+
+                {/* Recent conversations also shown in modes tab */}
+                {conversations.length > 0 && (
+                  <div className="space-y-1 pt-4 border-t border-gray-800">
+                    <div className="flex items-center space-x-2 px-3 py-2">
+                      <MessageCircle className="w-4 h-4 text-gray-400" />
+                      <span className="text-sm font-medium text-white">Son Sohbetler</span>
+                    </div>
+                    {conversations.slice(0, 5).map((conversation) => (
+                      <ConversationItem 
+                        key={conversation.id}
+                        conversation={conversation}
+                        isActive={currentConversation?.id === conversation.id}
+                        onSelect={() => selectConversation(conversation)}
+                        onDelete={(e) => deleteConversation(conversation.id, e)}
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </div>
