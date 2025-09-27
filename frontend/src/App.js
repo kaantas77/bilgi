@@ -781,7 +781,7 @@ function App() {
                 <div className="text-xs text-gray-500 text-center mt-2">
                   {activeTab === 'modes' 
                     ? `${conversationModes[selectedMode]?.name || 'Normal'} modunda. LaTeX matematik desteği aktif.`
-                    : 'BİLGİN AI matematik ifadelerini LaTeX formatında anlayabilir. KaTeX ile profesyonel render.'
+                    : 'BİLGİN AI - Standart matematik yardımcısı. LaTeX matematik desteği aktif.'
                   }
                 </div>
               </div>
@@ -908,7 +908,7 @@ function App() {
                 <div className="text-xs text-gray-500 text-center mt-2">
                   {activeTab === 'modes' 
                     ? `${conversationModes[selectedMode]?.name || 'Normal'} modunda. LaTeX matematik desteği aktif.`
-                    : 'BİLGİN AI matematik ifadelerini LaTeX formatında anlayabilir. KaTeX ile profesyonel render.'
+                    : 'BİLGİN AI - Standart matematik yardımcısı. LaTeX matematik desteği aktif.'
                   }
                 </div>
               </div>
