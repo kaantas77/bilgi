@@ -171,7 +171,8 @@ function App() {
     try {
       const response = await axios.post(`${API}/conversations/${conversationToUse.id}/messages`, {
         content: inputMessage,
-        mode: 'chat'
+        mode: activeTab === 'modes' ? selectedMode : 'chat',
+        conversationMode: activeTab === 'modes' ? selectedMode : null
       });
       
       setMessages(prev => [...prev, response.data]);
