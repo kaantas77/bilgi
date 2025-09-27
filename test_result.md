@@ -203,9 +203,7 @@ test_plan:
   current_focus:
     - "Normal Sohbet - Sohbet geçmişi sistemi ve mod sistemsiz chat"
     - "Konuşma Modları - Sadece modes sekmesinde aktif mod sistemi"
-  stuck_tasks:
-    - "Normal Sohbet - Sohbet geçmişi sistemi ve mod sistemsiz chat"
-    - "Konuşma Modları - Sadece modes sekmesinde aktif mod sistemi"
+  stuck_tasks: []
   test_all: false
   test_priority: "high_first"
   critical_issues:
