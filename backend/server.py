@@ -724,7 +724,7 @@ async def send_message(conversation_id: str, input: MessageCreate):
         async with httpx.AsyncClient() as client:
             api_payload = {
                 "message": final_message,
-                "mode": input.mode,
+                "mode": "chat",  # AnythingLLM only accepts "chat" or "query"
                 "sessionId": conversation_id
             }
             logging.info(f"API payload: {api_payload}")
