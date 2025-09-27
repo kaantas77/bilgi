@@ -299,7 +299,12 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus: []
+  current_focus: 
+    - "File Upload Endpoints - POST /api/conversations/{id}/upload"
+    - "File List Endpoint - GET /api/conversations/{id}/files"
+    - "OpenAI GPT-4o Mini Integration with EMERGENT_LLM_KEY"
+    - "File Content Extraction (PDF, Excel, Word, TXT)"
+    - "Smart Routing with File Processing Detection"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
