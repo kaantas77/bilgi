@@ -148,7 +148,7 @@ function App() {
       const botMessage = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: response.data.textResponse || 'Üzgünüm, bir sorun oluştu.',
+        content: data.textResponse || 'Üzgünüm, bir sorun oluştu.',
         timestamp: new Date().toISOString()
       };
       
