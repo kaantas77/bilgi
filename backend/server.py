@@ -347,6 +347,12 @@ Temiz cevap:"""
                 ai_response = response.json()
                 cleaned_result = ai_response.get("textResponse", web_search_result)
                 
+                # Fix English error messages from AnythingLLM
+                if "sorry, i'm experiencing technical difficulties" in cleaned_result.lower():
+                    cleaned_result = "Üzgünüm, şu anda teknik bir sorun yaşıyorum. Lütfen sorunuzu tekrar deneyin."
+                elif "sorry" in cleaned_result.lower() and "technical" in cleaned_result.lower():
+                    cleaned_result = "Teknik sorun nedeniyle temizleme yapılamadı. Orijinal web sonucu gösteriliyor."
+                
                 # Additional cleaning - remove any remaining source attributions
                 cleaned_result = re.sub(r'\*.*web.*kaynak.*\*', '', cleaned_result, flags=re.IGNORECASE)
                 cleaned_result = re.sub(r'web araştırması sonucunda:?', '', cleaned_result, flags=re.IGNORECASE)
