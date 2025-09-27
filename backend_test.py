@@ -1278,6 +1278,8 @@ def main():
             print("   - Basic API issues detected")
         if tester.hybrid_tests_passed < tester.hybrid_tests_run:
             print("   - Hybrid system issues detected")
+        if tester.file_tests_passed < tester.file_tests_run:
+            print("   - File processing system issues detected")
             
         return 1
 
