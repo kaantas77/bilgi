@@ -428,15 +428,78 @@ function App() {
   const sendMessage = async () => {
     if (!inputMessage.trim() || isMessageLoading) return;
 
-    // Create new conversation if none exists
-    if (activeTab === 'normal' && !currentNormalConversation) {
-      await createNewNormalConversation();
-      // Wait a bit for state to update
-      await new Promise(resolve => setTimeout(resolve, 100));
-    } else if (activeTab === 'modes' && !currentModesConversation) {
-      await createNewModesConversation();
-      // Wait a bit for state to update
-      await new Promise(resolve => setTimeout(resolve, 100));
+    setInputMessage('');
+    setIsMessageLoading(true);
+
+    // Get or create conversation
+    let conversationId;
+    
+    if (activeTab === 'normal') {
+      if (!currentNormalConversation) {
+        // Create conversation first
+        try {
+          const response = await fetch(`${BACKEND_URL}/api/conversations`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+              title: 'Yeni Sohbet'
+            })
+          });
+
+          if (response.ok) {
+            const newConversation = await response.json();
+            console.log('Created new normal conversation:', newConversation);
+            setNormalConversations(prev => [newConversation, ...prev]);
+            setCurrentNormalConversation(newConversation);
+            conversationId = newConversation.id;
+          } else {
+            throw new Error('Failed to create conversation');
+          }
+        } catch (error) {
+          console.error('Error creating conversation:', error);
+          setIsMessageLoading(false);
+          return;
+        }
+      } else {
+        conversationId = currentNormalConversation.id;
+      }
+    } else {
+      // Modes tab
+      if (!currentModesConversation) {
+        // Create conversation first
+        try {
+          const response = await fetch(`${BACKEND_URL}/api/conversations`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+              title: 'Yeni Mod Sohbeti'
+            })
+          });
+
+          if (response.ok) {
+            const newConversation = await response.json();
+            console.log('Created new modes conversation:', newConversation);
+            newConversation.mode = selectedMode;
+            setModesConversations(prev => [newConversation, ...prev]);
+            setCurrentModesConversation(newConversation);
+            conversationId = newConversation.id;
+          } else {
+            throw new Error('Failed to create modes conversation');
+          }
+        } catch (error) {
+          console.error('Error creating modes conversation:', error);
+          setIsMessageLoading(false);
+          return;
+        }
+      } else {
+        conversationId = currentModesConversation.id;
+      }
     }
 
     const userMessage = {
@@ -446,11 +509,7 @@ function App() {
       timestamp: new Date().toISOString()
     };
 
-    console.log('Sending message - userMessage:', userMessage);
-    
-    // Get current messages directly from state based on active tab
-    const currentMessages = activeTab === 'normal' ? normalMessages : modesMessages;
-    console.log('Current messages before adding:', currentMessages.length);
+    console.log('Sending message with conversation ID:', conversationId);
     
     // Add user message immediately to UI
     if (activeTab === 'normal') {
@@ -458,23 +517,14 @@ function App() {
     } else {
       setModesMessages(prev => [...(Array.isArray(prev) ? prev : []), userMessage]);
     }
-    
-    setInputMessage('');
-    setIsMessageLoading(true);
 
     try {
-      // Use backend API with smart routing (Web search + Fact checking)
-      const conversationId = activeTab === 'normal' ? 
-        currentNormalConversation?.id || 'temp' : 
-        currentModesConversation?.id || 'temp';
-
       const payload = {
         content: inputMessage,
         conversationMode: activeTab === 'modes' ? selectedMode : 'normal'
       };
 
-      console.log('Calling backend API with conversation ID:', conversationId);
-      console.log('Payload:', payload);
+      console.log('Calling backend API with payload:', payload);
 
       const response = await fetch(`${BACKEND_URL}/api/conversations/${conversationId}/messages`, {
         method: 'POST',
@@ -512,10 +562,6 @@ function App() {
         setModesMessages(prev => [...(Array.isArray(prev) ? prev : []), botMessage]);
       }
       
-      // Update conversation with both messages
-      const bothMessages = [...currentMessages, userMessage, botMessage];
-      updateConversationMessages(bothMessages);
-      
     } catch (error) {
       console.error('Error sending message:', error);
       const errorMessage = {
@@ -531,10 +577,6 @@ function App() {
       } else {
         setModesMessages(prev => [...(Array.isArray(prev) ? prev : []), errorMessage]);
       }
-      
-      // Update conversation with both messages
-      const bothMessages = [...currentMessages, userMessage, errorMessage];
-      updateConversationMessages(bothMessages);
     } finally {
       setIsMessageLoading(false);
     }
