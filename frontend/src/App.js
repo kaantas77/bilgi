@@ -352,7 +352,12 @@ function App() {
       timestamp: new Date().toISOString()
     };
 
-    setCurrentMessages(prev => [...prev, userMessage]);
+    // Safely add user message - ensure prev is always an array
+    setCurrentMessages(prev => {
+      const currentMessages = Array.isArray(prev) ? prev : [];
+      return [...currentMessages, userMessage];
+    });
+    
     setInputMessage('');
     setIsMessageLoading(true);
 
@@ -404,7 +409,11 @@ function App() {
         timestamp: new Date().toISOString()
       };
       
-      setCurrentMessages(prev => [...prev, botMessage]);
+      // Safely add bot message - ensure prev is always an array
+      setCurrentMessages(prev => {
+        const currentMessages = Array.isArray(prev) ? prev : [];
+        return [...currentMessages, botMessage];
+      });
       
     } catch (error) {
       console.error('Error sending message:', error);
@@ -414,7 +423,12 @@ function App() {
         content: 'Üzgünüm, bir bağlantı sorunu yaşıyoruz. Lütfen tekrar deneyin.',
         timestamp: new Date().toISOString()
       };
-      setCurrentMessages(prev => [...prev, errorMessage]);
+      
+      // Safely add error message - ensure prev is always an array
+      setCurrentMessages(prev => {
+        const currentMessages = Array.isArray(prev) ? prev : [];
+        return [...currentMessages, errorMessage];
+      });
     } finally {
       setIsMessageLoading(false);
     }
