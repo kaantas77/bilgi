@@ -735,7 +735,9 @@ function App() {
             {/* Messages Area */}
             <ScrollArea className="flex-1 p-6 bg-black">
               <div className="space-y-6 max-w-4xl mx-auto">
-                {getCurrentMessages().map((message) => (
+                {getCurrentMessages()
+                  .filter(message => message && message.role && message.content) // Null/undefined messages'ları filtrele
+                  .map((message) => (
                   <div
                     key={message.id}
                     className={`flex items-start space-x-4 ${
@@ -760,14 +762,21 @@ function App() {
                           : 'bg-gray-900 text-white border border-gray-900'
                       }`}>
                         <div className="text-sm leading-relaxed">
-                          <MathRenderer content={message.content} />
+                          <MathRenderer content={message.content || ''} />
                         </div>
                       </div>
                       <div className="text-xs text-gray-500 mt-2">
-                        {new Date(message.timestamp).toLocaleTimeString('tr-TR', {
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        })}
+                        {(() => {
+                          try {
+                            return new Date(message.timestamp).toLocaleTimeString('tr-TR', {
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            });
+                          } catch (error) {
+                            console.error('Timestamp formatting error:', error);
+                            return 'Zaman yok';
+                          }
+                        })()}
                       </div>
                     </div>
                   </div>
