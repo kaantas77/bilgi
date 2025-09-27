@@ -52,6 +52,14 @@ ANYTHINGLLM_API_KEY = os.environ.get("ANYTHINGLLM_API_KEY", "FC6CT8Q-QRE433A-J9K
 SERPER_API_KEY = os.environ.get("SERPER_API_KEY")
 SERPER_API_URL = "https://google.serper.dev/search"
 
+# OpenAI configuration via EMERGENT_LLM_KEY
+EMERGENT_LLM_KEY = os.environ.get("EMERGENT_LLM_KEY")
+
+# File upload configuration
+UPLOAD_DIR = Path("/tmp/bilgin_uploads")
+UPLOAD_DIR.mkdir(exist_ok=True)
+MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
+
 # Web search functions using Serper API
 async def web_search(query: str, num_results: int = 3) -> List[dict]:
     """Perform web search using Serper API"""
