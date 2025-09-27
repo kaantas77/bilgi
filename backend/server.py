@@ -304,19 +304,192 @@ def requires_web_search(question: str) -> bool:
     logging.info(f"No web search pattern matched for question: '{question}'")
     return False
 
-async def handle_web_search_question(question: str) -> str:
-    """Handle questions that require web search using Serper API"""
+async def clean_web_search_with_anythingllm(web_search_result: str, original_question: str) -> str:
+    """Clean and improve web search results using AnythingLLM"""
     
-    # Perform web search with optimized query
-    search_query = optimize_search_query(question)
-    search_results = await web_search(search_query, num_results=3)
+    try:
+        # Create a cleaning prompt for AnythingLLM
+        cleaning_prompt = f"""Lütfen aşağıdaki web araştırması sonucunu düzenle ve daha okunabilir hale getir.
+        
+Orijinal Soru: {original_question}
+
+Web Araştırması Sonucu:
+{web_search_result}
+
+Lütfen bu bilgiyi:
+1. Daha açık ve anlaşılır hale getir
+2. Gereksiz tekrarları kaldır  
+3. Türkçe dilbilgisi kurallarına uygun düzenle
+4. Ana bilgileri öne çıkar
+5. Kaynak belirtimini koru
+
+Düzenlenmiş yanıt:"""
+
+        async with httpx.AsyncClient() as client:
+            api_payload = {
+                "message": cleaning_prompt,
+                "mode": "chat",
+                "sessionId": f"cleaning-{hash(original_question)}"
+            }
+            
+            response = await client.post(
+                ANYTHINGLLM_API_URL,
+                headers={
+                    "Authorization": f"Bearer {ANYTHINGLLM_API_KEY}",
+                    "Content-Type": "application/json"
+                },
+                json=api_payload,
+                timeout=20.0
+            )
+            
+            if response.status_code == 200:
+                ai_response = response.json()
+                cleaned_result = ai_response.get("textResponse", web_search_result)
+                logging.info("Web search result cleaned with AnythingLLM")
+                return cleaned_result
+            else:
+                logging.error(f"AnythingLLM cleaning error: {response.status_code}")
+                return web_search_result
+                
+    except Exception as e:
+        logging.error(f"Web search cleaning error: {e}")
+        return web_search_result
+
+async def get_anythingllm_response(question: str, conversation_mode: str = 'normal') -> str:
+    """Get response from AnythingLLM"""
     
-    if not search_results:
-        return "Üzgünüm, şu an web araması yapamıyorum. Lütfen daha sonra tekrar deneyin."
+    try:
+        # Apply conversation mode prompts if needed
+        final_message = question
+        if conversation_mode and conversation_mode != 'normal':
+            mode_prompts = {
+                'friend': "Lütfen samimi, motive edici ve esprili bir şekilde yanıtla. 3 küçük adım önerebilirsin. Arkadaş canlısı ol:",
+                'realistic': "Eleştirel ve kanıt odaklı düşün. Güçlü ve zayıf yönleri belirt. Test planı öner. Gerçekci ol:",
+                'coach': "Soru sorarak kullanıcının düşünmesini sağla. Hedef ve adım listesi çıkar. Koç gibi yaklaş:",
+                'lawyer': "Bilinçli karşı argüman üret. Kör noktaları göster. Avukat perspektifiyle yaklaş:",
+                'teacher': "Adım adım öğret. Örnek ver ve mini quiz ekle. Öğretmen gibi açıkla:",
+                'minimalist': "En kısa, madde işaretli, süssüz yanıt ver. Minimalist ol:"
+            }
+            if conversation_mode in mode_prompts:
+                final_message = f"{mode_prompts[conversation_mode]} {question}"
+        
+        async with httpx.AsyncClient() as client:
+            api_payload = {
+                "message": final_message,
+                "mode": "chat",
+                "sessionId": f"hybrid-{hash(question)}"
+            }
+            
+            response = await client.post(
+                ANYTHINGLLM_API_URL,
+                headers={
+                    "Authorization": f"Bearer {ANYTHINGLLM_API_KEY}",
+                    "Content-Type": "application/json"
+                },
+                json=api_payload,
+                timeout=20.0
+            )
+            
+            if response.status_code == 200:
+                ai_response = response.json()
+                return ai_response.get("textResponse", "AnythingLLM yanıt veremedi.")
+            else:
+                logging.error(f"AnythingLLM error: {response.status_code}")
+                return "AnythingLLM'e erişilemedi."
+                
+    except Exception as e:
+        logging.error(f"AnythingLLM request error: {e}")
+        return "AnythingLLM bağlantı hatası."
+
+def can_anythingllm_answer(anythingllm_response: str) -> bool:
+    """Check if AnythingLLM provided a useful answer"""
     
-    # Format web search results into natural response
-    response = format_web_search_response(question, search_results)
-    return response
+    # Indicators that AnythingLLM couldn't answer properly
+    weak_response_indicators = [
+        "bilmiyorum", "erişemiyorum", "güncel", "gerçek zamanlı", 
+        "şu anda", "maalesef", "üzgünüm", "sorry", "i don't",
+        "can't access", "unable to", "real-time", "current",
+        "yanıt veremedi", "bağlantı hatası", "erişilemedi"
+    ]
+    
+    response_lower = anythingllm_response.lower()
+    
+    # If response is too short, probably not useful
+    if len(anythingllm_response.strip()) < 20:
+        return False
+    
+    # Check for weak response indicators
+    for indicator in weak_response_indicators:
+        if indicator in response_lower:
+            return False
+    
+    return True
+
+async def hybrid_response_system(question: str, conversation_mode: str = 'normal') -> str:
+    """Advanced hybrid system: Use both AnythingLLM and web search, validate and choose best"""
+    
+    logging.info(f"Starting hybrid response system for: {question}")
+    
+    # Get both responses in parallel for speed
+    anythingllm_task = asyncio.create_task(get_anythingllm_response(question, conversation_mode))
+    web_search_task = asyncio.create_task(handle_web_search_question(question))
+    
+    try:
+        # Wait for both responses
+        anythingllm_response, web_search_response = await asyncio.gather(
+            anythingllm_task, 
+            web_search_task, 
+            return_exceptions=True
+        )
+        
+        # Handle exceptions
+        if isinstance(anythingllm_response, Exception):
+            logging.error(f"AnythingLLM task failed: {anythingllm_response}")
+            anythingllm_response = "AnythingLLM hatası oluştu."
+            
+        if isinstance(web_search_response, Exception):
+            logging.error(f"Web search task failed: {web_search_response}")
+            web_search_response = "Web araması hatası oluştu."
+        
+        logging.info("Both responses received, analyzing...")
+        
+        # Clean web search result with AnythingLLM
+        if web_search_response and "web araştırması sonucunda:" in web_search_response.lower():
+            web_search_response = await clean_web_search_with_anythingllm(web_search_response, question)
+            logging.info("Web search response cleaned")
+        
+        # Decision logic
+        anythingllm_can_answer = can_anythingllm_answer(anythingllm_response)
+        web_search_has_results = web_search_response and len(web_search_response.strip()) > 50
+        
+        logging.info(f"AnythingLLM can answer: {anythingllm_can_answer}, Web search has results: {web_search_has_results}")
+        
+        if anythingllm_can_answer and web_search_has_results:
+            # Both have answers - combine them
+            combined_response = f"""**BİLGİN Cevabı:**
+{anythingllm_response}
+
+**Web Doğrulaması:**
+{web_search_response}
+
+*Her iki kaynaktan da bilgi bulundu ve doğrulandı.*"""
+            return combined_response
+            
+        elif anythingllm_can_answer:
+            # Only AnythingLLM has good answer
+            return f"{anythingllm_response}\n\n*BİLGİN veritabanından yanıtlandı.*"
+            
+        elif web_search_has_results:
+            # Only web search has results
+            return web_search_response
+            
+        else:
+            # Neither has good results
+            return "Üzgünüm, bu sorunuza hem veritabanımda hem de web aramasında yeterli bilgi bulamadım. Soruyu farklı şekilde sorabilir misiniz?"
+            
+    except Exception as e:
+        logging.error(f"Hybrid response system error: {e}")
+        return "Hybrid sistem hatası oluştu. Lütfen tekrar deneyin."
 
 def optimize_search_query(question: str) -> str:
     """Optimize question for better web search results"""
