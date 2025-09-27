@@ -126,14 +126,16 @@ function App() {
 
       const response = await axios.post(ANYTHINGLLM_API_URL, {
         message: finalMessage,
-        mode: "chat",
+        mode: "chat", 
         sessionId: "bilgin-session"
       }, {
         headers: {
           'Authorization': `Bearer ${ANYTHINGLLM_API_KEY}`,
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
         },
-        timeout: 30000
+        timeout: 30000,
+        withCredentials: false
       });
 
       const botMessage = {
