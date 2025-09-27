@@ -451,29 +451,53 @@ async def handle_web_search_question(question: str) -> str:
 def can_anythingllm_answer(anythingllm_response: str) -> bool:
     """Check if AnythingLLM provided a useful answer"""
     
-    # Indicators that AnythingLLM couldn't answer properly
+    # Indicators that AnythingLLM couldn't answer properly or is uncertain
     weak_response_indicators = [
-        "bilmiyorum", "erişemiyorum", "güncel", "gerçek zamanlı", 
-        "şu anda", "maalesef", "üzgünüm", "sorry", "i don't",
-        "can't access", "unable to", "real-time", "current",
-        "yanıt veremedi", "bağlantı hatası", "erişilemedi",
-        "teknik bir sorun", "yardımcı olamıyorum", "o konuda",
-        "başka bir şey", "technical difficulties", "experiencing",
-        "cevap veremiyorum", "bilgi bulamıyorum", "emin değilim",
-        "tam olarak bilmiyorum", "detaylı bilgi yok", "web'de arayın"
+        # Uncertainty and lack of knowledge
+        "emin değilim", "kesin değilim", "tam emin değilim",
+        "daha çok bilgiye ihtiyacım var", "yeterli bilgim yok", 
+        "bilgi eksikliğim var", "tam bilmiyorum", "net bilmiyorum",
+        "kesin bilgi veremem", "detaylı bilgim yok",
+        
+        # Direct admission of not knowing
+        "bilmiyorum", "hiç bilmiyorum", "maalesef bilmiyorum",
+        "bu konuda bilgim yok", "hiçbir fikrim yok",
+        
+        # Technical/access issues
+        "erişemiyorum", "güncel", "gerçek zamanlı", "şu anda", 
+        "sorry", "i don't", "can't access", "unable to", 
+        "real-time", "current", "yanıt veremedi", "bağlantı hatası",
+        "technical difficulties", "experiencing", "teknik bir sorun",
+        
+        # Redirection to other sources
+        "web'de arayın", "google'da aratın", "internette aratın",
+        "başka kaynaklardan", "güvenilir kaynak", "uzman görüşü",
+        "doktor", "avukat", "profesyonel yardım",
+        
+        # Apologies without solution
+        "maalesef", "üzgünüm", "yardımcı olamıyorum", "o konuda",
+        "başka bir şey", "cevap veremiyorum", "bilgi bulamıyorum"
     ]
     
     # Patterns that indicate AnythingLLM is asking questions back (couldn't directly answer)
     question_back_patterns = [
         r'hangi.*\?', r'ne.*istiyorsun.*\?', r'daha spesifik.*\?',
         r'hangi konuda.*\?', r'ne hakkında.*\?', r'hangi.*aklında.*\?',
-        r'daha fazla bilgi.*\?', r'daha detaylı.*\?'
+        r'daha fazla bilgi.*\?', r'daha detaylı.*\?', r'ne tür.*\?',
+        r'hangi.*türde.*\?', r'nasıl.*yardımcı.*\?', r'hangi.*alanda.*\?'
+    ]
+    
+    # Patterns indicating need for more information
+    need_more_info_patterns = [
+        r'daha fazla.*detay', r'daha spesifik.*bilgi', r'hangi.*açıdan',
+        r'ne tür.*aradığınız', r'daha net.*soru', r'hangi.*bağlamda'
     ]
     
     response_lower = anythingllm_response.lower().strip()
     
     # If response is too short, probably not useful
     if len(anythingllm_response.strip()) < 15:
+        logging.info("Response too short - considering as weak")
         return False
     
     # Check for weak response indicators
@@ -488,9 +512,20 @@ def can_anythingllm_answer(anythingllm_response: str) -> bool:
             logging.info(f"Question back pattern detected: '{pattern}'")
             return False
     
+    # Check for need more info patterns
+    for pattern in need_more_info_patterns:
+        if re.search(pattern, response_lower):
+            logging.info(f"Need more info pattern detected: '{pattern}'")
+            return False
+    
     # If response has multiple question marks, likely asking for clarification
     if response_lower.count('?') >= 2:
         logging.info("Multiple questions detected - likely asking for clarification")
+        return False
+    
+    # If response starts with a question, probably asking back
+    if response_lower.strip().startswith(('hangi', 'ne ', 'nasıl', 'kim', 'nerede', 'ne zaman')):
+        logging.info("Response starts with question word - likely asking back")
         return False
     
     return True
