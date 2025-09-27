@@ -681,7 +681,7 @@ function App() {
           </Button>
         )}
 
-        {currentConversation ? (
+        {getCurrentConversation() ? (
           <>
             {/* Chat Header */}
             <div className="bg-black border-b border-gray-900 p-4">
