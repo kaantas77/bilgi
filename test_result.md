@@ -177,7 +177,8 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Backend sunucusu ve API'lerin çalışması"
+    - "Normal Sohbet - Sohbet geçmişi sistemi ve mod sistemsiz chat"
+    - "Konuşma Modları - Sadece modes sekmesinde aktif mod sistemi"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
