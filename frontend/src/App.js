@@ -231,9 +231,9 @@ function App() {
     <div className="flex h-screen bg-black">
       {/* Sidebar */}
       <div className={`bg-black text-white transition-all duration-300 ${sidebarOpen ? 'w-80' : 'w-0'} overflow-hidden flex flex-col border-r border-gray-800`}>
-        {/* Header */}
+        {/* Header - Vertical Tab System */}
         <div className="p-4 border-b border-gray-800">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-6">
             <h1 className="text-xl font-bold text-white">BİLGİN</h1>
             <Button
               onClick={() => setSidebarOpen(false)}
@@ -245,37 +245,42 @@ function App() {
             </Button>
           </div>
           
-          {/* Tab Buttons - TEST */}
-          <div className="flex space-x-1 mb-4 bg-gray-900 rounded-lg p-1">
+          {/* Vertical Tab Buttons - Beautiful Design */}
+          <div className="space-y-3">
             <button
               onClick={() => setActiveTab('normal')}
-              className={`flex-1 px-3 py-2 text-sm rounded-md transition-colors ${
+              className={`w-full p-4 rounded-xl text-left transition-all duration-300 ${
                 activeTab === 'normal' 
-                  ? 'bg-blue-600 text-white' 
-                  : 'text-gray-400 hover:text-white hover:bg-gray-800'
+                  ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg transform scale-105' 
+                  : 'bg-gray-900 hover:bg-gray-800 text-gray-300 hover:text-white border border-gray-700 hover:border-gray-600'
               }`}
             >
-              Normal Sohbet
+              <div className="flex items-center space-x-3">
+                <div className={`w-4 h-4 rounded-full ${activeTab === 'normal' ? 'bg-white' : 'bg-blue-500'}`}></div>
+                <div>
+                  <div className="font-semibold text-sm">Normal Sohbet</div>
+                  <div className="text-xs opacity-75">Standart BİLGİN sohbeti</div>
+                </div>
+              </div>
             </button>
+            
             <button
               onClick={() => setActiveTab('modes')}
-              className={`flex-1 px-3 py-2 text-sm rounded-md transition-colors ${
+              className={`w-full p-4 rounded-xl text-left transition-all duration-300 ${
                 activeTab === 'modes' 
-                  ? 'bg-purple-600 text-white' 
-                  : 'text-gray-400 hover:text-white hover:bg-gray-800'
+                  ? 'bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-lg transform scale-105' 
+                  : 'bg-gray-900 hover:bg-gray-800 text-gray-300 hover:text-white border border-gray-700 hover:border-gray-600'
               }`}
             >
-              Konuşma Modları
+              <div className="flex items-center space-x-3">
+                <div className={`w-4 h-4 rounded-full ${activeTab === 'modes' ? 'bg-white' : 'bg-purple-500'}`}></div>
+                <div>
+                  <div className="font-semibold text-sm">Konuşma Modları</div>
+                  <div className="text-xs opacity-75">6 farklı konuşma tarzı</div>
+                </div>
+              </div>
             </button>
           </div>
-          
-          <Button
-            onClick={createNewConversation}
-            className="w-full bg-gray-700 hover:bg-gray-600 text-white border-0"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Yeni Sohbet
-          </Button>
         </div>
 
         {/* Content Area - Based on Active Tab */}
