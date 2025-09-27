@@ -20,15 +20,15 @@ const ANYTHINGLLM_API_URL = "https://pilj1jbx.rcsrv.com/api/v1/workspace/bilgin/
 const ANYTHINGLLM_API_KEY = "B47W62W-FKV4PAZ-G437YKM-6PGZP0A";
 
 function App() {
-  // Separate conversation states for each tab
-  const [normalMessages, setNormalMessages] = useState([]);
-  const [modesMessages, setModesMessages] = useState([]);
+  // Separate conversation states for each tab - Safe initialization
+  const [normalMessages, setNormalMessages] = useState([]); // Safe empty array
+  const [modesMessages, setModesMessages] = useState([]); // Safe empty array
   
-  // Normal chat conversations (separate from modes)
+  // Normal chat conversations (separate from modes) - Safe initialization  
   const [normalConversations, setNormalConversations] = useState([]);
   const [currentNormalConversation, setCurrentNormalConversation] = useState(null);
   
-  // Modes chat conversations (separate from normal)
+  // Modes chat conversations (separate from normal) - Safe initialization
   const [modesConversations, setModesConversations] = useState([]);
   const [currentModesConversation, setCurrentModesConversation] = useState(null);
   
