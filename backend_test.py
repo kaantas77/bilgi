@@ -564,8 +564,10 @@ def main():
     
     tester = BilginAIAPITester()
     
-    # Run all tests in sequence
-    tests = [
+    # Run basic API tests first
+    print("\n📋 BASIC API TESTS")
+    print("-" * 30)
+    basic_tests = [
         tester.test_root_endpoint,
         tester.test_get_conversations_empty,
         tester.test_create_conversation,
@@ -578,18 +580,39 @@ def main():
         tester.test_get_deleted_conversation
     ]
     
-    for test in tests:
+    for test in basic_tests:
         test()
     
-    # Print final results
-    print("\n" + "=" * 50)
-    print(f"📊 Final Results: {tester.tests_passed}/{tester.tests_run} tests passed")
+    # Print basic test results
+    print("\n" + "-" * 50)
+    print(f"📊 Basic API Results: {tester.tests_passed}/{tester.tests_run} tests passed")
     
-    if tester.tests_passed == tester.tests_run:
-        print("🎉 All backend tests passed!")
+    # Run hybrid system tests
+    hybrid_success = tester.run_hybrid_system_tests()
+    
+    # Print final comprehensive results
+    total_tests = tester.tests_run + tester.hybrid_tests_run
+    total_passed = tester.tests_passed + tester.hybrid_tests_passed
+    
+    print("\n" + "=" * 60)
+    print("🏁 COMPREHENSIVE TEST RESULTS")
+    print("=" * 60)
+    print(f"📋 Basic API Tests: {tester.tests_passed}/{tester.tests_run} passed")
+    print(f"🧪 Hybrid System Tests: {tester.hybrid_tests_passed}/{tester.hybrid_tests_run} passed")
+    print(f"📊 TOTAL: {total_passed}/{total_tests} tests passed")
+    
+    if total_passed == total_tests:
+        print("🎉 ALL TESTS PASSED! BİLGİN AI system is working correctly!")
         return 0
     else:
-        print(f"❌ {tester.tests_run - tester.tests_passed} tests failed")
+        failed_tests = total_tests - total_passed
+        print(f"❌ {failed_tests} tests failed")
+        
+        if tester.tests_passed < tester.tests_run:
+            print("   - Basic API issues detected")
+        if tester.hybrid_tests_passed < tester.hybrid_tests_run:
+            print("   - Hybrid system issues detected")
+            
         return 1
 
 if __name__ == "__main__":
