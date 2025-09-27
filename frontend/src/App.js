@@ -458,33 +458,78 @@ function App() {
         {/* Content Area - Beautiful Tab Content */}
         <div className="flex-1 overflow-hidden">
           {activeTab === 'normal' ? (
-            /* Normal Sohbet Content */
-            <div className="h-full p-4">
-              <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-gray-900 dark:to-gray-800 rounded-2xl p-6 h-full border border-blue-200 dark:border-gray-700">
-                <div className="flex items-center space-x-3 mb-4">
-                  <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                  <h3 className="font-semibold text-gray-800 dark:text-white">Normal Sohbet</h3>
+            /* Normal Sohbet Content - Chat History */
+            <div className="h-full flex flex-col">
+              {/* Header */}
+              <div className="p-4 border-b border-gray-700">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-semibold text-white">Normal Sohbet</h3>
+                  <Button
+                    onClick={createNewNormalConversation}
+                    size="sm"
+                    className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
+                  >
+                    <Plus className="w-4 h-4 mr-1" />
+                    Yeni
+                  </Button>
                 </div>
-                <div className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
-                  <p className="mb-3">Standart BİLGİN ile doğrudan sohbet edin.</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    • Matematik problemleri çözün<br/>
-                    • Genel sorular sorun<br/>
-                    • LaTeX desteği: $x^2 + y^2 = r^2$
-                  </p>
-                </div>
-                <div className="mt-6">
-                  <div className={`text-xs px-3 py-2 rounded-lg ${
-                    getCurrentMessages().length > 0 
-                      ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' 
-                      : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
-                  }`}>
-                    {getCurrentMessages().length > 0 
-                      ? `${getCurrentMessages().length} mesaj var` 
-                      : 'Henüz mesaj yok'
+                <p className="text-xs text-gray-400 mt-1">Standart BİLGİN - mod olmadan</p>
+              </div>
+
+              {/* Conversations List */}
+              <div className="flex-1 overflow-y-auto">
+                {normalConversations.length === 0 ? (
+                  <div className="p-4 text-center">
+                    <div className="text-gray-400 mb-3">
+                      <MessageCircle className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                      <p className="text-sm">Henüz sohbet yok</p>
+                      <p className="text-xs opacity-75">Yeni sohbet başlatın</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-1 p-2">
+                    {normalConversations
+                      .sort((a, b) => new Date(b.lastMessageAt) - new Date(a.lastMessageAt))
+                      .map((conversation) => (
+                        <div
+                          key={conversation.id}
+                          onClick={() => selectNormalConversation(conversation)}
+                          className={`flex items-center justify-between p-3 rounded-lg cursor-pointer group transition-colors ${
+                            currentNormalConversation?.id === conversation.id
+                              ? 'bg-blue-600 text-white'
+                              : 'hover:bg-gray-800 text-gray-300 hover:text-white'
+                          }`}
+                        >
+                          <div className="flex items-center space-x-3 flex-1 min-w-0">
+                            <MessageCircle className="w-4 h-4 flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm truncate font-medium">{conversation.title}</p>
+                              <p className="text-xs opacity-75">
+                                {new Date(conversation.lastMessageAt).toLocaleDateString('tr-TR', {
+                                  day: 'numeric',
+                                  month: 'short',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}
+                              </p>
+                            </div>
+                          </div>
+                          <Button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteNormalConversation(conversation.id);
+                            }}
+                            variant="ghost"
+                            size="sm"
+                            className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-400 hover:bg-gray-700 p-1.5"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      ))
                     }
                   </div>
-                </div>
+                )}
               </div>
             </div>
           ) : (
