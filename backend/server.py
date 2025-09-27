@@ -177,6 +177,123 @@ async def extract_correction(claim: str, search_results: List[dict], original_qu
     
     return None
 
+def requires_web_search(question: str) -> bool:
+    """Determine if question requires web search instead of AnythingLLM"""
+    
+    # Güncel/live information patterns
+    web_search_patterns = [
+        # Sports scores and results
+        r'(?:maç|skor|sonuç|kazandı|kaybetti)\s+(?:ne|nedir|nasıl)',
+        r'(?:galatasaray|fenerbahçe|beşiktaş|trabzonspor)\s+(?:maçı|skoru)',
+        r'(?:barcelona|real madrid|manchester|liverpool)\s+(?:maç|skor)',
+        r'(?:şampiyonlar ligi|premier lig|süper lig)\s+(?:sonuç|tablo)',
+        
+        # Current news and events  
+        r'(?:son|güncel|bugünkü|şu an)\s+(?:haber|durum|gelişme)',
+        r'(?:bugün|dün|geçen hafta)\s+(?:ne oldu|olan)',
+        r'(?:seçim|politika|hükümet)\s+(?:son|güncel)',
+        
+        # Financial data
+        r'(?:dolar|euro|bitcoin|borsa)\s+(?:kuru|fiyat|ne kadar)',
+        r'(?:altın|gümüş|petrol)\s+(?:fiyat|kur)',
+        
+        # Weather
+        r'(?:hava durumu|hava|yağmur|kar)\s+(?:nasıl|ne|bugün)',
+        r'(?:ankara|istanbul|izmir)\s+(?:hava|sıcaklık)',
+        
+        # Recent releases/publications
+        r'(?:yeni|son)\s+(?:çıkan|yayınlanan)\s+(?:kitap|film|müzik)',
+        r'(?:2024|2025)\s+(?:çıkan|yayınlanan)',
+        
+        # Books/works not likely in system
+        r'(?:hangi|kim)\s+(?:yazdı|yazarı|eseri)',  # Could be unknown works
+        r'(?:kitap|roman|şiir)\s+(?:kim|kimin|hangi)',
+        
+        # Live data
+        r'(?:şu an|anlık|canlı)\s+',
+        r'(?:en son|en yeni|fresh)',
+        
+        # Technology and recent events
+        r'(?:chatgpt|ai|yapay zeka)\s+(?:son|yeni|güncel)',
+        r'(?:iphone|android|tesla)\s+(?:yeni|son|model)'
+    ]
+    
+    question_lower = question.lower()
+    return any(re.search(pattern, question_lower) for pattern in web_search_patterns)
+
+async def handle_web_search_question(question: str) -> str:
+    """Handle questions that require web search"""
+    
+    # Perform web search with optimized query
+    search_query = optimize_search_query(question)
+    search_results = await web_search(search_query, num_results=3)
+    
+    if not search_results:
+        return "Üzgünüm, şu an güncel bilgilere erişemiyorum. Lütfen daha sonra tekrar deneyin."
+    
+    # Format web search results into natural response
+    response = format_web_search_response(question, search_results)
+    return response
+
+def optimize_search_query(question: str) -> str:
+    """Optimize question for better web search results"""
+    
+    # Remove question words and optimize for search
+    question_clean = question.lower()
+    
+    # Remove Turkish question words
+    remove_words = [
+        'nasıl', 'ne', 'nedir', 'kim', 'nerede', 'ne zaman', 'kaç', 'hangi',
+        'mıdır', 'midir', 'mudur', 'müdür', 'mi', 'mı', 'mu', 'mü'
+    ]
+    
+    for word in remove_words:
+        question_clean = re.sub(f'\\b{word}\\b', '', question_clean)
+    
+    # Clean up extra spaces
+    question_clean = ' '.join(question_clean.split())
+    
+    # Add context for better results
+    if 'maç' in question_clean or 'skor' in question_clean:
+        question_clean += ' sonuç skor'
+    elif 'kitap' in question_clean or 'roman' in question_clean:
+        question_clean += ' yazar eser bilgi'
+    elif 'haber' in question_clean:
+        question_clean += ' güncel haberler'
+    
+    return question_clean
+
+def format_web_search_response(question: str, search_results: List[dict]) -> str:
+    """Format web search results into natural conversational response"""
+    
+    if not search_results:
+        return "Bu konuda güncel bilgi bulamadım."
+    
+    # Combine search results into coherent response
+    main_info = []
+    for result in search_results:
+        snippet = result.get("snippet", "").strip()
+        if snippet and len(snippet) > 10:
+            main_info.append(snippet)
+    
+    if not main_info:
+        return "Bu konuda detaylı bilgi bulamadım."
+    
+    # Create natural response
+    response = "Web araştırması sonucunda:\n\n"
+    
+    # Use first result as main answer
+    response += main_info[0]
+    
+    # Add supplementary info if available
+    if len(main_info) > 1:
+        response += f"\n\nEk bilgi: {main_info[1]}"
+    
+    # Add source indicator
+    response += f"\n\n*Güncel web kaynaklarından alınmıştır ({len(search_results)} sonuç)*"
+    
+    return response
+
 def should_fact_check(ai_response: str) -> bool:
     """Determine if AI response should be fact-checked"""
     
