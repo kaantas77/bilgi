@@ -1313,6 +1313,15 @@ function App() {
             <div className="bg-black border-t border-gray-900 p-4">
               <div className="max-w-4xl mx-auto">
                 <div className="flex items-end space-x-3 bg-gray-900 rounded-2xl p-3 border border-gray-900">
+                  <Button
+                    onClick={handleFileSelect}
+                    disabled={isUploading}
+                    variant="ghost"
+                    size="sm"
+                    className="text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg"
+                  >
+                    <Paperclip className="w-4 h-4" />
+                  </Button>
                   <Input
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
