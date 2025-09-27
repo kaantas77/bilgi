@@ -91,13 +91,15 @@ function App() {
     scrollToBottom();
   }, [messages]);
 
-  const loadConversations = async () => {
+  // Load conversations from localStorage instead of API
+  const loadConversations = () => {
     try {
-      // Remove auth requirement - load conversations directly
-      const response = await axios.get(`${API}/conversations`);
-      setConversations(response.data);
+      const saved = localStorage.getItem('bilgin_conversations');
+      const savedConversations = saved ? JSON.parse(saved) : [];
+      setConversations(savedConversations);
     } catch (error) {
-      console.error('Error loading conversations:', error);
+      console.error('Error loading conversations from localStorage:', error);
+      setConversations([]);
     }
   };
 
