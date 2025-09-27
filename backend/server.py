@@ -720,26 +720,33 @@ async def send_message(conversation_id: str, input: MessageCreate):
                 final_message = f"{mode_prompts[input.conversationMode]} {input.content}"
         
         # Call AnythingLLM API
+        logging.info(f"Calling AnythingLLM API with message length: {len(final_message)}")
         async with httpx.AsyncClient() as client:
+            api_payload = {
+                "message": final_message,
+                "mode": input.mode,
+                "sessionId": conversation_id
+            }
+            logging.info(f"API payload: {api_payload}")
+            
             response = await client.post(
                 ANYTHINGLLM_API_URL,
                 headers={
                     "Authorization": f"Bearer {ANYTHINGLLM_API_KEY}",
                     "Content-Type": "application/json"
                 },
-                json={
-                    "message": final_message,
-                    "mode": input.mode,
-                    "sessionId": conversation_id
-                },
+                json=api_payload,
                 timeout=30.0
             )
+            
+            logging.info(f"AnythingLLM response status: {response.status_code}")
+            logging.info(f"AnythingLLM response text: {response.text}")
             
             if response.status_code == 200:
                 ai_response = response.json()
                 ai_content = ai_response.get("textResponse", "Sorry, I couldn't process your request.")
             else:
-                ai_content = "Sorry, I'm having trouble connecting to the AI service."
+                ai_content = f"API Error {response.status_code}: {response.text}"
                 
     except Exception as e:
         logging.error(f"AnythingLLM API error: {e}")
