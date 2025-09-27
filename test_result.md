@@ -122,7 +122,7 @@ frontend:
     implemented: true
     working: false
     file: "/app/frontend/src/App.js"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: false
     status_history:
@@ -147,6 +147,9 @@ frontend:
         - working: true
         - agent: "testing"
         - comment: "✅ CRITICAL MESSAGE DISPLAY ISSUE COMPLETELY RESOLVED! Comprehensive final testing confirms Normal Sohbet is FULLY WORKING: 1) Fact-checking system working perfectly - asked 'Sabahattin Ali'nin en ünlü eseri nedir?' and received accurate response 'Kürk Mantolu Madonna'dır (1943)' 2) Math questions work without unnecessary fact-checking - '25 x 4 kaç eder?' processed correctly 3) Messages display properly in chat interface 4) Conversation history works 5) 'Yeni' button creates new conversations 6) No runtime errors or red overlays 7) API integration successful. Normal Sohbet fact-checking system is production-ready!"
+        - working: false
+        - agent: "testing"
+        - comment: "❌ FINAL MASTER TEST - BACKEND API KEY ISSUE: Frontend UI fully functional with no runtime errors. Smart routing CONFIRMED working - weather/currency queries successfully triggered web search. However, CRITICAL BACKEND ISSUE: AnythingLLM API key invalid causing 'API Error 403: No valid api key found' for all non-web-search queries (math, historical, science). Backend logs show https://pilj1jbx.rcsrv.com/api/v1/workspace/bilgin/chat returning 403 Forbidden. Normal Sohbet cannot function properly without AnythingLLM API access. URGENT: Backend needs AnythingLLM API key configuration fix."
   
   - task: "Konuşma Modları - Sadece modes sekmesinde aktif mod sistemi"
     implemented: true
