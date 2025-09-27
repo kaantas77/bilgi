@@ -34,6 +34,21 @@ function App() {
   const [language, setLanguage] = useState('tr');
   const [notifications, setNotifications] = useState(true);
   
+  // Konuşma Modları Test - Yeni eklenen states
+  const [activeTab, setActiveTab] = useState('normal'); // 'normal' or 'modes'
+  const [selectedMode, setSelectedMode] = useState('normal');
+  
+  // Konuşma modları tanımları
+  const conversationModes = {
+    normal: { name: "Normal", description: "Standart BİLGİN", color: "bg-blue-500" },
+    friend: { name: "Arkadaş Canlısı", description: "Samimi, motive, esprili", color: "bg-green-500" },
+    realistic: { name: "Gerçekci", description: "Eleştirel, kanıt odaklı", color: "bg-yellow-500" },
+    coach: { name: "Koç", description: "Soru sorarak düşündürür", color: "bg-purple-500" },
+    lawyer: { name: "Avukat", description: "Karşı argüman üretir", color: "bg-red-500" },
+    teacher: { name: "Öğretmen", description: "Adım adım öğretir", color: "bg-indigo-500" },
+    minimalist: { name: "Minimalist", description: "Kısa, madde işaretli", color: "bg-gray-500" }
+  };
+  
   const messagesEndRef = useRef(null);
   const { toast } = useToast();
 
