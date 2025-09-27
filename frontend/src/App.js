@@ -65,11 +65,13 @@ function App() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // Load settings from localStorage on component mount
+  // Load settings and conversations from localStorage on component mount
   useEffect(() => {
     const savedLanguage = localStorage.getItem('language');
     const savedTheme = localStorage.getItem('theme');
     const savedNotifications = localStorage.getItem('notifications');
+    const savedNormalConversations = localStorage.getItem('bilgin-normal-conversations');
+    const savedModesConversations = localStorage.getItem('bilgin-modes-conversations');
 
     if (savedLanguage) {
       setLanguage(savedLanguage);
@@ -84,8 +86,34 @@ function App() {
       setNotifications(savedNotifications === 'true');
     }
 
-    // No backend - conversations will be empty
+    // Load conversations
+    if (savedNormalConversations) {
+      try {
+        const conversations = JSON.parse(savedNormalConversations);
+        setNormalConversations(conversations);
+      } catch (error) {
+        console.error('Error loading normal conversations:', error);
+      }
+    }
+
+    if (savedModesConversations) {
+      try {
+        const conversations = JSON.parse(savedModesConversations);
+        setModesConversations(conversations);
+      } catch (error) {
+        console.error('Error loading modes conversations:', error);
+      }
+    }
   }, []);
+
+  // Save conversations to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('bilgin-normal-conversations', JSON.stringify(normalConversations));
+  }, [normalConversations]);
+
+  useEffect(() => {
+    localStorage.setItem('bilgin-modes-conversations', JSON.stringify(modesConversations));
+  }, [modesConversations]);
 
   // No backend functions - remove all API dependencies
   const createNewConversation = () => {
