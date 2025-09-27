@@ -408,13 +408,19 @@ async def get_anythingllm_response(question: str, conversation_mode: str = 'norm
                 ai_response = response.json()
                 raw_response = ai_response.get("textResponse", "AnythingLLM yanıt veremedi.")
                 
-                # Fix common English error messages
-                if "sorry, i'm experiencing technical difficulties" in raw_response.lower():
+                # Fix common English error messages - MORE COMPREHENSIVE
+                response_lower = raw_response.lower().strip()
+                
+                if "sorry, i'm experiencing technical difficulties" in response_lower:
                     return "Üzgünüm, şu anda teknik bir sorun yaşıyorum. Lütfen sorunuzu tekrar deneyin."
-                elif "sorry" in raw_response.lower() and "technical" in raw_response.lower():
+                elif "sorry" in response_lower and "experiencing" in response_lower:
                     return "Teknik bir sorun nedeniyle yanıt veremedim. Lütfen tekrar deneyin."
-                elif "i cannot" in raw_response.lower() or "i can't" in raw_response.lower():
+                elif "sorry" in response_lower and ("technical" in response_lower or "difficulties" in response_lower):
+                    return "Üzgünüm, teknik sorun yaşıyorum. Lütfen tekrar deneyin."
+                elif "i cannot" in response_lower or "i can't" in response_lower:
                     return "Bu konuda yardımcı olamıyorum. Başka bir şey sorabilirsiniz."
+                elif response_lower.startswith("sorry"):
+                    return "Üzgünüm, o konuda yardımcı olamıyorum."
                 
                 return raw_response
             else:
