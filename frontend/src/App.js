@@ -92,6 +92,19 @@ function App() {
     // No backend - empty function  
   };
 
+  // Get current messages based on active tab
+  const getCurrentMessages = () => {
+    return activeTab === 'normal' ? normalMessages : modesMessages;
+  };
+
+  const setCurrentMessages = (messages) => {
+    if (activeTab === 'normal') {
+      setNormalMessages(messages);
+    } else {
+      setModesMessages(messages);
+    }
+  };
+
   const sendMessage = async () => {
     if (!inputMessage.trim() || isMessageLoading) return;
 
