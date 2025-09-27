@@ -112,12 +112,12 @@ function App() {
       let finalMessage = inputMessage;
       if (activeTab === 'modes' && selectedMode !== 'normal') {
         const modePrompts = {
-          friend: "Lütfen samimi, motive edici ve esprili bir şekilde yanıtla. 3 küçük adım önerebilirsin. Arkadaş canlısı ol:",
-          realistic: "Eleştirel ve kanıt odaklı düşün. Güçlü ve zayıf yönleri belirt. Test planı öner. Gerçekci ol:",
-          coach: "Soru sorarak kullanıcının düşünmesini sağla. Hedef ve adım listesi çıkar. Koç gibi yaklaş:",
-          lawyer: "Bilinçli karşı argüman üret. Kör noktaları göster. Avukat perspektifiyle yaklaş:",
-          teacher: "Adım adım öğret. Örnek ver ve mini quiz ekle. Öğretmen gibi açıkla:",
-          minimalist: "En kısa, madde işaretli, süssüz yanıt ver. Minimalist ol:"
+          friend: "Samimi arkadaş gibi konuş, kısa ve esprili yanıtla:",
+          realistic: "Gerçekçi ve eleştirel düşün, kısa yanıt ver:",
+          coach: "Motive et ve sorular sor, kısa tut:",
+          lawyer: "Karşı görüş sun ve sorgula, kısa yanıt:",
+          teacher: "Basit ve açık öğret, kısa tut:",
+          minimalist: "Tek cümle, çok kısa yanıt ver:"
         };
         if (modePrompts[selectedMode]) {
           finalMessage = `${modePrompts[selectedMode]} ${inputMessage}`;
