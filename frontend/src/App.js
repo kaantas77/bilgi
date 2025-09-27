@@ -122,33 +122,115 @@ function App() {
   };
 
   // Create new conversation functions
-  const createNewNormalConversation = () => {
-    const newConversation = {
-      id: Date.now().toString(),
-      title: 'Yeni Sohbet',
-      messages: [],
-      createdAt: new Date().toISOString(),
-      lastMessageAt: new Date().toISOString()
-    };
-    
-    setNormalConversations(prev => [newConversation, ...prev]);
-    setCurrentNormalConversation(newConversation);
-    setNormalMessages([]);
+  const createNewNormalConversation = async () => {
+    try {
+      // Call backend to create conversation
+      const response = await fetch(`${BACKEND_URL}/api/conversations`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          title: 'Yeni Sohbet'
+        })
+      });
+
+      if (response.ok) {
+        const newConversation = await response.json();
+        console.log('Created new normal conversation:', newConversation);
+        
+        // Add to local state
+        setNormalConversations(prev => [newConversation, ...prev]);
+        setCurrentNormalConversation(newConversation);
+        setNormalMessages([]);
+      } else {
+        console.error('Failed to create conversation:', response.status);
+        // Fallback to local conversation
+        const newConversation = {
+          id: Date.now().toString(),
+          title: 'Yeni Sohbet',
+          messages: [],
+          createdAt: new Date().toISOString(),
+          lastMessageAt: new Date().toISOString()
+        };
+        
+        setNormalConversations(prev => [newConversation, ...prev]);
+        setCurrentNormalConversation(newConversation);
+        setNormalMessages([]);
+      }
+    } catch (error) {
+      console.error('Error creating conversation:', error);
+      // Fallback to local conversation
+      const newConversation = {
+        id: Date.now().toString(),
+        title: 'Yeni Sohbet',
+        messages: [],
+        createdAt: new Date().toISOString(),
+        lastMessageAt: new Date().toISOString()
+      };
+      
+      setNormalConversations(prev => [newConversation, ...prev]);
+      setCurrentNormalConversation(newConversation);
+      setNormalMessages([]);
+    }
   };
 
-  const createNewModesConversation = () => {
-    const newConversation = {
-      id: Date.now().toString(),
-      title: 'Yeni Mod Sohbeti',
-      messages: [],
-      mode: selectedMode,
-      createdAt: new Date().toISOString(),
-      lastMessageAt: new Date().toISOString()
-    };
-    
-    setModesConversations(prev => [newConversation, ...prev]);
-    setCurrentModesConversation(newConversation);
-    setModesMessages([]);
+  const createNewModesConversation = async () => {
+    try {
+      // Call backend to create conversation
+      const response = await fetch(`${BACKEND_URL}/api/conversations`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          title: 'Yeni Mod Sohbeti'
+        })
+      });
+
+      if (response.ok) {
+        const newConversation = await response.json();
+        console.log('Created new modes conversation:', newConversation);
+        
+        // Add mode info and add to local state
+        newConversation.mode = selectedMode;
+        setModesConversations(prev => [newConversation, ...prev]);
+        setCurrentModesConversation(newConversation);
+        setModesMessages([]);
+      } else {
+        console.error('Failed to create modes conversation:', response.status);
+        // Fallback to local conversation
+        const newConversation = {
+          id: Date.now().toString(),
+          title: 'Yeni Mod Sohbeti',
+          messages: [],
+          mode: selectedMode,
+          createdAt: new Date().toISOString(),
+          lastMessageAt: new Date().toISOString()
+        };
+        
+        setModesConversations(prev => [newConversation, ...prev]);
+        setCurrentModesConversation(newConversation);
+        setModesMessages([]);
+      }
+    } catch (error) {
+      console.error('Error creating modes conversation:', error);
+      // Fallback to local conversation
+      const newConversation = {
+        id: Date.now().toString(),
+        title: 'Yeni Mod Sohbeti',
+        messages: [],
+        mode: selectedMode,
+        createdAt: new Date().toISOString(),
+        lastMessageAt: new Date().toISOString()
+      };
+      
+      setModesConversations(prev => [newConversation, ...prev]);
+      setCurrentModesConversation(newConversation);
+      setModesMessages([]);
+    }
   };
 
   // Select conversation functions
