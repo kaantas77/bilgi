@@ -809,10 +809,13 @@ function App() {
                   <div className="text-center text-gray-300 mt-20">
                     <h3 className="text-2xl font-bold mb-4">Merhaba! Ne öğrenmek istersin?</h3>
                     <p className="text-lg mb-4">
-                      {conversationModes[selectedMode]?.name} modunda matematik sorularınızı yanıtlıyorum.
+                      {activeTab === 'normal' 
+                        ? 'BİLGİN ile sohbet edebilirsiniz.'
+                        : `${conversationModes[selectedMode]?.name} modunda matematik sorularınızı yanıtlıyorum.`
+                      }
                     </p>
                     <p className="text-sm text-gray-400">
-                      LaTeX desteği: $x^2 + y^2 = r^2$
+                      LaTeX matematik desteği: $x^2 + y^2 = r^2$
                     </p>
                   </div>
                 )}
