@@ -20,10 +20,9 @@ const ANYTHINGLLM_API_URL = "https://pilj1jbx.rcsrv.com/api/v1/workspace/bilgin/
 const ANYTHINGLLM_API_KEY = "B47W62W-FKV4PAZ-G437YKM-6PGZP0A";
 
 function App() {
-  // Remove backend dependency - use localStorage for conversations
-  const [conversations, setConversations] = useState([]);
-  const [currentConversation, setCurrentConversation] = useState(null);
-  const [messages, setMessages] = useState([]);
+  // Separate conversation states for each tab
+  const [normalMessages, setNormalMessages] = useState([]);
+  const [modesMessages, setModesMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isMessageLoading, setIsMessageLoading] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
