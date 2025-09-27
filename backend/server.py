@@ -15,6 +15,8 @@ import httpx
 import bcrypt
 from jose import JWTError, jwt
 import secrets
+import re
+import asyncio
 
 
 ROOT_DIR = Path(__file__).parent
