@@ -527,7 +527,10 @@ function App() {
                   </Button>
                 </div>
                 <div className="text-xs text-gray-500 text-center mt-2">
-                  BİLGİN AI matematik ifadelerini LaTeX formatında anlayabilir. KaTeX ile profesyonel render.
+                  {activeTab === 'modes' 
+                    ? `${conversationModes[selectedMode]?.name || 'Normal'} modunda. LaTeX matematik desteği aktif.`
+                    : 'BİLGİN AI matematik ifadelerini LaTeX formatında anlayabilir. KaTeX ile profesyonel render.'
+                  }
                 </div>
               </div>
             </div>
