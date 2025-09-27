@@ -115,18 +115,134 @@ function App() {
     localStorage.setItem('bilgin-modes-conversations', JSON.stringify(modesConversations));
   }, [modesConversations]);
 
+  // Helper function to generate conversation title from first message
+  const generateConversationTitle = (message) => {
+    if (message.length <= 50) return message;
+    return message.substring(0, 50) + '...';
+  };
+
+  // Create new conversation functions
+  const createNewNormalConversation = () => {
+    const newConversation = {
+      id: Date.now().toString(),
+      title: 'Yeni Sohbet',
+      messages: [],
+      createdAt: new Date().toISOString(),
+      lastMessageAt: new Date().toISOString()
+    };
+    
+    setNormalConversations(prev => [newConversation, ...prev]);
+    setCurrentNormalConversation(newConversation);
+    setNormalMessages([]);
+  };
+
+  const createNewModesConversation = () => {
+    const newConversation = {
+      id: Date.now().toString(),
+      title: 'Yeni Mod Sohbeti',
+      messages: [],
+      mode: selectedMode,
+      createdAt: new Date().toISOString(),
+      lastMessageAt: new Date().toISOString()
+    };
+    
+    setModesConversations(prev => [newConversation, ...prev]);
+    setCurrentModesConversation(newConversation);
+    setModesMessages([]);
+  };
+
+  // Select conversation functions
+  const selectNormalConversation = (conversation) => {
+    setCurrentNormalConversation(conversation);
+    setNormalMessages(conversation.messages || []);
+  };
+
+  const selectModesConversation = (conversation) => {
+    setCurrentModesConversation(conversation);
+    setModesMessages(conversation.messages || []);
+    if (conversation.mode) {
+      setSelectedMode(conversation.mode);
+    }
+  };
+
+  // Delete conversation functions  
+  const deleteNormalConversation = (conversationId) => {
+    setNormalConversations(prev => prev.filter(c => c.id !== conversationId));
+    if (currentNormalConversation?.id === conversationId) {
+      setCurrentNormalConversation(null);
+      setNormalMessages([]);
+    }
+  };
+
+  const deleteModesConversation = (conversationId) => {
+    setModesConversations(prev => prev.filter(c => c.id !== conversationId));
+    if (currentModesConversation?.id === conversationId) {
+      setCurrentModesConversation(null);
+      setModesMessages([]);
+    }
+  };
+
+  // Update conversation with new messages
+  const updateConversationMessages = (messages) => {
+    if (activeTab === 'normal' && currentNormalConversation) {
+      const updatedConversation = {
+        ...currentNormalConversation,
+        messages,
+        lastMessageAt: new Date().toISOString()
+      };
+      
+      // Update title if this is the first user message
+      if (messages.length === 1 && messages[0].role === 'user') {
+        updatedConversation.title = generateConversationTitle(messages[0].content);
+      }
+      
+      setCurrentNormalConversation(updatedConversation);
+      setNormalConversations(prev => 
+        prev.map(c => c.id === updatedConversation.id ? updatedConversation : c)
+      );
+    } else if (activeTab === 'modes' && currentModesConversation) {
+      const updatedConversation = {
+        ...currentModesConversation,
+        messages,
+        mode: selectedMode,
+        lastMessageAt: new Date().toISOString()
+      };
+      
+      // Update title if this is the first user message
+      if (messages.length === 1 && messages[0].role === 'user') {
+        updatedConversation.title = generateConversationTitle(messages[0].content);
+      }
+      
+      setCurrentModesConversation(updatedConversation);
+      setModesConversations(prev => 
+        prev.map(c => c.id === updatedConversation.id ? updatedConversation : c)
+      );
+    }
+  };
+
   // No backend functions - remove all API dependencies
   const createNewConversation = () => {
-    // Just clear messages for fresh start
-    setCurrentMessages([]);
+    if (activeTab === 'normal') {
+      createNewNormalConversation();
+    } else {
+      createNewModesConversation();
+    }
   };
 
-  const selectConversation = () => {
-    // No backend - empty function
+  const selectConversation = (conversation) => {
+    if (activeTab === 'normal') {
+      selectNormalConversation(conversation);
+    } else {
+      selectModesConversation(conversation);
+    }
   };
 
-  const deleteConversation = () => {
-    // No backend - empty function  
+  const deleteConversation = (conversationId) => {
+    if (activeTab === 'normal') {
+      deleteNormalConversation(conversationId);
+    } else {
+      deleteModesConversation(conversationId);
+    }
   };
 
   // Get current messages based on active tab
