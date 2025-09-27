@@ -576,23 +576,31 @@ function App() {
                     console.log('STEP 1: Button clicked!');
                     alert('STEP 2: Alert works!');
                     
+                    console.log('STEP 2.1: Checking variables...');
+                    console.log('BACKEND_URL:', BACKEND_URL);
+                    console.log('API:', API);
+                    console.log('axios:', typeof axios);
+                    
+                    if (!API) {
+                      alert('HATA: API undefined!');
+                      return;
+                    }
+                    
+                    console.log('STEP 3: Variables OK, starting API call...');
+                    
                     try {
-                      console.log('STEP 3: Starting API call...');
-                      console.log('API URL:', `${API}/conversations`);
+                      console.log('STEP 4: Making axios call to:', `${API}/conversations`);
                       
                       const response = await axios.post(`${API}/conversations`, {
                         title: "Test Sohbet"
                       });
                       
-                      console.log('STEP 4: API Response:', response.data);
-                      
-                      const newConv = response.data;
-                      setCurrentConversation(newConv);
-                      console.log('STEP 5: Set current conversation');
+                      console.log('STEP 5: Success! Response:', response.data);
+                      alert('SUCCESS!');
                       
                     } catch (error) {
                       console.error('STEP ERROR:', error);
-                      alert('Hata: ' + error.message);
+                      alert('API HATASI: ' + error.message);
                     }
                   }}
                   style={{
