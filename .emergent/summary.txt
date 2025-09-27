@@ -1,101 +1,85 @@
 <analysis>
-The AI engineer's work in this trajectory primarily involved addressing persistent issues with the BİLGİN application's chat functionality and API connectivity, followed by implementing a significant new feature and starting a major UI refactor. Key challenges included fixing math rendering (resolved with KaTeX), debugging a broken authentication flow (which ultimately led to its removal), and rectifying repeated API connection errors. The developer transitioned the frontend from relying on a local FastAPI backend to directly integrating with the external AnythingLLM API, necessitating numerous changes to state management and API calls in . The final stage involved enhancing conversation modes with more natural responses and commencing a substantial UI redesign for the main chat layout.
+The AI engineer's work primarily involved evolving the BİLGİN application's chat functionality from a basic MVP to a sophisticated, intelligent hybrid system. Initially, efforts focused on UI refactoring, implementing chat history, and refining conversation modes. Significant time was spent debugging React state management issues, particularly persistent runtime errors and message display failures in . Subsequently, the core task shifted to integrating advanced AI features: a dynamic RAG (Retrieval-Augmented Generation) system combining AnythingLLM with web search, comprehensive AI fact-checking, and intelligent question categorization. Multiple iterations were made on web search APIs (Google, then Serper, briefly considering OpenAI/Ollama before reverting to Serper), alongside fixing critical frontend-backend communication bypasses. The final stages focused on fine-tuning the hybrid response logic, including source attribution removal and smart routing for casual vs. knowledge-based queries, culminating in a pending fix for an untranslated error message.
 </analysis>
 
 <product_requirements>
-The BİLGİN application aims to be an AI-powered chat similar to ChatGPT, leveraging the AnythingLLM API.
-Initially, core requirements included:
-1.  **Core Chat Functionality**: Interaction with AnythingLLM, supporting query/chat modes.
-2.  **ChatGPT-like UI/UX**: Sidebar for conversations, dynamic chat titles, chat deletion.
-3.  **Membership System**: Email/password, Google OAuth, email verification, admin panel, post-registration onboarding.
-4.  **Settings Menu**: Report Bug, User Agreement, theme, and language toggles.
-5.  **Mathematics Rendering**: Display complex mathematical symbols and formulas professionally (LaTeX quality).
+The BİLGİN application is an AI-powered chat leveraging AnythingLLM, aiming for a ChatGPT-like experience. Initial requirements included core chat, UI/UX, a membership system (later removed), settings, and professional LaTeX math rendering.
 
-During this trajectory, the user's explicit requests and the implemented changes evolved to:
-1.  **Enhanced Math Rendering**: Display mathematical symbols and operations professionally in chat, similar to LaTeX quality. This was fully implemented.
-2.  **Removal of Auth/Admin**: Explicit request to remove the entire membership system and admin panel to simplify the application, leading to anonymous chat access.
-3.  **Conversation Modes**: Add a Konuşma Modları (Conversation Modes) section with distinct interaction styles: Friendly, Realistic, Coach, Lawyer, Teacher, Minimalist. This section should have its own chat logic and not interfere with the normal chat flow.
-4.  **Natural Mode Responses**: Make conversation mode responses more natural and concise.
-5.  **UI Layout Refactor**: Redesign the main chat interface to have Normal Sohbet and Konuşma Modları sections stacked vertically, with a wider chat frame and separate, distinct chat areas for each.
+Over this trajectory, user requests expanded significantly:
+1.  **Enhanced Math Rendering**: Implemented professional LaTeX quality math display.
+2.  **Auth/Admin Removal**: Entire membership and admin systems were removed, enabling anonymous chat.
+3.  **Conversation Modes**: Implemented Konuşma Modları (Friendly, Realistic, Coach, Lawyer, Teacher, Minimalist) with distinct chat logic.
+4.  **Natural Mode Responses**: Refined prompts for more concise, natural responses.
+5.  **UI Layout Refactor**: Redesign for vertical tabs, wider chat frame, and separate chat areas for Normal Sohbet and Konuşma Modları.
+6.  **Normal Chat History**: Display previous conversations in chronological order, with short summary titles, New Chat and Delete Chat features. Normal Sohbet must not use any modes.
+7.  **Hybrid RAG/WebSearch**: Implement web search (Serper API) to complement AnythingLLM. If AnythingLLM lacks information, web search should be utilized.
+8.  **AI Fact-Checking**: Verify AnythingLLM's responses using web search, displaying only the validated or corrected answer seamlessly.
+9.  **Smart Web Search Routing**: Directly route current/web-dependent queries (e.g., match scores, news) to web search without consulting AnythingLLM.
+10. **Refined Hybrid Response**: Always query both AnythingLLM and web search. Clean and combine results, selecting the best answer.
+11. **Conditional Source Attribution**: Remove Güncel web kaynaklarından alınmıştır if the answer solely comes from web search.
+12. **Intelligent Quick Analysis**: Quickly categorize questions (casual, math, current). For casual/math, use only AnythingLLM. If both sources give the same answer, display it once.
 </product_requirements>
 
 <key_technical_concepts>
--   **FastAPI**: Python web framework (backend, later mostly bypassed for chat).
--   **React**: JavaScript library (frontend).
--   **MongoDB**: NoSQL database (backend, later bypassed).
--   **KaTeX**: JavaScript library for LaTeX math rendering.
--   **AnythingLLM API**: AI language model for chat responses.
--   **axios & fetch**: HTTP clients for API calls.
--   **React State Management**: , ,  for UI logic.
+- **FastAPI**: Python web framework for backend API.
+- **React**: JavaScript library for dynamic frontend UI.
+- **MongoDB**: NoSQL database for data persistence.
+- **KaTeX**: JavaScript library for professional LaTeX math rendering.
+- **AnythingLLM API**: Core AI language model for chat.
+- **Serper API**: Third-party API for real-time web search.
+- **React State Management**: , ,  for UI logic and data flow.
+- **Regex**: Used for question categorization and web search routing.
 </key_technical_concepts>
 
 <code_architecture>
-The application uses a standard full-stack setup: React frontend, FastAPI backend, and MongoDB database.
+The application utilizes a React frontend, FastAPI backend, and MongoDB.
 
 
 
 -   **/app/backend/server.py**:
-    -   **Summary**: Originally defined API endpoints for auth, session, conversation, AnythingLLM proxy, and bug reports.
+    -   **Summary**: Defines API endpoints for conversation management, LLM interaction, and now includes advanced hybrid AI logic.
     -   **Changes Made**:
-        -   Fixed Pydantic serialization for  and  (initial phase).
-        -   Updated  usage to environment variable.
-        -   Modified  model to include .
-        -   Adjusted  endpoint to incorporate  and always send  to AnythingLLM (as AnythingLLM only supports chat or query).
-        -   *Significant change*: Auth dependencies () were removed from conversation-related endpoints (, ), allowing anonymous access.
-        -   Later, the frontend was adapted to directly call AnythingLLM, effectively bypassing this backend for core chat functionality.
-        -    added for debugging API calls.
+        -   Removed  dependencies from conversation endpoints.
+        -   Updated  model for .
+        -   Integrated  (initially Google, then Serper) and  for fact-checking.
+        -   Implemented  to refine web results using AnythingLLM.
+        -   Added  to determine AnythingLLM's capability.
+        -   Introduced  for intelligent routing (casual, math, current, general).
+        -   Modified the  endpoint significantly to:
+            -   Route questions based on category (direct AnythingLLM for casual/math, hybrid for others).
+            -   Perform dual validation (AnythingLLM + Web Search).
+            -   Combine and clean responses.
+            -   Conditionally remove web source attribution.
+        -   Added  handling for errors, with recent attempts to localize error messages.
 -   **/app/backend/.env**:
-    -   **Summary**: Stores environment variables like , , , .
-    -   **Changes Made**:  was repeatedly updated with new keys provided by the user.
+    -   **Summary**: Stores API keys and database credentials.
+    -   **Changes Made**:  was updated several times. ,  were added then removed.  was added, removed, and re-added with user-provided keys.  was added then removed.
 -   **/app/frontend/src/App.js**:
-    -   **Summary**: The central React component handling state, routing, all main screens, and global UI logic. This file underwent the most substantial changes.
+    -   **Summary**: The central component handling all UI, state management, and interaction with the backend.
     -   **Changes Made**:
-        -   Integrated  component.
-        -   Extensively modified for ,  styles (later removed).
-        -   Fixed  configuration for  headers.
-        -   *Major refactor*: Removed all authentication, membership, and admin panel-related logic and UI.
-        -   Implemented  (Conversation Modes) with state (, , ).
-        -   Updated  to include  for LLM prompting.
-        -   Integrated tab system for Normal Sohbet and Konuşma Modları.
-        -   Modified chat input placeholders and info text based on selected mode.
-        -   *Crucial change*: Modified API calls from  to  and changed target from local FastAPI backend to direct AnythingLLM API (using ).
-        -   Debugged and fixed React state management issues ( resetting) using  and  dependency arrays.
-        -   Introduced temporary test buttons and logging for debugging.
-        -   *Currently undergoing refactor for UI layout*: converting sidebar to vertical tab system and updating content area logic for new layout.
--   **/app/frontend/src/App.css**:
-    -   **Summary**: Global styles and custom animations.
-    -   **Changes Made**: Numerous custom keyframes and utility classes for UI (e.g., animated backgrounds, glass morphism, matrix effect) and potentially some styling for math rendering.
--   **/app/frontend/src/components/MathRenderer.js**:
-    -   **Summary**: A new component created to handle LaTeX math rendering using  and .
-    -   **Changes Made**: Implemented logic to parse and render math expressions within chat messages, handling both inline () and display () LaTeX.
--   **/app/frontend/src/SimpleApp.js**:
-    -   **Summary**: A temporary, completely rewritten version of  created during a debugging spiral, intended to simplify the application by removing all backend calls.
-    -   **Changes Made**: Full rewrite to directly call AnythingLLM, bypassing the FastAPI backend entirely. This file was later discarded in favor of refactoring  directly.
+        -   Removed authentication and onboarding UI/logic.
+        -   Integrated  and UI for .
+        -   Refactored UI for vertical tab system and separate chat areas, including state for  and .
+        -   Implemented chat history display, New Chat and Delete Chat logic.
+        -   API calls were initially  to local backend, then  to direct AnythingLLM, and finally **back to  calls to the local FastAPI backend** ().
+        -   Extensive debugging and fixes for React state (,  array, , ) to resolve runtime errors () and message display issues (empty ).
+        -   Updated  logic to handle conversation creation synchronously and pass  correctly to the backend.
+        -   Adjusted input placeholders and conditional rendering based on active tab and selected mode.
 -   **/app/frontend/.env**:
-    -   **Summary**: Stores environment variables for the frontend.
-    -   **Changes Made**:  was repeatedly changed, initially from a production URL to  during debugging, and finally to the direct AnythingLLM API URL (). The  (if used directly by frontend) would also be set here.
--   **/app/frontend/src/index.js**:
-    -   **Summary**: Entry point for the React application.
-    -   **Changes Made**: Temporarily changed to import and render  instead of  during a debugging phase, then reverted.
--   **/app/frontend/public/thermodynamics_test.html**:
-    -   **Summary**: A temporary HTML file created to demonstrate and test KaTeX rendering of complex mathematical formulas.
-    -   **Changes Made**: Created to verify professional math rendering capabilities outside the main app flow.
+    -   **Summary**: Frontend environment variables.
+    -   **Changes Made**:  was changed multiple times, eventually pointing to the local backend.
 </code_architecture>
 
 <pending_tasks>
--   Complete the UI layout refactor for Normal Sohbet and Konuşma Modları sections to be stacked vertically with wider frames and separate chat areas.
--   Refine the prompting logic for Conversation Modes to ensure more natural and concise responses, especially since the frontend is now directly interacting with AnythingLLM.
--   Ensure all existing features (math rendering, conversation modes, chat functionality) remain stable after the UI refactor.
+-   Fix the persistent display of the English error message Sorry, Im experiencing technical difficulties." to ensure it is correctly translated to Turkish.
 </pending_tasks>
 
 <current_work>
-Immediately before this summary request, the AI engineer was in the process of a major UI redesign based on the user's explicit request. The user asked for the Normal Sohbet and Konuşma Modları sections to be displayed vertically, with a wider chat frame, and for each mode to have its distinct chat area.
+Immediately before this summary request, the AI engineer was actively working on resolving a critical error message localization issue. Despite previous attempts to implement Turkish error messages, the application was still displaying the English phrase: "Sorry, Im experiencing technical difficulties.
 
-The AI engineer acknowledged this request and initiated changes in  to implement this new layout. Specifically, they started by converting the existing sidebar tab system into a vertical tab system and updating the main content area to accommodate the new tab switching logic and layout. The last recorded action was modifying  to adjust the content area for tab switching logic, which is a foundational step for the requested vertical layout and separate chat sections. This work is ongoing.
-
-The application's core functionality currently involves direct API calls from the React frontend to the external AnythingLLM API (bypassing the FastAPI backend), supporting 6 conversation modes with adjustable prompts, and professional LaTeX math rendering via KaTeX. The previous login and authentication system has been completely removed.
+The AI engineer had modified  to include localization logic within the  function and  to ensure error messages were displayed in Turkish. However, upon testing, the English message persisted. The most recent analysis identified the root cause: the regex pattern used for matching and replacing the English error string was not precise enough, allowing the original English message to pass through. The AI engineer has pinpointed this as a string comparison issue and is preparing to apply a more robust fix. This task is directly in line with ensuring a fully localized and user-friendly experience for error handling within the BİLGİN application.
 </current_work>
 
 <optional_next_step>
-Continue refactoring  to implement the user-requested vertical tab system and adjust the content area for separate chat sections.
+Refine the error message localization logic in  for accurate Turkish translation.
 </optional_next_step>
