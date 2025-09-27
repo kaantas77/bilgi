@@ -1,6 +1,7 @@
 import requests
 import sys
 import json
+import time
 from datetime import datetime
 
 class BilginAIAPITester:
@@ -9,6 +10,8 @@ class BilginAIAPITester:
         self.tests_run = 0
         self.tests_passed = 0
         self.conversation_id = None
+        self.hybrid_tests_passed = 0
+        self.hybrid_tests_run = 0
 
     def run_test(self, name, method, endpoint, expected_status, data=None):
         """Run a single API test"""
