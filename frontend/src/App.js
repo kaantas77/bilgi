@@ -19,8 +19,6 @@ axios.defaults.headers.common['Content-Type'] = 'application/json';
 const ANYTHINGLLM_API_URL = "https://pilj1jbx.rcsrv.com/api/v1/workspace/bilgin/chat";
 const ANYTHINGLLM_API_KEY = "FC6CT8Q-QRE433A-J9K8SV8-S7E2M4N";
 
-// No backend needed - direct AnythingLLM integration
-
 function App() {
   // Remove backend dependency - use localStorage for conversations
   const [conversations, setConversations] = useState([]);
