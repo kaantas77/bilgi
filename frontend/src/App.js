@@ -534,7 +534,7 @@ function App() {
             {/* Messages Area */}
             <div className="flex-1 p-6 bg-black overflow-y-auto">
               <div className="space-y-6 max-w-4xl mx-auto">
-                {messages.length === 0 && (
+                {getCurrentMessages().length === 0 && (
                   <div className="text-center text-gray-300 mt-20">
                     <h3 className="text-2xl font-bold mb-4">Merhaba! Ne öğrenmek istersin?</h3>
                     <p className="text-lg mb-4">
