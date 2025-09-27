@@ -22,7 +22,7 @@ const ANYTHINGLLM_API_KEY = "FC6CT8Q-QRE433A-J9K8SV8-S7E2M4N";
 // No backend needed - direct AnythingLLM integration
 
 function App() {
-  // Main app states - no auth required
+  // Remove backend dependency - use localStorage for conversations
   const [conversations, setConversations] = useState([]);
   const [currentConversation, setCurrentConversation] = useState(null);
   const [messages, setMessages] = useState([]);
