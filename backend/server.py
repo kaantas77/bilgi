@@ -254,11 +254,14 @@ def requires_web_search(question: str) -> bool:
     
     # Güncel/live information patterns
     web_search_patterns = [
-        # Sports scores and results
-        r'(?:maç|skor|sonuç|kazandı|kaybetti)\s+(?:ne|nedir|nasıl)',
-        r'(?:galatasaray|fenerbahçe|beşiktaş|trabzonspor)\s+(?:maçı|skoru)',
+        # Sports scores and results - ENHANCED patterns
+        r'(?:maç|skor|sonuç|kazandı|kaybetti)\s+(?:ne|nedir|nasıl|kaç)',
+        r'(?:galatasaray|fenerbahçe|beşiktaş|trabzonspor|kasımpaşa)\s+(?:maçı|skoru|maç|sonuç)',
+        r'(?:galatasaray|fenerbahçe|beşiktaş|trabzonspor)\s+(?:kasımpaşa|galatasaray|fenerbahçe|beşiktaş)',
         r'(?:barcelona|real madrid|manchester|liverpool)\s+(?:maç|skor)',
         r'(?:şampiyonlar ligi|premier lig|süper lig)\s+(?:sonuç|tablo)',
+        r'maç\s+sonuç',  # Direct "maç sonuç" pattern
+        r'(?:son|güncel|bugünkü)\s+maç',  # "son maç" pattern
         
         # Current news and events  
         r'(?:son|güncel|bugünkü|şu an)\s+(?:haber|durum|gelişme)',
@@ -291,7 +294,15 @@ def requires_web_search(question: str) -> bool:
     ]
     
     question_lower = question.lower()
-    return any(re.search(pattern, question_lower) for pattern in web_search_patterns)
+    
+    # Debug logging
+    for i, pattern in enumerate(web_search_patterns):
+        if re.search(pattern, question_lower):
+            logging.info(f"Web search triggered by pattern {i}: '{pattern}' for question: '{question}'")
+            return True
+    
+    logging.info(f"No web search pattern matched for question: '{question}'")
+    return False
 
 async def handle_web_search_question(question: str) -> str:
     """Handle questions that require web search using Serper API"""
