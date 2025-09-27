@@ -242,14 +242,14 @@ def requires_web_search(question: str) -> bool:
     return any(re.search(pattern, question_lower) for pattern in web_search_patterns)
 
 async def handle_web_search_question(question: str) -> str:
-    """Handle questions that require web search"""
+    """Handle questions that require web search using Serper API"""
     
     # Perform web search with optimized query
     search_query = optimize_search_query(question)
     search_results = await web_search(search_query, num_results=3)
     
     if not search_results:
-        return "Üzgünüm, şu an güncel bilgilere erişemiyorum. Lütfen daha sonra tekrar deneyin."
+        return "Üzgünüm, şu an web araması yapamıyorum. Lütfen daha sonra tekrar deneyin."
     
     # Format web search results into natural response
     response = format_web_search_response(question, search_results)
