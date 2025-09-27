@@ -124,19 +124,26 @@ function App() {
         }
       }
 
-      const response = await axios.post(ANYTHINGLLM_API_URL, {
-        message: finalMessage,
-        mode: "chat", 
-        sessionId: "bilgin-session"
-      }, {
+      const response = await fetch(ANYTHINGLLM_API_URL, {
+        method: 'POST',
         headers: {
           'Authorization': `Bearer ${ANYTHINGLLM_API_KEY}`,
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
-        timeout: 30000,
-        withCredentials: false
+        mode: 'cors',
+        body: JSON.stringify({
+          message: finalMessage,
+          mode: "chat",
+          sessionId: "bilgin-session"
+        })
       });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
 
       const botMessage = {
         id: (Date.now() + 1).toString(),
