@@ -42,6 +42,168 @@ GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
 GOOGLE_SEARCH_ENGINE_ID = os.environ.get("GOOGLE_SEARCH_ENGINE_ID")
 GOOGLE_SEARCH_BASE_URL = "https://www.googleapis.com/customsearch/v1"
 
+# Fact-checking functions
+async def web_search(query: str, num_results: int = 3) -> List[dict]:
+    """Perform web search using Google Custom Search API"""
+    if not GOOGLE_API_KEY or not GOOGLE_SEARCH_ENGINE_ID:
+        logging.warning("Google Search API credentials not configured")
+        return []
+    
+    try:
+        async with httpx.AsyncClient() as client:
+            params = {
+                "key": GOOGLE_API_KEY,
+                "cx": GOOGLE_SEARCH_ENGINE_ID,
+                "q": query,
+                "num": num_results,
+                "safe": "active"
+            }
+            
+            response = await client.get(GOOGLE_SEARCH_BASE_URL, params=params, timeout=10.0)
+            
+            if response.status_code == 200:
+                data = response.json()
+                results = []
+                
+                if "items" in data:
+                    for item in data["items"]:
+                        results.append({
+                            "title": item.get("title", ""),
+                            "snippet": item.get("snippet", ""),
+                            "link": item.get("link", "")
+                        })
+                
+                return results
+            else:
+                logging.error(f"Google Search API error: {response.status_code} - {response.text}")
+                return []
+                
+    except Exception as e:
+        logging.error(f"Web search error: {e}")
+        return []
+
+def extract_factual_claims(text: str) -> List[str]:
+    """Extract potential factual claims from AI response"""
+    # Simple patterns for factual claims
+    factual_patterns = [
+        # "X yazmıştır" pattern
+        r'([A-ZÇĞİÖŞÜ][a-zçğıöşü\s]+)\s+(?:tarafından\s+)?(?:yazılmıştır|yazmıştır|yazarı|eseri)',
+        # "X yılında" pattern  
+        r'(\d{4})\s*yılında\s+([^.]+)',
+        # "X kişisi" pattern
+        r'([A-ZÇĞİÖŞÜ][a-zçğıöşü\s]+)\s+(?:doğmuştur|ölmüştür|kurmuştur)',
+        # "X şehirde" pattern
+        r'([A-ZÇĞİÖŞÜ][a-zçğıöşü\s]+)\s+şehrinde',
+        # Numbers and statistics
+        r'(\d+(?:,\d+)*)\s+(?:metre|kilometre|kişi|yıl|gün)',
+    ]
+    
+    claims = []
+    for pattern in factual_patterns:
+        matches = re.findall(pattern, text, re.IGNORECASE)
+        for match in matches:
+            if isinstance(match, tuple):
+                claims.append(' '.join(str(m) for m in match))
+            else:
+                claims.append(str(match))
+    
+    return claims[:3]  # Limit to 3 claims to avoid too many searches
+
+async def fact_check_response(ai_response: str, original_query: str) -> str:
+    """Fact-check AI response using web search"""
+    
+    # Extract factual claims from AI response
+    claims = extract_factual_claims(ai_response)
+    
+    if not claims:
+        logging.info("No factual claims detected in AI response")
+        return ai_response
+    
+    logging.info(f"Fact-checking claims: {claims}")
+    
+    corrections = {}
+    
+    for claim in claims:
+        # Create search query for fact-checking
+        search_query = f'"{claim}" doğru mu bilgi kontrol'
+        
+        # Perform web search
+        search_results = await web_search(search_query, num_results=2)
+        
+        if search_results:
+            # Simple verification logic
+            verification_text = " ".join([result["snippet"] for result in search_results])
+            
+            # Look for contradiction indicators
+            contradiction_indicators = [
+                "yanlış", "hatalı", "doğru değil", "gerçek değil", 
+                "aslında", "doğrusu", "gerçekte", "düzeltme"
+            ]
+            
+            has_contradiction = any(indicator in verification_text.lower() for indicator in contradiction_indicators)
+            
+            if has_contradiction:
+                # Try to extract correct information
+                corrections[claim] = await extract_correction(claim, search_results, original_query)
+    
+    # Apply corrections to response
+    corrected_response = ai_response
+    for incorrect_claim, correction in corrections.items():
+        if correction and correction != incorrect_claim:
+            corrected_response = corrected_response.replace(incorrect_claim, correction)
+            logging.info(f"Applied correction: '{incorrect_claim}' -> '{correction}'")
+    
+    return corrected_response
+
+async def extract_correction(claim: str, search_results: List[dict], original_query: str) -> Optional[str]:
+    """Extract corrected information from search results"""
+    
+    # Simple correction extraction - look for "actually" patterns
+    correction_patterns = [
+        r'(?:aslında|gerçekte|doğrusu)\s+([^.]+)',
+        r'([A-ZÇĞİÖŞÜ][^.]+?)\s+(?:tarafından|yazmıştır)',
+        r'doğru\s+(?:cevap|bilgi)\s+([^.]+)',
+    ]
+    
+    for result in search_results:
+        text = result["snippet"] + " " + result["title"]
+        
+        for pattern in correction_patterns:
+            matches = re.findall(pattern, text, re.IGNORECASE)
+            if matches:
+                correction = matches[0].strip()
+                if len(correction) > 5 and correction.lower() != claim.lower():
+                    return correction
+    
+    return None
+
+def should_fact_check(ai_response: str) -> bool:
+    """Determine if AI response should be fact-checked"""
+    
+    # Skip fact-checking for certain response types
+    skip_patterns = [
+        r'^(?:merhaba|selam|nasılsın)',  # Greetings
+        r'(?:teşekkür|sağol|eyvallah)',  # Thanks
+        r'(?:anlamadım|anlayamadım)',    # Confusion
+        r'(?:üzgünüm|maalesef)',         # Apologies
+        r'^\d+[\+\-\*\/]\d+',           # Simple math
+    ]
+    
+    for pattern in skip_patterns:
+        if re.search(pattern, ai_response.lower()):
+            return False
+    
+    # Fact-check if contains potential factual claims
+    factual_indicators = [
+        r'tarafından\s+yazılmıştır',  # Written by
+        r'\d{4}\s*yılında',          # In year
+        r'[A-ZÇĞİÖŞÜ][a-zçğıöşü\s]+\s+(?:doğmuş|ölmüş|kurmuş)',  # Born/died
+        r'\d+\s*(?:metre|kilometre|kişi)',  # Numbers with units
+        r'başkenti|nüfusu|yüzölçümü'  # Geographic facts
+    ]
+    
+    return any(re.search(pattern, ai_response, re.IGNORECASE) for pattern in factual_indicators)
+
 # JWT Configuration
 SECRET_KEY = os.environ.get("JWT_SECRET_KEY", secrets.token_urlsafe(32))
 ALGORITHM = "HS256"
