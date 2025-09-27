@@ -946,52 +946,57 @@ function App() {
                   </div>
                 )}
 
-                {getCurrentMessages()
-                  .filter(message => message && message.role && message.content) // Null/undefined messages'ları filtrele
-                  .map((message) => (
-                  <div
-                    key={message.id}
-                    className={`flex items-start space-x-4 ${
-                      message.role === 'user' ? 'flex-row-reverse space-x-reverse' : ''
-                    }`}
-                  >
-                    <Avatar className="w-8 h-8 flex-shrink-0">
-                      {message.role === 'user' ? (
-                        <AvatarFallback className="bg-blue-600 text-white">
-                          <User className="w-4 h-4" />
-                        </AvatarFallback>
-                      ) : (
-                        <AvatarFallback className="bg-gray-700 text-white">
-                          <Bot className="w-4 h-4" />
-                        </AvatarFallback>
-                      )}
-                    </Avatar>
-                    <div className={`flex-1 ${message.role === 'user' ? 'text-right' : ''}`}>
-                      <div className={`inline-block max-w-3xl p-4 rounded-2xl ${
-                        message.role === 'user' 
-                          ? 'bg-blue-600 text-white' 
-                          : 'bg-gray-800 text-white border border-gray-900'
-                      }`}>
-                        <div className="text-sm leading-relaxed">
-                          <MathRenderer content={message.content || ''} />
+                {(() => {
+                  const messages = getCurrentMessages();
+                  return Array.isArray(messages) && messages.length > 0 ? (
+                    messages
+                      .filter(message => message && message.role && message.content) // Null/undefined messages'ları filtrele
+                      .map((message) => (
+                        <div
+                          key={message.id || `msg-${Math.random()}`}
+                          className={`flex items-start space-x-4 ${
+                            message.role === 'user' ? 'flex-row-reverse space-x-reverse' : ''
+                          }`}
+                        >
+                          <Avatar className="w-8 h-8 flex-shrink-0">
+                            {message.role === 'user' ? (
+                              <AvatarFallback className="bg-blue-600 text-white">
+                                <User className="w-4 h-4" />
+                              </AvatarFallback>
+                            ) : (
+                              <AvatarFallback className="bg-gray-700 text-white">
+                                <Bot className="w-4 h-4" />
+                              </AvatarFallback>
+                            )}
+                          </Avatar>
+                          <div className={`flex-1 ${message.role === 'user' ? 'text-right' : ''}`}>
+                            <div className={`inline-block max-w-3xl p-4 rounded-2xl ${
+                              message.role === 'user' 
+                                ? 'bg-blue-600 text-white' 
+                                : 'bg-gray-800 text-white border border-gray-900'
+                            }`}>
+                              <div className="text-sm leading-relaxed">
+                                <MathRenderer content={message.content || ''} />
+                              </div>
+                            </div>
+                            <div className="text-xs text-gray-500 mt-2">
+                              {(() => {
+                                try {
+                                  return new Date(message.timestamp).toLocaleTimeString('tr-TR', {
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                  });
+                                } catch (error) {
+                                  console.error('Timestamp formatting error:', error);
+                                  return 'Zaman yok';
+                                }
+                              })()}
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                      <div className="text-xs text-gray-500 mt-2">
-                        {(() => {
-                          try {
-                            return new Date(message.timestamp).toLocaleTimeString('tr-TR', {
-                              hour: '2-digit',
-                              minute: '2-digit'
-                            });
-                          } catch (error) {
-                            console.error('Timestamp formatting error:', error);
-                            return 'Zaman yok';
-                          }
-                        })()}
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                      ))
+                  ) : null;
+                })()}
                 
                 {isMessageLoading && (
                   <div className="flex items-start space-x-4">
