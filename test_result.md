@@ -202,6 +202,8 @@ test_plan:
     - "Konuşma Modları - Sadece modes sekmesinde aktif mod sistemi"
   test_all: false
   test_priority: "high_first"
+  critical_issues:
+    - "RUNTIME ERROR: 'Cannot read properties of undefined (reading 'role')' - App unusable due to red error overlay"
 
 agent_communication:
     - agent: "main"
