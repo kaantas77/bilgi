@@ -625,12 +625,19 @@ function App() {
                               <p className="text-sm truncate font-medium">{conversation.title}</p>
                               <p className="text-xs opacity-75">
                                 {conversationModes[conversation.mode]?.name || 'Normal'} • {' '}
-                                {new Date(conversation.lastMessageAt).toLocaleDateString('tr-TR', {
-                                  day: 'numeric',
-                                  month: 'short',
-                                  hour: '2-digit',
-                                  minute: '2-digit'
-                                })}
+                                {(() => {
+                                  try {
+                                    return new Date(conversation.lastMessageAt).toLocaleDateString('tr-TR', {
+                                      day: 'numeric',
+                                      month: 'short',
+                                      hour: '2-digit',
+                                      minute: '2-digit'
+                                    });
+                                  } catch (error) {
+                                    console.error('Date formatting error in modes:', error);
+                                    return 'Tarih yok';
+                                  }
+                                })()}
                               </p>
                             </div>
                           </div>
