@@ -80,6 +80,11 @@ function App() {
     loadConversations();
   }, []);
 
+  // Debug useEffect for currentConversation
+  useEffect(() => {
+    console.log('🔍 currentConversation changed to:', currentConversation);
+  }, [currentConversation]);
+
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
