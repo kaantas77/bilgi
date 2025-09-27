@@ -257,8 +257,8 @@ class BilginAIAPITester:
         return success
 
     def test_hybrid_system_math_question(self):
-        """Test Scenario 2: Math Questions (AnythingLLM First) - '25 × 8 kaç eder?'"""
-        print("\n🧪 HYBRID SYSTEM TEST 2: Math Questions (AnythingLLM First)")
+        """Test Scenario 4: Matematik (AnythingLLM güçlü) - '144 ÷ 12 kaç eder?'"""
+        print("\n🧪 HYBRID SYSTEM TEST 2: Math Questions (AnythingLLM Strong)")
         
         # Create new conversation
         success, response = self.run_test(
@@ -274,14 +274,14 @@ class BilginAIAPITester:
             
         test_conv_id = response.get('id')
         
-        # Test math question
+        # Test math question - should use AnythingLLM, NOT web search
         start_time = time.time()
         success, response = self.run_test(
-            "Send Math Question: '25 × 8 kaç eder?'",
+            "Send Math Question: '144 ÷ 12 kaç eder?'",
             "POST",
             f"conversations/{test_conv_id}/messages",
             200,
-            data={"content": "25 × 8 kaç eder?", "mode": "chat"}
+            data={"content": "144 ÷ 12 kaç eder?", "mode": "chat"}
         )
         
         response_time = time.time() - start_time
@@ -292,20 +292,20 @@ class BilginAIAPITester:
             print(f"   Response Time: {response_time:.2f} seconds")
             print(f"   AI Response: {ai_response[:150]}...")
             
-            # Check if response contains correct answer (200)
-            if '200' in ai_response:
-                print("✅ PASSED: Correct math answer (200) found in response")
+            # Check if response contains correct answer (12)
+            if '12' in ai_response:
+                print("✅ PASSED: Correct math answer (12) found in response")
                 self.hybrid_tests_passed += 1
                 
-                # Check that no web search indicators are present
+                # Check that no web search indicators are present (should use AnythingLLM only)
                 web_indicators = ['web araştırması', 'güncel web', 'kaynaklarından']
                 if not any(indicator in ai_response.lower() for indicator in web_indicators):
-                    print("✅ PASSED: No web search indicators (AnythingLLM used)")
+                    print("✅ PASSED: No web search indicators (AnythingLLM used as expected)")
                 else:
-                    print("⚠️  WARNING: Web search indicators found - should use AnythingLLM only for math")
+                    print("❌ FAILED: Web search indicators found - should use AnythingLLM only for math")
                     
             else:
-                print("❌ FAILED: Incorrect or missing math answer")
+                print("❌ FAILED: Incorrect or missing math answer (should be 12)")
         
         return success
 
