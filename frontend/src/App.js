@@ -427,7 +427,7 @@ function App() {
             {/* Messages Area */}
             <ScrollArea className="flex-1 p-6 bg-black">
               <div className="space-y-6 max-w-4xl mx-auto">
-                {messages.map((message) => (
+                {getCurrentMessages().map((message) => (
                   <div
                     key={message.id}
                     className={`flex items-start space-x-4 ${
