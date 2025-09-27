@@ -539,7 +539,7 @@ async def complete_onboarding(onboarding_data: OnboardingData, user: dict = Depe
 # Google OAuth Routes
 @api_router.get("/auth/google")
 async def google_auth():
-    redirect_url = "https://ai-chat-center.preview.emergentagent.com/dashboard"
+    redirect_url = "https://chatmode-hub.preview.emergentagent.com/dashboard"
     google_auth_url = f"https://auth.emergentagent.com/?redirect={redirect_url}"
     return {"auth_url": google_auth_url}
 
