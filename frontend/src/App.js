@@ -272,6 +272,13 @@ function App() {
   const sendMessage = async () => {
     if (!inputMessage.trim() || isMessageLoading) return;
 
+    // Create new conversation if none exists
+    if (activeTab === 'normal' && !currentNormalConversation) {
+      createNewNormalConversation();
+    } else if (activeTab === 'modes' && !currentModesConversation) {
+      createNewModesConversation();
+    }
+
     const userMessage = {
       id: Date.now().toString(),
       role: 'user',
@@ -284,7 +291,7 @@ function App() {
     setIsMessageLoading(true);
 
     try {
-      // Add mode prefix to message if in modes tab
+      // Add mode prefix to message ONLY if in modes tab
       let finalMessage = inputMessage;
       if (activeTab === 'modes' && selectedMode !== 'normal') {
         const modePrompts = {
@@ -299,6 +306,7 @@ function App() {
           finalMessage = `${modePrompts[selectedMode]} ${inputMessage}`;
         }
       }
+      // For normal tab, NO MODE is applied - just send the message as is
 
       const response = await fetch(ANYTHINGLLM_API_URL, {
         method: 'POST',
@@ -311,7 +319,9 @@ function App() {
         body: JSON.stringify({
           message: finalMessage,
           mode: "chat",
-          sessionId: "bilgin-session"
+          sessionId: activeTab === 'normal' ? 
+            `bilgin-normal-${currentNormalConversation?.id || 'temp'}` : 
+            `bilgin-modes-${currentModesConversation?.id || 'temp'}-${selectedMode}`
         })
       });
 
