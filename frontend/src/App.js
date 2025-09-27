@@ -89,23 +89,14 @@ function App() {
     scrollToBottom();
   }, [messages]);
 
-  // Load conversations from localStorage instead of API
   const loadConversations = () => {
-    try {
-      const saved = localStorage.getItem('bilgin_conversations');
-      const savedConversations = saved ? JSON.parse(saved) : [];
-      setConversations(savedConversations);
-    } catch (error) {
-      console.error('Error loading conversations from localStorage:', error);
-      setConversations([]);
-    }
+    // No backend - just empty function
+    setConversations([]);
   };
 
-  const loadMessages = (conversationId) => {
-    // Load messages from localStorage
-    const saved = localStorage.getItem(`bilgin_messages_${conversationId}`);
-    const savedMessages = saved ? JSON.parse(saved) : [];
-    setMessages(savedMessages);
+  const loadMessages = () => {
+    // No backend - just empty function  
+    setMessages([]);
   };
 
   const createNewConversation = useCallback(async () => {
