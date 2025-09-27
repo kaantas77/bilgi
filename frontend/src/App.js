@@ -58,6 +58,12 @@ function App() {
   };
   
   const messagesEndRef = useRef(null);
+  
+  // File upload states
+  const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef(null);
+  
   const { toast } = useToast();
 
   // Scroll to bottom when new messages arrive
