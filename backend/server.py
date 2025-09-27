@@ -305,10 +305,10 @@ def requires_web_search(question: str) -> bool:
     return False
 
 async def clean_web_search_with_anythingllm(web_search_result: str, original_question: str) -> str:
-    """Clean and improve web search results using AnythingLLM"""
+    """Clean and improve web search results using AnythingLLM - REMOVE source attribution"""
     
     try:
-        # Create a cleaning prompt for AnythingLLM
+        # Create a cleaning prompt for AnythingLLM - specifically ask to remove source info
         cleaning_prompt = f"""Lütfen aşağıdaki web araştırması sonucunu düzenle ve daha okunabilir hale getir.
         
 Orijinal Soru: {original_question}
@@ -321,9 +321,10 @@ Lütfen bu bilgiyi:
 2. Gereksiz tekrarları kaldır  
 3. Türkçe dilbilgisi kurallarına uygun düzenle
 4. Ana bilgileri öne çıkar
-5. Kaynak belirtimini koru
+5. "Web araştırması sonucunda", "güncel web kaynaklarından" gibi kaynak belirtimlerini KALDIR
+6. Sadece temiz, doğrudan cevap ver
 
-Düzenlenmiş yanıt:"""
+Temiz cevap:"""
 
         async with httpx.AsyncClient() as client:
             api_payload = {
@@ -345,7 +346,14 @@ Düzenlenmiş yanıt:"""
             if response.status_code == 200:
                 ai_response = response.json()
                 cleaned_result = ai_response.get("textResponse", web_search_result)
-                logging.info("Web search result cleaned with AnythingLLM")
+                
+                # Additional cleaning - remove any remaining source attributions
+                cleaned_result = re.sub(r'\*.*web.*kaynak.*\*', '', cleaned_result, flags=re.IGNORECASE)
+                cleaned_result = re.sub(r'web araştırması sonucunda:?', '', cleaned_result, flags=re.IGNORECASE)
+                cleaned_result = re.sub(r'güncel.*kaynak.*alınmıştır', '', cleaned_result, flags=re.IGNORECASE)
+                cleaned_result = cleaned_result.strip()
+                
+                logging.info("Web search result cleaned and source attribution removed")
                 return cleaned_result
             else:
                 logging.error(f"AnythingLLM cleaning error: {response.status_code}")
