@@ -914,6 +914,23 @@ async def send_message(conversation_id: str, input: MessageCreate):
             if response.status_code == 200:
                 ai_response = response.json()
                 ai_content = ai_response.get("textResponse", "Sorry, I couldn't process your request.")
+                
+                # Fact-check the AI response if needed
+                if should_fact_check(ai_content):
+                    logging.info("Fact-checking AI response...")
+                    try:
+                        # Perform fact-checking in background (with timeout)
+                        ai_content = await asyncio.wait_for(
+                            fact_check_response(ai_content, input.content), 
+                            timeout=10.0
+                        )
+                        logging.info("Fact-checking completed successfully")
+                    except asyncio.TimeoutError:
+                        logging.warning("Fact-checking timed out, using original response")
+                    except Exception as fc_error:
+                        logging.error(f"Fact-checking error: {fc_error}")
+                        # Continue with original response if fact-checking fails
+                
             else:
                 ai_content = f"API Error {response.status_code}: {response.text}"
                 
