@@ -360,11 +360,7 @@ function App() {
       timestamp: new Date().toISOString()
     };
 
-    // Safely add user message - ensure prev is always an array
-    setCurrentMessages(prev => {
-      const currentMessages = Array.isArray(prev) ? prev : [];
-      return [...currentMessages, userMessage];
-    });
+    console.log('Sending message - userMessage:', userMessage);
     
     setInputMessage('');
     setIsMessageLoading(true);
@@ -417,10 +413,15 @@ function App() {
         timestamp: new Date().toISOString()
       };
       
-      // Safely add bot message - ensure prev is always an array
+      console.log('Received response - botMessage:', botMessage);
+      
+      // Add both messages at once to avoid state conflict
       setCurrentMessages(prev => {
         const currentMessages = Array.isArray(prev) ? prev : [];
-        return [...currentMessages, botMessage];
+        console.log('Adding messages to existing array of length:', currentMessages.length);
+        const newMessages = [...currentMessages, userMessage, botMessage];
+        console.log('New messages array length:', newMessages.length);
+        return newMessages;
       });
       
     } catch (error) {
@@ -432,10 +433,10 @@ function App() {
         timestamp: new Date().toISOString()
       };
       
-      // Safely add error message - ensure prev is always an array
+      // Add both messages at once - user message and error message
       setCurrentMessages(prev => {
         const currentMessages = Array.isArray(prev) ? prev : [];
-        return [...currentMessages, errorMessage];
+        return [...currentMessages, userMessage, errorMessage];
       });
     } finally {
       setIsMessageLoading(false);
