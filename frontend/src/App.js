@@ -280,13 +280,17 @@ function App() {
     }
   };
 
-  // Get current messages and conversations based on active tab
+  // Get current messages and conversations with safe defaults
   const getCurrentMessages = () => {
-    return activeTab === 'normal' ? normalMessages : modesMessages;
+    const messages = activeTab === 'normal' ? normalMessages : modesMessages;
+    // Always return array, never undefined
+    return Array.isArray(messages) ? messages : [];
   };
 
   const getCurrentConversations = () => {
-    return activeTab === 'normal' ? normalConversations : modesConversations;
+    const conversations = activeTab === 'normal' ? normalConversations : modesConversations;
+    // Always return array, never undefined
+    return Array.isArray(conversations) ? conversations : [];
   };
 
   const getCurrentConversation = () => {
