@@ -103,13 +103,11 @@ function App() {
     }
   };
 
-  const loadMessages = async (conversationId) => {
-    try {
-      const response = await axios.get(`${API}/conversations/${conversationId}/messages`);
-      setMessages(response.data);
-    } catch (error) {
-      console.error('Error loading messages:', error);
-    }
+  const loadMessages = (conversationId) => {
+    // Load messages from localStorage
+    const saved = localStorage.getItem(`bilgin_messages_${conversationId}`);
+    const savedMessages = saved ? JSON.parse(saved) : [];
+    setMessages(savedMessages);
   };
 
   const createNewConversation = useCallback(async () => {
