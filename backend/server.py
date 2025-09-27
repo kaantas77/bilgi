@@ -984,6 +984,14 @@ class MessageCreate(BaseModel):
     mode: str = "chat"  # "chat" or "query" 
     conversationMode: Optional[str] = None  # Test için konuşma modları
 
+class FileUpload(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    conversation_id: str
+    file_name: str
+    file_type: str
+    file_path: str
+    uploaded_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
 class MessageResponse(BaseModel):
     id: str
     conversation_id: str
