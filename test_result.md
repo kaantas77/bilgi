@@ -155,7 +155,7 @@ frontend:
     implemented: true
     working: false
     file: "/app/frontend/src/App.js"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: false
     status_history:
@@ -180,6 +180,9 @@ frontend:
         - working: true
         - agent: "testing"
         - comment: "✅ KONUŞMA MODLARI FULLY WORKING! Comprehensive final testing confirms all conversation modes are functioning perfectly: 1) Mode selection works - tested Arkadaş Canlısı and Öğretmen modes 2) Arkadaş Canlısı mode responds with friendly, casual tone: 'Bir belirsizlik günüydü ama kahveyle kankaha garanti. Yani, tam senik bir gün!' 3) Öğretmen mode provides detailed educational responses about photosynthesis with proper teaching style 4) Messages display correctly in chat interface 5) Separate conversation history for modes 6) Tab switching works perfectly 7) Mode-specific prompts working as designed. Konuşma Modları system is production-ready!"
+        - working: false
+        - agent: "testing"
+        - comment: "❌ FINAL MASTER TEST - BACKEND API KEY ISSUE: Frontend UI fully functional - tab switching works, mode selection works (Arkadaş Canlısı mode selected successfully), conversation creation works. However, CRITICAL BACKEND ISSUE: AnythingLLM API key invalid causing 'API Error 403: No valid api key found' for all mode queries. Backend logs show mode-specific prompts being generated correctly (e.g., 'Lütfen samimi, motive edici ve esprili bir şekilde yanıtla. 3 küçük adım önerebilirsin. Arkadaş canlısı ol: Matematik öğrenmekte zorlanıyorum') but AnythingLLM endpoint https://pilj1jbx.rcsrv.com/api/v1/workspace/bilgin/chat returns 403 Forbidden. Konuşma Modları cannot function without AnythingLLM API access. URGENT: Backend needs AnythingLLM API key configuration fix."
   
   - task: "MathJax/KaTeX matematik render sistemi entegrasyonu"
     implemented: true
