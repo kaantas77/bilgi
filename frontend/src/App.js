@@ -534,53 +534,105 @@ function App() {
             </div>
           ) : (
             /* Konuşma Modları Content */
-            <div className="h-full p-4 space-y-3">
-              <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-gray-900 dark:to-gray-800 rounded-2xl p-4 border border-purple-200 dark:border-gray-700">
-                <div className="flex items-center space-x-3 mb-3">
-                  <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
-                  <h3 className="font-semibold text-gray-800 dark:text-white text-sm">Konuşma Tarzını Seç</h3>
+            <div className="h-full flex flex-col">
+              {/* Header */}
+              <div className="p-4 border-b border-gray-700">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-semibold text-white">Konuşma Modları</h3>
+                  <Button
+                    onClick={createNewModesConversation}
+                    size="sm"
+                    className="bg-purple-600 hover:bg-purple-700 text-white rounded-lg"
+                  >
+                    <Plus className="w-4 h-4 mr-1" />
+                    Yeni
+                  </Button>
                 </div>
-                <p className="text-xs text-gray-600 dark:text-gray-400 mb-4">
-                  BİLGİN'in nasıl yanıt vermesini istiyorsun?
-                </p>
-                
+                <p className="text-xs text-gray-400 mt-1">6 farklı konuşma tarzı</p>
+              </div>
+
+              {/* Mode Selection */}
+              <div className="p-3 border-b border-gray-700">
+                <p className="text-xs text-gray-400 mb-3">Konuşma tarzını seç:</p>
                 <div className="grid grid-cols-2 gap-2">
-                  {Object.entries(conversationModes).map(([key, mode]) => (
+                  {Object.entries(conversationModes).filter(([key]) => key !== 'normal').map(([key, mode]) => (
                     <button
                       key={key}
                       onClick={() => setSelectedMode(key)}
-                      className={`p-3 rounded-xl text-left transition-all duration-200 text-xs ${
+                      className={`p-2 rounded-lg text-left transition-all duration-200 text-xs ${
                         selectedMode === key 
-                          ? 'bg-white dark:bg-gray-700 border-2 border-purple-400 shadow-md transform scale-105' 
-                          : 'bg-gray-50 dark:bg-gray-800 hover:bg-white dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600'
+                          ? 'bg-purple-600 text-white shadow-md' 
+                          : 'bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white border border-gray-700'
                       }`}
                     >
                       <div className="flex items-center space-x-2">
                         <div className={`w-2 h-2 rounded-full ${mode.color}`}></div>
                         <div className="flex-1 min-w-0">
-                          <div className="font-medium text-gray-800 dark:text-white">{mode.name}</div>
-                          <div className="text-gray-500 dark:text-gray-400 truncate text-xs">{mode.description}</div>
+                          <div className="font-medium truncate">{mode.name}</div>
                         </div>
-                        {selectedMode === key && (
-                          <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                        )}
                       </div>
                     </button>
                   ))}
                 </div>
+              </div>
 
-                <div className="mt-4 p-3 bg-purple-100 dark:bg-gray-800 rounded-lg border border-purple-200 dark:border-gray-700">
-                  <div className="text-xs text-purple-700 dark:text-purple-300 mb-1">Seçili Mod:</div>
-                  <div className="font-medium text-purple-800 dark:text-purple-200 text-sm">
-                    {conversationModes[selectedMode]?.name || 'Normal'}
+              {/* Conversations List */}
+              <div className="flex-1 overflow-y-auto">
+                {modesConversations.length === 0 ? (
+                  <div className="p-4 text-center">
+                    <div className="text-gray-400 mb-3">
+                      <MessageCircle className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                      <p className="text-sm">Henüz mod sohbeti yok</p>
+                      <p className="text-xs opacity-75">Yeni sohbet başlatın</p>
+                    </div>
                   </div>
-                  <div className="text-xs text-purple-600 dark:text-purple-400 mt-1">
-                    {getCurrentMessages().length > 0 
-                      ? `${getCurrentMessages().length} mesaj var` 
-                      : 'Henüz mesaj yok'
+                ) : (
+                  <div className="space-y-1 p-2">
+                    {modesConversations
+                      .sort((a, b) => new Date(b.lastMessageAt) - new Date(a.lastMessageAt))
+                      .map((conversation) => (
+                        <div
+                          key={conversation.id}
+                          onClick={() => selectModesConversation(conversation)}
+                          className={`flex items-center justify-between p-3 rounded-lg cursor-pointer group transition-colors ${
+                            currentModesConversation?.id === conversation.id
+                              ? 'bg-purple-600 text-white'
+                              : 'hover:bg-gray-800 text-gray-300 hover:text-white'
+                          }`}
+                        >
+                          <div className="flex items-center space-x-3 flex-1 min-w-0">
+                            <div className={`w-3 h-3 rounded-full ${
+                              conversationModes[conversation.mode]?.color || 'bg-gray-500'
+                            }`}></div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm truncate font-medium">{conversation.title}</p>
+                              <p className="text-xs opacity-75">
+                                {conversationModes[conversation.mode]?.name || 'Normal'} • {' '}
+                                {new Date(conversation.lastMessageAt).toLocaleDateString('tr-TR', {
+                                  day: 'numeric',
+                                  month: 'short',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}
+                              </p>
+                            </div>
+                          </div>
+                          <Button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteModesConversation(conversation.id);
+                            }}
+                            variant="ghost"
+                            size="sm"
+                            className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-400 hover:bg-gray-700 p-1.5"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      ))
                     }
                   </div>
-                </div>
+                )}
               </div>
             </div>
           )}
