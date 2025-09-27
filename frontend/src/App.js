@@ -16,8 +16,8 @@ import axios from 'axios';
 axios.defaults.withCredentials = true;
 axios.defaults.headers.common['Content-Type'] = 'application/json';
 
-const ANYTHINGLLM_API_URL = "https://pilj1jbx.rcsrv.com/api/v1/workspace/bilgin/chat";
-const ANYTHINGLLM_API_KEY = "B47W62W-FKV4PAZ-G437YKM-6PGZP0A";
+// Backend API URL - Frontend artık backend'e bağlanacak
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
 
 function App() {
   // Separate conversation states for each tab - Safe initialization
