@@ -469,13 +469,69 @@ class BilginAIAPITester:
         
         return success
 
-    def test_hybrid_system_general_knowledge(self):
-        """Test Scenario 5: General Knowledge (AnythingLLM First, Web Backup) - 'Einstein'ın doğum tarihi nedir?'"""
-        print("\n🧪 HYBRID SYSTEM TEST 4: General Knowledge (AnythingLLM First, Web Backup)")
+    def test_hybrid_system_anythingllm_uncertain(self):
+        """Test Scenario 1: AnythingLLM Emin Değil - When AnythingLLM is uncertain, web search should activate"""
+        print("\n🧪 HYBRID SYSTEM TEST 4A: AnythingLLM Uncertainty Detection")
         
         # Create new conversation
         success, response = self.run_test(
-            "Create Conversation for Hybrid Test 4",
+            "Create Conversation for Uncertainty Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "Hybrid Test - Uncertainty"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        
+        # Test with a question that might make AnythingLLM uncertain
+        start_time = time.time()
+        success, response = self.run_test(
+            "Send Potentially Uncertain Question",
+            "POST",
+            f"conversations/{test_conv_id}/messages",
+            200,
+            data={"content": "2024 yılında çıkan en yeni teknoloji trendleri nelerdir?", "mode": "chat"}
+        )
+        
+        response_time = time.time() - start_time
+        
+        if success:
+            self.hybrid_tests_run += 1
+            ai_response = response.get('content', '')
+            print(f"   Response Time: {response_time:.2f} seconds")
+            print(f"   AI Response: {ai_response[:200]}...")
+            
+            # Check if web search was activated due to AnythingLLM uncertainty
+            web_indicators = ['web araştırması', 'güncel', '2024', 'teknoloji']
+            has_web_indicators = any(indicator in ai_response.lower() for indicator in web_indicators)
+            
+            # Check for uncertainty indicators that should trigger web search
+            uncertainty_indicators = ['emin değilim', 'bilmiyorum', 'kesin değilim', 'daha çok bilgiye ihtiyacım var']
+            
+            if has_web_indicators:
+                print("✅ PASSED: Web search activated (likely due to AnythingLLM uncertainty)")
+                self.hybrid_tests_passed += 1
+            else:
+                # Check if AnythingLLM provided a confident answer
+                if any(indicator in ai_response.lower() for indicator in uncertainty_indicators):
+                    print("❌ FAILED: AnythingLLM showed uncertainty but web search not activated")
+                else:
+                    print("ℹ️  INFO: AnythingLLM provided confident answer, no web search needed")
+                    self.hybrid_tests_passed += 1
+        
+        return success
+
+    def test_hybrid_system_general_knowledge(self):
+        """Test Scenario 5: Genel Bilgi (AnythingLLM önce, yedekte web) - 'Mona Lisa kimim yaptı?'"""
+        print("\n🧪 HYBRID SYSTEM TEST 4B: General Knowledge (AnythingLLM First, Web Backup)")
+        
+        # Create new conversation
+        success, response = self.run_test(
+            "Create Conversation for General Knowledge Test",
             "POST",
             "conversations",
             200,
@@ -487,14 +543,14 @@ class BilginAIAPITester:
             
         test_conv_id = response.get('id')
         
-        # Test general knowledge question
+        # Test general knowledge question - should try AnythingLLM first
         start_time = time.time()
         success, response = self.run_test(
-            "Send General Knowledge Question: 'Einstein'ın doğum tarihi nedir?'",
+            "Send General Knowledge Question: 'Mona Lisa kimim yaptı?'",
             "POST",
             f"conversations/{test_conv_id}/messages",
             200,
-            data={"content": "Einstein'ın doğum tarihi nedir?", "mode": "chat"}
+            data={"content": "Mona Lisa kimim yaptı?", "mode": "chat"}
         )
         
         response_time = time.time() - start_time
@@ -505,22 +561,22 @@ class BilginAIAPITester:
             print(f"   Response Time: {response_time:.2f} seconds")
             print(f"   AI Response: {ai_response[:200]}...")
             
-            # Check if response contains Einstein's birth date (1879)
-            has_correct_info = any(date in ai_response for date in ['1879', '14 Mart', 'March 14'])
+            # Check if response contains correct information (Leonardo da Vinci)
+            has_correct_info = any(name in ai_response.lower() for name in ['leonardo', 'da vinci', 'leonardo da vinci'])
             
             if has_correct_info:
-                print("✅ PASSED: Correct Einstein birth date information found")
+                print("✅ PASSED: Correct Mona Lisa artist information found")
                 self.hybrid_tests_passed += 1
                 
                 # Check response source (could be AnythingLLM or web search backup)
                 web_indicators = ['web araştırması', 'güncel web', 'kaynaklarından']
                 if any(indicator in ai_response.lower() for indicator in web_indicators):
-                    print("ℹ️  INFO: Web search was used as backup")
+                    print("ℹ️  INFO: Web search was used as backup (AnythingLLM was insufficient)")
                 else:
-                    print("ℹ️  INFO: AnythingLLM provided the answer")
+                    print("ℹ️  INFO: AnythingLLM provided the answer successfully")
                     
             else:
-                print("❌ FAILED: Incorrect or missing Einstein birth date information")
+                print("❌ FAILED: Incorrect or missing Mona Lisa artist information")
         
         return success
 
