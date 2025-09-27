@@ -183,8 +183,7 @@ function App() {
       
       setMessages(prev => [...prev, response.data]);
       
-      // Refresh conversation list to get updated title
-      await loadConversations();
+      // DON'T refresh conversation list here - it causes state reset
     } catch (error) {
       console.error('Error sending message:', error);
       const errorMessage = {
