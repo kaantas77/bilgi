@@ -264,6 +264,9 @@ function App() {
     } else {
       setModesMessages(messages);
     }
+    
+    // Update the conversation with new messages
+    updateConversationMessages(messages);
   };
 
   const sendMessage = async () => {
