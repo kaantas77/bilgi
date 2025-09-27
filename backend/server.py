@@ -991,65 +991,77 @@ async def send_message(conversation_id: str, input: MessageCreate):
         )
     
     try:
-        # Konuşma Modları Test - Mod prefix'i ekle
-        final_message = input.content
-        if input.conversationMode and input.conversationMode != 'normal':
-            mode_prompts = {
-                'friend': "Lütfen samimi, motive edici ve esprili bir şekilde yanıtla. 3 küçük adım önerebilirsin. Arkadaş canlısı ol:",
-                'realistic': "Eleştirel ve kanıt odaklı düşün. Güçlü ve zayıf yönleri belirt. Test planı öner. Gerçekci ol:",
-                'coach': "Soru sorarak kullanıcının düşünmesini sağla. Hedef ve adım listesi çıkar. Koç gibi yaklaş:",
-                'lawyer': "Bilinçli karşı argüman üret. Kör noktaları göster. Avukat perspektifiyle yaklaş:",
-                'teacher': "Adım adım öğret. Örnek ver ve mini quiz ekle. Öğretmen gibi açıkla:",
-                'minimalist': "En kısa, madde işaretli, süssüz yanıt ver. Minimalist ol:"
-            }
-            if input.conversationMode in mode_prompts:
-                final_message = f"{mode_prompts[input.conversationMode]} {input.content}"
-        
-        # Call AnythingLLM API
-        logging.info(f"Calling AnythingLLM API with message length: {len(final_message)}")
-        async with httpx.AsyncClient() as client:
-            api_payload = {
-                "message": final_message,
-                "mode": "chat",  # AnythingLLM only accepts "chat" or "query"
-                "sessionId": conversation_id
-            }
-            logging.info(f"API payload: {api_payload}")
+        # SMART ROUTING: Check if question requires web search
+        if requires_web_search(input.content):
+            logging.info(f"Web search required for question: {input.content}")
             
-            response = await client.post(
-                ANYTHINGLLM_API_URL,
-                headers={
-                    "Authorization": f"Bearer {ANYTHINGLLM_API_KEY}",
-                    "Content-Type": "application/json"
-                },
-                json=api_payload,
-                timeout=30.0
-            )
+            # Handle with web search directly
+            ai_content = await handle_web_search_question(input.content)
+            logging.info("Web search completed successfully")
             
-            logging.info(f"AnythingLLM response status: {response.status_code}")
-            logging.info(f"AnythingLLM response text: {response.text}")
+        else:
+            # Standard AnythingLLM + Fact-checking flow
+            logging.info("Using AnythingLLM + fact-checking flow")
             
-            if response.status_code == 200:
-                ai_response = response.json()
-                ai_content = ai_response.get("textResponse", "Sorry, I couldn't process your request.")
+            # Konuşma Modları Test - Mod prefix'i ekle
+            final_message = input.content
+            if input.conversationMode and input.conversationMode != 'normal':
+                mode_prompts = {
+                    'friend': "Lütfen samimi, motive edici ve esprili bir şekilde yanıtla. 3 küçük adım önerebilirsin. Arkadaş canlısı ol:",
+                    'realistic': "Eleştirel ve kanıt odaklı düşün. Güçlü ve zayıf yönleri belirt. Test planı öner. Gerçekci ol:",
+                    'coach': "Soru sorarak kullanıcının düşünmesini sağla. Hedef ve adım listesi çıkar. Koç gibi yaklaş:",
+                    'lawyer': "Bilinçli karşı argüman üret. Kör noktaları göster. Avukat perspektifiyle yaklaş:",
+                    'teacher': "Adım adım öğret. Örnek ver ve mini quiz ekle. Öğretmen gibi açıkla:",
+                    'minimalist': "En kısa, madde işaretli, süssüz yanıt ver. Minimalist ol:"
+                }
+                if input.conversationMode in mode_prompts:
+                    final_message = f"{mode_prompts[input.conversationMode]} {input.content}"
+            
+            # Call AnythingLLM API
+            logging.info(f"Calling AnythingLLM API with message length: {len(final_message)}")
+            async with httpx.AsyncClient() as client:
+                api_payload = {
+                    "message": final_message,
+                    "mode": "chat",  # AnythingLLM only accepts "chat" or "query"
+                    "sessionId": conversation_id
+                }
+                logging.info(f"API payload: {api_payload}")
                 
-                # Fact-check the AI response if needed
-                if should_fact_check(ai_content):
-                    logging.info("Fact-checking AI response...")
-                    try:
-                        # Perform fact-checking in background (with timeout)
-                        ai_content = await asyncio.wait_for(
-                            fact_check_response(ai_content, input.content), 
-                            timeout=10.0
-                        )
-                        logging.info("Fact-checking completed successfully")
-                    except asyncio.TimeoutError:
-                        logging.warning("Fact-checking timed out, using original response")
-                    except Exception as fc_error:
-                        logging.error(f"Fact-checking error: {fc_error}")
-                        # Continue with original response if fact-checking fails
+                response = await client.post(
+                    ANYTHINGLLM_API_URL,
+                    headers={
+                        "Authorization": f"Bearer {ANYTHINGLLM_API_KEY}",
+                        "Content-Type": "application/json"
+                    },
+                    json=api_payload,
+                    timeout=30.0
+                )
                 
-            else:
-                ai_content = f"API Error {response.status_code}: {response.text}"
+                logging.info(f"AnythingLLM response status: {response.status_code}")
+                logging.info(f"AnythingLLM response text: {response.text}")
+                
+                if response.status_code == 200:
+                    ai_response = response.json()
+                    ai_content = ai_response.get("textResponse", "Sorry, I couldn't process your request.")
+                    
+                    # Fact-check the AI response if needed
+                    if should_fact_check(ai_content):
+                        logging.info("Fact-checking AI response...")
+                        try:
+                            # Perform fact-checking in background (with timeout)
+                            ai_content = await asyncio.wait_for(
+                                fact_check_response(ai_content, input.content), 
+                                timeout=10.0
+                            )
+                            logging.info("Fact-checking completed successfully")
+                        except asyncio.TimeoutError:
+                            logging.warning("Fact-checking timed out, using original response")
+                        except Exception as fc_error:
+                            logging.error(f"Fact-checking error: {fc_error}")
+                            # Continue with original response if fact-checking fails
+                    
+                else:
+                    ai_content = f"API Error {response.status_code}: {response.text}"
                 
     except Exception as e:
         logging.error(f"AnythingLLM API error: {e}")
