@@ -117,20 +117,17 @@ function App() {
       console.log('✅ New conversation response:', response.data);
       const newConversation = response.data;
       
-      // Update states in correct order
+      // Use functional updates to avoid stale closures
       setMessages([]);
       setConversations(prev => [newConversation, ...prev]);
+      setCurrentConversation(newConversation);
       
-      // Force set currentConversation with setTimeout to ensure it persists
-      setTimeout(() => {
-        setCurrentConversation(newConversation);
-        console.log('✅ Current conversation FORCED set to:', newConversation);
-      }, 100);
+      console.log('✅ Current conversation set to:', newConversation);
       
     } catch (error) {
       console.error('❌ Error creating conversation:', error);
     }
-  }, [conversations]);
+  }, []); // Empty dependency array - safe with functional updates
 
   const selectConversation = async (conversation) => {
     console.log('Selecting conversation:', conversation);
