@@ -16,7 +16,7 @@ import axios from 'axios';
 axios.defaults.withCredentials = true;
 axios.defaults.headers.common['Content-Type'] = 'application/json';
 
-const ANYTHINGLLM_API_URL = "https://cors-anywhere.herokuapp.com/https://pilj1jbx.rcsrv.com/api/v1/workspace/bilgin/chat";
+const ANYTHINGLLM_API_URL = "https://pilj1jbx.rcsrv.com/api/v1/workspace/bilgin/chat";
 const ANYTHINGLLM_API_KEY = "B47W62W-FKV4PAZ-G437YKM-6PGZP0A";
 
 function App() {
