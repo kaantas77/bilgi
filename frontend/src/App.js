@@ -515,12 +515,19 @@ function App() {
                             <div className="flex-1 min-w-0">
                               <p className="text-sm truncate font-medium">{conversation.title}</p>
                               <p className="text-xs opacity-75">
-                                {new Date(conversation.lastMessageAt).toLocaleDateString('tr-TR', {
-                                  day: 'numeric',
-                                  month: 'short',
-                                  hour: '2-digit',
-                                  minute: '2-digit'
-                                })}
+                                {(() => {
+                                  try {
+                                    return new Date(conversation.lastMessageAt).toLocaleDateString('tr-TR', {
+                                      day: 'numeric',
+                                      month: 'short',
+                                      hour: '2-digit',
+                                      minute: '2-digit'
+                                    });
+                                  } catch (error) {
+                                    console.error('Date formatting error:', error);
+                                    return 'Tarih yok';
+                                  }
+                                })()}
                               </p>
                             </div>
                           </div>
