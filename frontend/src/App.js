@@ -110,22 +110,29 @@ function App() {
 
   const createNewConversation = useCallback(async () => {
     try {
-      console.log('🚀 Creating new conversation...');
+      console.log('🚀 BAŞLADI: Creating new conversation...');
+      
       const response = await axios.post(`${API}/conversations`, {
         title: "Yeni Sohbet"
       });
-      console.log('✅ New conversation response:', response.data);
+      
+      console.log('✅ BACKEND RESPONSE:', response.data);
       const newConversation = response.data;
       
-      // Use functional updates to avoid stale closures
+      console.log('🔄 UPDATING STATES...');
       setMessages([]);
-      setConversations(prev => [newConversation, ...prev]);
+      setConversations(prev => {
+        console.log('📝 Conversations updated, new list length:', prev.length + 1);
+        return [newConversation, ...prev];
+      });
+      
+      console.log('🎯 SETTING CURRENT CONVERSATION:', newConversation);
       setCurrentConversation(newConversation);
       
-      console.log('✅ Current conversation set to:', newConversation);
+      console.log('✅ TÜM STATES UPDATE EDİLDİ');
       
     } catch (error) {
-      console.error('❌ Error creating conversation:', error);
+      console.error('❌ HATA:', error);
     }
   }, []); // Empty dependency array - safe with functional updates
 
