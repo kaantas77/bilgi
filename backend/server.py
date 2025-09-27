@@ -1040,15 +1040,15 @@ async def send_message(conversation_id: str, input: MessageCreate):
         if requires_web_search(input.content):
             logging.info(f"Web search required for question: {input.content}")
             
-            # Handle with web search directly
+            # Handle with Serper web search
             ai_content = await handle_web_search_question(input.content)
             logging.info("Web search completed successfully")
             
         else:
-            # Standard AnythingLLM + Fact-checking flow
-            logging.info("Using AnythingLLM + fact-checking flow")
+            # Use OpenAI GPT-4 instead of AnythingLLM for better reliability
+            logging.info("Using OpenAI GPT-4 flow")
             
-            # Konuşma Modları Test - Mod prefix'i ekle
+            # Apply conversation mode prompts if needed
             final_message = input.content
             if input.conversationMode and input.conversationMode != 'normal':
                 mode_prompts = {
@@ -1062,51 +1062,59 @@ async def send_message(conversation_id: str, input: MessageCreate):
                 if input.conversationMode in mode_prompts:
                     final_message = f"{mode_prompts[input.conversationMode]} {input.content}"
             
-            # Call AnythingLLM API
-            logging.info(f"Calling AnythingLLM API with message length: {len(final_message)}")
-            async with httpx.AsyncClient() as client:
-                api_payload = {
-                    "message": final_message,
-                    "mode": "chat",  # AnythingLLM only accepts "chat" or "query"
-                    "sessionId": conversation_id
-                }
-                logging.info(f"API payload: {api_payload}")
-                
-                response = await client.post(
-                    ANYTHINGLLM_API_URL,
-                    headers={
-                        "Authorization": f"Bearer {ANYTHINGLLM_API_KEY}",
+            # Call OpenAI GPT-4 directly
+            logging.info(f"Calling OpenAI GPT-4 with message: {final_message}")
+            
+            if not OPENAI_API_KEY:
+                ai_content = "OpenAI API anahtarı yapılandırılmamış."
+            else:
+                async with httpx.AsyncClient() as client:
+                    payload = {
+                        "model": "gpt-4",
+                        "messages": [
+                            {"role": "system", "content": "Sen Türkçe konuşan yardımcı bir asistansın. Matematik, tarih, bilim gibi konularda detaylı ve doğru bilgiler verirsin. Türkçe yanıt ver."},
+                            {"role": "user", "content": final_message}
+                        ],
+                        "max_tokens": 800,
+                        "temperature": 0.7
+                    }
+                    
+                    headers = {
+                        "Authorization": f"Bearer {OPENAI_API_KEY}",
                         "Content-Type": "application/json"
-                    },
-                    json=api_payload,
-                    timeout=30.0
-                )
-                
-                logging.info(f"AnythingLLM response status: {response.status_code}")
-                logging.info(f"AnythingLLM response text: {response.text}")
-                
-                if response.status_code == 200:
-                    ai_response = response.json()
-                    ai_content = ai_response.get("textResponse", "Sorry, I couldn't process your request.")
+                    }
                     
-                    # Fact-check the AI response if needed
-                    if should_fact_check(ai_content):
-                        logging.info("Fact-checking AI response...")
-                        try:
-                            # Perform fact-checking in background (with timeout)
-                            ai_content = await asyncio.wait_for(
-                                fact_check_response(ai_content, input.content), 
-                                timeout=10.0
-                            )
-                            logging.info("Fact-checking completed successfully")
-                        except asyncio.TimeoutError:
-                            logging.warning("Fact-checking timed out, using original response")
-                        except Exception as fc_error:
-                            logging.error(f"Fact-checking error: {fc_error}")
-                            # Continue with original response if fact-checking fails
+                    response = await client.post(
+                        OPENAI_API_URL,
+                        json=payload,
+                        headers=headers,
+                        timeout=20.0
+                    )
                     
-                else:
-                    ai_content = f"API Error {response.status_code}: {response.text}"
+                    logging.info(f"OpenAI response status: {response.status_code}")
+                    
+                    if response.status_code == 200:
+                        data = response.json()
+                        ai_content = data["choices"][0]["message"]["content"]
+                        
+                        # Apply fact-checking if needed
+                        if should_fact_check(ai_content):
+                            logging.info("Applying OpenAI fact-checking...")
+                            try:
+                                ai_content = await asyncio.wait_for(
+                                    openai_fact_check(ai_content, input.content), 
+                                    timeout=15.0
+                                )
+                                logging.info("Fact-checking completed successfully")
+                            except asyncio.TimeoutError:
+                                logging.warning("Fact-checking timed out, using original response")
+                            except Exception as fc_error:
+                                logging.error(f"Fact-checking error: {fc_error}")
+                        
+                    else:
+                        error_text = response.text
+                        logging.error(f"OpenAI API error: {response.status_code} - {error_text}")
+                        ai_content = f"OpenAI API hatası: {response.status_code}"
                 
     except Exception as e:
         logging.error(f"AnythingLLM API error: {e}")
