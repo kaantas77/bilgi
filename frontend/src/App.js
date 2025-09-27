@@ -127,6 +127,125 @@ function App() {
     return message.substring(0, 50) + '...';
   };
 
+  // File upload functions
+  const handleFileSelect = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Check file size (10MB limit)
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxSize) {
+      toast({
+        title: "Dosya çok büyük",
+        description: "Maksimum dosya boyutu 10MB'dir.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check file type
+    const allowedTypes = ['pdf', 'xlsx', 'xls', 'docx', 'txt'];
+    const fileExtension = file.name.split('.').pop().toLowerCase();
+    if (!allowedTypes.includes(fileExtension)) {
+      toast({
+        title: "Desteklenmeyen dosya türü",
+        description: `Desteklenen formatlar: ${allowedTypes.join(', ').toUpperCase()}`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Get current conversation ID
+    let conversationId;
+    if (activeTab === 'normal') {
+      if (!currentNormalConversation) {
+        // Create new conversation if none exists
+        await createNormalConversation();
+      }
+      conversationId = currentNormalConversation?.id;
+    } else {
+      if (!currentModesConversation) {
+        // Create new conversation if none exists
+        await createModesConversation();
+      }
+      conversationId = currentModesConversation?.id;
+    }
+
+    if (!conversationId) {
+      toast({
+        title: "Hata",
+        description: "Konuşma oluşturulamadı.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsUploading(true);
+    
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch(`${BACKEND_URL}/api/conversations/${conversationId}/upload`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Dosya yükleme başarısız');
+      }
+
+      const result = await response.json();
+      
+      // Add system message to current messages
+      if (result.system_message) {
+        const systemMessage = {
+          id: result.system_message.id,
+          role: 'assistant',
+          content: result.system_message.content,
+          timestamp: result.system_message.timestamp
+        };
+        
+        if (activeTab === 'normal') {
+          setCurrentMessages(prev => [...prev, systemMessage]);
+        } else {
+          setCurrentMessages(prev => [...prev, systemMessage]);
+        }
+      }
+
+      // Update uploaded files list
+      setUploadedFiles(prev => [...prev, {
+        id: result.file_id,
+        name: result.file_name,
+        type: result.file_type,
+        uploadedAt: new Date().toISOString()
+      }]);
+
+      toast({
+        title: "Dosya yüklendi!",
+        description: `${file.name} başarıyla yüklendi. Şimdi bu dosya hakkında soru sorabilirsiniz.`,
+      });
+
+      // Clear file input
+      event.target.value = '';
+      
+    } catch (error) {
+      console.error('File upload error:', error);
+      toast({
+        title: "Yükleme hatası",
+        description: error.message || "Dosya yüklenirken hata oluştu.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   // Create new conversation functions
   const createNewNormalConversation = async () => {
     try {
