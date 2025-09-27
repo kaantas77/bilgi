@@ -155,8 +155,20 @@ function App() {
   const selectNormalConversation = (conversation) => {
     try {
       console.log('Selecting normal conversation:', conversation);
+      if (!conversation) {
+        console.error('Conversation is null or undefined');
+        return;
+      }
+      
       setCurrentNormalConversation(conversation);
-      setNormalMessages(conversation.messages || []);
+      
+      // Validate and clean messages
+      const messages = (conversation.messages || []).filter(msg => 
+        msg && msg.role && msg.content && msg.id && msg.timestamp
+      );
+      
+      console.log(`Loading ${messages.length} valid messages out of ${conversation.messages?.length || 0}`);
+      setNormalMessages(messages);
     } catch (error) {
       console.error('Error selecting normal conversation:', error);
     }
@@ -165,8 +177,21 @@ function App() {
   const selectModesConversation = (conversation) => {
     try {
       console.log('Selecting modes conversation:', conversation);
+      if (!conversation) {
+        console.error('Conversation is null or undefined');
+        return;
+      }
+      
       setCurrentModesConversation(conversation);
-      setModesMessages(conversation.messages || []);
+      
+      // Validate and clean messages
+      const messages = (conversation.messages || []).filter(msg => 
+        msg && msg.role && msg.content && msg.id && msg.timestamp
+      );
+      
+      console.log(`Loading ${messages.length} valid messages out of ${conversation.messages?.length || 0}`);
+      setModesMessages(messages);
+      
       if (conversation.mode) {
         setSelectedMode(conversation.mode);
       }
