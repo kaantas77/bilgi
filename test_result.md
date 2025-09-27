@@ -120,15 +120,18 @@ backend:
 frontend:
   - task: "Normal Sohbet - Sohbet geçmişi sistemi ve mod sistemsiz chat"
     implemented: true
-    working: true
+    working: false
     file: "/app/frontend/src/App.js"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: false
     status_history:
         - working: true
         - agent: "main"
         - comment: "✅ Normal Sohbet implementasyonu tamamlandı: Placeholder content kaldırıldı, sohbet geçmişi eklendi (localStorage), tarihsel sıralama, ilk sorudan başlık üretme, Yeni/Sil butonları, HİÇBİR MOD aktif değil - saf AnythingLLM yanıtları. Test edildi ve çalışıyor."
+        - working: false
+        - agent: "testing"
+        - comment: "❌ CRITICAL RUNTIME ERROR: 'Cannot read properties of undefined (reading 'role')' error occurs in message rendering (lines 738-774). When sending messages or clicking conversations, some message objects are undefined/malformed causing red error overlay. Error is reproducible and breaks conversation functionality. Root cause: message array contains undefined elements or messages missing 'role' property."
   
   - task: "Konuşma Modları - Sadece modes sekmesinde aktif mod sistemi"
     implemented: true
