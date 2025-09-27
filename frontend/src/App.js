@@ -573,9 +573,11 @@ function App() {
                 </p>
                 <button
                   onClick={() => {
-                    console.log('DIRECT BUTTON CLICK!');
-                    alert('Button clicked!');
+                    console.log('STEP 1: Button clicked!');
+                    alert('STEP 2: Alert works!');
+                    console.log('STEP 3: About to call createNewConversation');
                     createNewConversation();
+                    console.log('STEP 4: createNewConversation called');
                   }}
                   style={{
                     background: 'red',
