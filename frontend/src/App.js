@@ -377,50 +377,40 @@ function App() {
     setIsMessageLoading(true);
 
     try {
-      // Add mode prefix to message ONLY if in modes tab
-      let finalMessage = inputMessage;
-      if (activeTab === 'modes' && selectedMode !== 'normal') {
-        const modePrompts = {
-          friend: "Samimi arkadaş gibi konuş, kısa ve esprili yanıtla:",
-          realistic: "Gerçekçi ve eleştirel düşün, kısa yanıt ver:",
-          coach: "Motive et ve sorular sor, kısa tut:",
-          lawyer: "Karşı görüş sun ve sorgula, kısa yanıt:",
-          teacher: "Basit ve açık öğret, kısa tut:",
-          minimalist: "Tek cümle, çok kısa yanıt ver:"
-        };
-        if (modePrompts[selectedMode]) {
-          finalMessage = `${modePrompts[selectedMode]} ${inputMessage}`;
-        }
-      }
-      // For normal tab, NO MODE is applied - just send the message as is
+      // Use backend API with smart routing (Web search + Fact checking)
+      const conversationId = activeTab === 'normal' ? 
+        currentNormalConversation?.id || 'temp' : 
+        currentModesConversation?.id || 'temp';
 
-      const response = await fetch(ANYTHINGLLM_API_URL, {
+      const payload = {
+        content: inputMessage,
+        conversationMode: activeTab === 'modes' ? selectedMode : 'normal'
+      };
+
+      console.log('Calling backend API with payload:', payload);
+
+      const response = await fetch(`${BACKEND_URL}/api/conversations/${conversationId}/messages`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${ANYTHINGLLM_API_KEY}`,
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
-        mode: 'cors',
-        body: JSON.stringify({
-          message: finalMessage,
-          mode: "chat",
-          sessionId: activeTab === 'normal' ? 
-            `bilgin-normal-${currentNormalConversation?.id || 'temp'}` : 
-            `bilgin-modes-${currentModesConversation?.id || 'temp'}-${selectedMode}`
-        })
+        body: JSON.stringify(payload)
       });
 
+      console.log('Backend API response status:', response.status);
+
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(`Backend API error! status: ${response.status}`);
       }
 
       const data = await response.json();
+      console.log('Backend API response data:', data);
 
       const botMessage = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: data.textResponse || 'Üzgünüm, bir sorun oluştu.',
+        content: data.content || 'Üzgünüm, bir sorun oluştu.',
         timestamp: new Date().toISOString()
       };
       
