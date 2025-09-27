@@ -572,12 +572,28 @@ function App() {
                   Matematik problemlerini KaTeX ile profesyonel kalitede görebilirsin!
                 </p>
                 <button
-                  onClick={() => {
+                  onClick={async () => {
                     console.log('STEP 1: Button clicked!');
                     alert('STEP 2: Alert works!');
-                    console.log('STEP 3: About to call createNewConversation');
-                    createNewConversation();
-                    console.log('STEP 4: createNewConversation called');
+                    
+                    try {
+                      console.log('STEP 3: Starting API call...');
+                      console.log('API URL:', `${API}/conversations`);
+                      
+                      const response = await axios.post(`${API}/conversations`, {
+                        title: "Test Sohbet"
+                      });
+                      
+                      console.log('STEP 4: API Response:', response.data);
+                      
+                      const newConv = response.data;
+                      setCurrentConversation(newConv);
+                      console.log('STEP 5: Set current conversation');
+                      
+                    } catch (error) {
+                      console.error('STEP ERROR:', error);
+                      alert('Hata: ' + error.message);
+                    }
                   }}
                   style={{
                     background: 'red',
