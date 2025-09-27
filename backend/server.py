@@ -183,8 +183,8 @@ Bu cevabı kontrol et ve eğer faktüel hata varsa düzelt. Eğer doğru ise ayn
         logging.error(f"OpenAI fact-checking error: {e}")
         return ai_response  # Return original if fact-check fails
 
-async def fact_check_response(ai_response: str, original_query: str) -> str:
-    """Fact-check AI response using OpenAI GPT-4"""
+async def fact_check_with_serper(ai_response: str, original_query: str) -> str:
+    """Fact-check AI response using Serper web search"""
     
     # Extract factual claims from AI response
     claims = extract_factual_claims(ai_response)
@@ -193,12 +193,43 @@ async def fact_check_response(ai_response: str, original_query: str) -> str:
         logging.info("No factual claims detected in AI response")
         return ai_response
     
-    logging.info(f"Fact-checking with OpenAI: {claims}")
+    logging.info(f"Fact-checking with Serper: {claims}")
     
-    # Use OpenAI for fact-checking
-    checked_response = await openai_fact_check(ai_response, original_query)
+    corrections = {}
     
-    return checked_response
+    for claim in claims:
+        # Create search query for fact-checking
+        search_query = f'"{claim}" doğru mu bilgi kontrol'
+        
+        # Perform web search
+        search_results = await web_search(search_query, num_results=2)
+        
+        if search_results:
+            # Simple verification logic
+            verification_text = " ".join([result["snippet"] for result in search_results])
+            
+            # Look for contradiction indicators
+            contradiction_indicators = [
+                "yanlış", "hatalı", "doğru değil", "gerçek değil", 
+                "aslında", "doğrusu", "gerçekte", "düzeltme"
+            ]
+            
+            has_contradiction = any(indicator in verification_text.lower() for indicator in contradiction_indicators)
+            
+            if has_contradiction:
+                # Try to extract correct information
+                correction = await extract_correction(claim, search_results, original_query)
+                if correction:
+                    corrections[claim] = correction
+    
+    # Apply corrections to response
+    corrected_response = ai_response
+    for incorrect_claim, correction in corrections.items():
+        if correction and correction != incorrect_claim:
+            corrected_response = corrected_response.replace(incorrect_claim, correction)
+            logging.info(f"Applied correction: '{incorrect_claim}' -> '{correction}'")
+    
+    return corrected_response
 
 async def extract_correction(claim: str, search_results: List[dict], original_query: str) -> Optional[str]:
     """Extract corrected information from search results"""
