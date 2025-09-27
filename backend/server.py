@@ -134,7 +134,8 @@ class Message(BaseModel):
 
 class MessageCreate(BaseModel):
     content: str
-    mode: str = "chat"  # "chat" or "query"
+    mode: str = "chat"  # "chat" or "query" 
+    conversationMode: Optional[str] = None  # Test için konuşma modları
 
 class MessageResponse(BaseModel):
     id: str
