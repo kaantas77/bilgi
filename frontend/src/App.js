@@ -793,7 +793,12 @@ function App() {
             {/* Chat Header */}
             <div className="bg-black border-b border-gray-900 p-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-white">BİLGİN - {conversationModes[selectedMode]?.name} Modu</h2>
+                <h2 className="text-lg font-semibold text-white">
+                  {activeTab === 'normal' 
+                    ? 'Normal Sohbet' 
+                    : `${conversationModes[selectedMode]?.name || 'Normal'} Modu`
+                  }
+                </h2>
               </div>
             </div>
 
