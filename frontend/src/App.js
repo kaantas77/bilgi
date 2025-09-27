@@ -115,7 +115,7 @@ function App() {
       timestamp: new Date().toISOString()
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    setCurrentMessages(prev => [...prev, userMessage]);
     setInputMessage('');
     setIsMessageLoading(true);
 
