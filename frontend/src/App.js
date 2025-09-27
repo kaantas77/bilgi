@@ -153,15 +153,25 @@ function App() {
 
   // Select conversation functions
   const selectNormalConversation = (conversation) => {
-    setCurrentNormalConversation(conversation);
-    setNormalMessages(conversation.messages || []);
+    try {
+      console.log('Selecting normal conversation:', conversation);
+      setCurrentNormalConversation(conversation);
+      setNormalMessages(conversation.messages || []);
+    } catch (error) {
+      console.error('Error selecting normal conversation:', error);
+    }
   };
 
   const selectModesConversation = (conversation) => {
-    setCurrentModesConversation(conversation);
-    setModesMessages(conversation.messages || []);
-    if (conversation.mode) {
-      setSelectedMode(conversation.mode);
+    try {
+      console.log('Selecting modes conversation:', conversation);
+      setCurrentModesConversation(conversation);
+      setModesMessages(conversation.messages || []);
+      if (conversation.mode) {
+        setSelectedMode(conversation.mode);
+      }
+    } catch (error) {
+      console.error('Error selecting modes conversation:', error);
     }
   };
 
