@@ -164,13 +164,13 @@ function App() {
     if (activeTab === 'normal') {
       if (!currentNormalConversation) {
         // Create new conversation if none exists
-        await createNormalConversation();
+        await createNewNormalConversation();
       }
       conversationId = currentNormalConversation?.id;
     } else {
       if (!currentModesConversation) {
         // Create new conversation if none exists
-        await createModesConversation();
+        await createNewModesConversation();
       }
       conversationId = currentModesConversation?.id;
     }
