@@ -430,9 +430,13 @@ function App() {
 
     // Create new conversation if none exists
     if (activeTab === 'normal' && !currentNormalConversation) {
-      createNewNormalConversation();
+      await createNewNormalConversation();
+      // Wait a bit for state to update
+      await new Promise(resolve => setTimeout(resolve, 100));
     } else if (activeTab === 'modes' && !currentModesConversation) {
-      createNewModesConversation();
+      await createNewModesConversation();
+      // Wait a bit for state to update
+      await new Promise(resolve => setTimeout(resolve, 100));
     }
 
     const userMessage = {
@@ -469,7 +473,8 @@ function App() {
         conversationMode: activeTab === 'modes' ? selectedMode : 'normal'
       };
 
-      console.log('Calling backend API with payload:', payload);
+      console.log('Calling backend API with conversation ID:', conversationId);
+      console.log('Payload:', payload);
 
       const response = await fetch(`${BACKEND_URL}/api/conversations/${conversationId}/messages`, {
         method: 'POST',
@@ -483,7 +488,9 @@ function App() {
       console.log('Backend API response status:', response.status);
 
       if (!response.ok) {
-        throw new Error(`Backend API error! status: ${response.status}`);
+        const errorText = await response.text();
+        console.error('Backend API error:', errorText);
+        throw new Error(`Backend API error! status: ${response.status} - ${errorText}`);
       }
 
       const data = await response.json();
@@ -514,7 +521,7 @@ function App() {
       const errorMessage = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: 'Üzgünüm, bir bağlantı sorunu yaşıyoruz. Lütfen tekrar deneyin.',
+        content: `Bağlantı sorunu: ${error.message}`,
         timestamp: new Date().toISOString()
       };
       
