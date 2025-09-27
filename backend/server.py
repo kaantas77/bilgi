@@ -764,6 +764,92 @@ def format_web_search_response(question: str, search_results: List[dict]) -> str
     
     return response
 
+async def extract_text_from_file(file_path: str, file_type: str) -> str:
+    """Extract text from various file types"""
+    try:
+        if file_type == 'pdf':
+            with open(file_path, 'rb') as file:
+                pdf_reader = PyPDF2.PdfReader(file)
+                text = ""
+                for page in pdf_reader.pages:
+                    text += page.extract_text() + "\n"
+                return text.strip()
+        
+        elif file_type in ['xlsx', 'xls']:
+            workbook = openpyxl.load_workbook(file_path)
+            text = ""
+            for sheet_name in workbook.sheetnames:
+                sheet = workbook[sheet_name]
+                text += f"\n--- {sheet_name} ---\n"
+                for row in sheet.iter_rows(values_only=True):
+                    row_text = "\t".join([str(cell) if cell is not None else "" for cell in row])
+                    if row_text.strip():
+                        text += row_text + "\n"
+            return text.strip()
+        
+        elif file_type == 'docx':
+            doc = Document(file_path)
+            text = ""
+            for paragraph in doc.paragraphs:
+                text += paragraph.text + "\n"
+            return text.strip()
+        
+        elif file_type == 'txt':
+            with open(file_path, 'r', encoding='utf-8') as file:
+                return file.read().strip()
+        
+        else:
+            return "Desteklenmeyen dosya türü."
+            
+    except Exception as e:
+        logging.error(f"File text extraction error: {e}")
+        return f"Dosya okuma hatası: {str(e)}"
+
+def get_file_type(filename: str) -> str:
+    """Get file type from filename"""
+    extension = filename.lower().split('.')[-1]
+    return extension
+
+def is_file_processing_question(question: str) -> bool:
+    """Check if question requires file processing capabilities"""
+    file_processing_keywords = [
+        'pdf', 'excel', 'word', 'dosya', 'döküman', 'belge',
+        'özet', 'özetle', 'çevir', 'translate', 'düzelt', 'analiz',
+        'inceleme', 'rapor', 'tablo', 'grafik', 'veri',
+        'metin düzelt', 'grammar', 'yazım', 'imla'
+    ]
+    
+    question_lower = question.lower()
+    return any(keyword in question_lower for keyword in file_processing_keywords)
+
+async def process_with_openai(question: str, file_content: str = None, file_name: str = None) -> str:
+    """Process question with OpenAI GPT-4o mini"""
+    try:
+        # Initialize LLM chat with EMERGENT_LLM_KEY
+        chat = LlmChat(
+            api_key=EMERGENT_LLM_KEY,
+            session_id=f"file-processing-{hash(question)}",
+            system_message="Sen Türkçe konuşan yardımcı bir asistansın. Dosya analizi, özet çıkarma, çeviri, metin düzeltme ve Excel işleme konularında uzmansın."
+        ).with_model("openai", "gpt-4o-mini")
+        
+        # Prepare the message
+        if file_content:
+            user_message = UserMessage(
+                text=f"Dosya adı: {file_name}\n\nDosya içeriği:\n{file_content}\n\nKullanıcı sorusu: {question}\n\nLütfen bu dosya hakkındaki soruyu yanıtla."
+            )
+        else:
+            user_message = UserMessage(text=question)
+        
+        # Send message to OpenAI
+        response = await chat.send_message(user_message)
+        
+        logging.info("OpenAI GPT-4o mini response received successfully")
+        return response
+        
+    except Exception as e:
+        logging.error(f"OpenAI processing error: {e}")
+        return f"OpenAI işleme hatası: {str(e)}"
+
 def should_fact_check(ai_response: str) -> bool:
     """Determine if AI response should be fact-checked"""
     
