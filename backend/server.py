@@ -1598,7 +1598,104 @@ async def delete_conversation(conversation_id: str):
     await db.conversations.delete_one({"id": conversation_id})
     await db.messages.delete_many({"conversation_id": conversation_id})
     
+    # Delete associated uploaded files
+    await db.file_uploads.delete_many({"conversation_id": conversation_id})
+    
     return {"message": "Conversation deleted successfully"}
+
+@api_router.post("/conversations/{conversation_id}/upload")
+async def upload_file(
+    conversation_id: str,
+    file: UploadFile = File(...),
+):
+    # Check if conversation exists for anonymous user
+    conversation = await db.conversations.find_one({"id": conversation_id, "user_id": ANONYMOUS_USER_ID})
+    if not conversation:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+    
+    # Check file size
+    if file.size > MAX_FILE_SIZE:
+        raise HTTPException(status_code=413, detail=f"File too large. Maximum size is {MAX_FILE_SIZE / (1024*1024):.1f}MB")
+    
+    # Check file type
+    file_type = get_file_type(file.filename)
+    allowed_types = ['pdf', 'xlsx', 'xls', 'docx', 'txt']
+    if file_type not in allowed_types:
+        raise HTTPException(status_code=400, detail=f"Unsupported file type. Allowed: {', '.join(allowed_types)}")
+    
+    try:
+        # Create unique filename
+        unique_filename = f"{uuid4()}_{file.filename}"
+        file_path = UPLOAD_DIR / unique_filename
+        
+        # Save file to disk
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+        
+        # Save file info to database
+        file_upload = FileUpload(
+            conversation_id=conversation_id,
+            file_name=file.filename,
+            file_type=file_type,
+            file_path=str(file_path)
+        )
+        
+        file_dict = prepare_for_mongo(file_upload.dict())
+        await db.file_uploads.insert_one(file_dict)
+        
+        # Extract text from file
+        extracted_text = await extract_text_from_file(str(file_path), file_type)
+        
+        # Auto-generate a system message about the uploaded file
+        system_message = Message(
+            conversation_id=conversation_id,
+            role="assistant",
+            content=f"📎 **{file.filename}** dosyası başarıyla yüklendi!\n\nDosya türü: {file_type.upper()}\nDosya boyutu: {file.size / 1024:.1f} KB\n\nBu dosya hakkında soru sorabilir, özet çıkartabilir, çeviri yaptırabilir veya analiz edebilirsiniz."
+        )
+        
+        system_message_dict = prepare_for_mongo(system_message.dict())
+        await db.messages.insert_one(system_message_dict)
+        
+        # Update conversation timestamp
+        await db.conversations.update_one(
+            {"id": conversation_id},
+            {"$set": {"updated_at": datetime.now(timezone.utc).isoformat()}}
+        )
+        
+        return {
+            "message": "File uploaded successfully",
+            "file_id": file_upload.id,
+            "file_name": file.filename,
+            "file_type": file_type,
+            "system_message": system_message.dict()
+        }
+        
+    except Exception as e:
+        logging.error(f"File upload error: {e}")
+        # Clean up file if it was created
+        if 'file_path' in locals() and os.path.exists(file_path):
+            os.remove(file_path)
+        raise HTTPException(status_code=500, detail=f"File upload failed: {str(e)}")
+
+@api_router.get("/conversations/{conversation_id}/files")
+async def get_uploaded_files(conversation_id: str):
+    # Check if conversation exists for anonymous user
+    conversation = await db.conversations.find_one({"id": conversation_id, "user_id": ANONYMOUS_USER_ID})
+    if not conversation:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+    
+    # Get uploaded files for this conversation
+    files = await db.file_uploads.find({"conversation_id": conversation_id}).sort("uploaded_at", -1).to_list(100)
+    
+    return [
+        {
+            "id": file["id"],
+            "file_name": file["file_name"],
+            "file_type": file["file_type"],
+            "uploaded_at": file["uploaded_at"]
+        }
+        for file in files
+    ]
 
 # Report endpoints
 @api_router.post("/reports", response_model=ReportResponse)
