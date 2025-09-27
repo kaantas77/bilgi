@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Depends, Response, Request, Cookie
+from fastapi import FastAPI, APIRouter, HTTPException, Depends, Response, Request, Cookie, UploadFile, File, Form
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
@@ -17,6 +17,17 @@ from jose import JWTError, jwt
 import secrets
 import re
 import asyncio
+import tempfile
+import shutil
+from io import BytesIO
+
+# File processing imports
+import PyPDF2
+import openpyxl
+from docx import Document
+
+# OpenAI integration via emergentintegrations
+from emergentintegrations.llm.chat import LlmChat, UserMessage, FileContentWithMimeType
 
 
 ROOT_DIR = Path(__file__).parent
