@@ -401,7 +401,19 @@ async def get_anythingllm_response(question: str, conversation_mode: str = 'norm
         logging.error(f"AnythingLLM request error: {e}")
         return "AnythingLLM bağlantı hatası."
 
-def can_anythingllm_answer(anythingllm_response: str) -> bool:
+async def handle_web_search_question(question: str) -> str:
+    """Handle questions that require web search using Serper API"""
+    
+    # Perform web search with optimized query
+    search_query = optimize_search_query(question)
+    search_results = await web_search(search_query, num_results=3)
+    
+    if not search_results:
+        return "Üzgünüm, şu an web araması yapamıyorum. Lütfen daha sonra tekrar deneyin."
+    
+    # Format web search results into natural response
+    response = format_web_search_response(question, search_results)
+    return response
     """Check if AnythingLLM provided a useful answer"""
     
     # Indicators that AnythingLLM couldn't answer properly
