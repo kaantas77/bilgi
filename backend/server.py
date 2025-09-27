@@ -499,10 +499,10 @@ async def hybrid_response_system(question: str, conversation_mode: str = 'normal
             
         elif anythingllm_can_answer:
             # Only AnythingLLM has good answer
-            return f"{anythingllm_response}\n\n*BİLGİN veritabanından yanıtlandı.*"
+            return f"{anythingllm_response}"
             
         elif web_search_has_results:
-            # Only web search has results
+            # Only web search has results - return CLEAN response without source attribution
             return web_search_response
             
         else:
