@@ -207,7 +207,7 @@ test_plan:
   test_all: false
   test_priority: "high_first"
   critical_issues:
-    - "RUNTIME ERROR: 'Cannot read properties of undefined (reading 'role')' - App unusable due to red error overlay"
+    - "NEW ISSUE: Message display broken - API calls succeed but messages don't appear in chat interface"
 
 agent_communication:
     - agent: "main"
