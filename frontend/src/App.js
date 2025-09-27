@@ -283,101 +283,91 @@ function App() {
           </div>
         </div>
 
-        {/* Content Area - Based on Active Tab */}
-        <ScrollArea className="flex-1">
-          <div className="p-2 space-y-4">
-            {activeTab === 'normal' ? (
-              // Normal Conversations
-              <>
-                {conversations.length > 0 && (
-                  <div className="space-y-1">
-                    <div className="flex items-center space-x-2 px-3 py-2">
-                      <MessageCircle className="w-4 h-4 text-gray-400" />
-                      <span className="text-sm font-medium text-white">Son Sohbetler</span>
-                    </div>
-                    {conversations.slice(0, 10).map((conversation) => (
-                      <ConversationItem 
-                        key={conversation.id}
-                        conversation={conversation}
-                        isActive={currentConversation?.id === conversation.id}
-                        onSelect={() => selectConversation(conversation)}
-                        onDelete={(e) => deleteConversation(conversation.id, e)}
-                      />
-                    ))}
-                  </div>
-                )}
-
-                {conversations.length === 0 && (
-                  <div className="text-center text-gray-500 text-sm py-8">
-                    Henüz sohbet bulunmuyor
-                  </div>
-                )}
-              </>
-            ) : (
-              // Conversation Modes Panel
-              <div className="space-y-4">
-                <div className="px-3 py-2">
-                  <h3 className="text-sm font-medium text-white mb-1">Konuşma Tarzını Seç</h3>
-                  <p className="text-xs text-gray-400">BİLGİN'in nasıl yanıt vermesini istiyorsun?</p>
+        {/* Content Area - Beautiful Tab Content */}
+        <div className="flex-1 overflow-hidden">
+          {activeTab === 'normal' ? (
+            /* Normal Sohbet Content */
+            <div className="h-full p-4">
+              <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-gray-900 dark:to-gray-800 rounded-2xl p-6 h-full border border-blue-200 dark:border-gray-700">
+                <div className="flex items-center space-x-3 mb-4">
+                  <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                  <h3 className="font-semibold text-gray-800 dark:text-white">Normal Sohbet</h3>
                 </div>
+                <div className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                  <p className="mb-3">Standart BİLGİN ile doğrudan sohbet edin.</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    • Matematik problemleri çözün<br/>
+                    • Genel sorular sorun<br/>
+                    • LaTeX desteği: $x^2 + y^2 = r^2$
+                  </p>
+                </div>
+                <div className="mt-6">
+                  <div className={`text-xs px-3 py-2 rounded-lg ${
+                    getCurrentMessages().length > 0 
+                      ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' 
+                      : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
+                  }`}>
+                    {getCurrentMessages().length > 0 
+                      ? `${getCurrentMessages().length} mesaj var` 
+                      : 'Henüz mesaj yok'
+                    }
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            /* Konuşma Modları Content */
+            <div className="h-full p-4 space-y-3">
+              <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-gray-900 dark:to-gray-800 rounded-2xl p-4 border border-purple-200 dark:border-gray-700">
+                <div className="flex items-center space-x-3 mb-3">
+                  <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
+                  <h3 className="font-semibold text-gray-800 dark:text-white text-sm">Konuşma Tarzını Seç</h3>
+                </div>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mb-4">
+                  BİLGİN'in nasıl yanıt vermesini istiyorsun?
+                </p>
                 
-                <div className="space-y-2">
+                <div className="grid grid-cols-2 gap-2">
                   {Object.entries(conversationModes).map(([key, mode]) => (
                     <button
                       key={key}
                       onClick={() => setSelectedMode(key)}
-                      className={`w-full p-3 rounded-lg text-left transition-all ${
+                      className={`p-3 rounded-xl text-left transition-all duration-200 text-xs ${
                         selectedMode === key 
-                          ? 'bg-gray-800 border border-gray-600' 
-                          : 'bg-gray-900 hover:bg-gray-800 border border-gray-800'
+                          ? 'bg-white dark:bg-gray-700 border-2 border-purple-400 shadow-md transform scale-105' 
+                          : 'bg-gray-50 dark:bg-gray-800 hover:bg-white dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600'
                       }`}
                     >
-                      <div className="flex items-center space-x-3">
-                        <div className={`w-3 h-3 rounded-full ${mode.color}`}></div>
+                      <div className="flex items-center space-x-2">
+                        <div className={`w-2 h-2 rounded-full ${mode.color}`}></div>
                         <div className="flex-1 min-w-0">
-                          <div className="text-sm font-medium text-white">{mode.name}</div>
-                          <div className="text-xs text-gray-400 truncate">{mode.description}</div>
+                          <div className="font-medium text-gray-800 dark:text-white">{mode.name}</div>
+                          <div className="text-gray-500 dark:text-gray-400 truncate text-xs">{mode.description}</div>
                         </div>
                         {selectedMode === key && (
-                          <div className="w-2 h-2 bg-white rounded-full"></div>
+                          <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
                         )}
                       </div>
                     </button>
                   ))}
                 </div>
 
-                <div className="px-3 py-2 bg-gray-900 rounded-lg border border-gray-800">
-                  <div className="text-xs text-gray-400 mb-1">Seçili Mod:</div>
-                  <div className="text-sm text-white font-medium">
+                <div className="mt-4 p-3 bg-purple-100 dark:bg-gray-800 rounded-lg border border-purple-200 dark:border-gray-700">
+                  <div className="text-xs text-purple-700 dark:text-purple-300 mb-1">Seçili Mod:</div>
+                  <div className="font-medium text-purple-800 dark:text-purple-200 text-sm">
                     {conversationModes[selectedMode]?.name || 'Normal'}
                   </div>
-                  <div className="text-xs text-gray-500 mt-1">
-                    {conversationModes[selectedMode]?.description || 'Standart BİLGİN'}
+                  <div className="text-xs text-purple-600 dark:text-purple-400 mt-1">
+                    {getCurrentMessages().length > 0 
+                      ? `${getCurrentMessages().length} mesaj var` 
+                      : 'Henüz mesaj yok'
+                    }
                   </div>
                 </div>
-
-                {/* Recent conversations also shown in modes tab */}
-                {conversations.length > 0 && (
-                  <div className="space-y-1 pt-4 border-t border-gray-800">
-                    <div className="flex items-center space-x-2 px-3 py-2">
-                      <MessageCircle className="w-4 h-4 text-gray-400" />
-                      <span className="text-sm font-medium text-white">Son Sohbetler</span>
-                    </div>
-                    {conversations.slice(0, 5).map((conversation) => (
-                      <ConversationItem 
-                        key={conversation.id}
-                        conversation={conversation}
-                        isActive={currentConversation?.id === conversation.id}
-                        onSelect={() => selectConversation(conversation)}
-                        onDelete={(e) => deleteConversation(conversation.id, e)}
-                      />
-                    ))}
-                  </div>
-                )}
               </div>
-            )}
-          </div>
-        </ScrollArea>
+            </div>
+          )}
+        </div>
 
         {/* Settings Section */}
         <div className="border-t border-gray-800 p-3">
