@@ -684,15 +684,23 @@ class BilginAIAPITester:
         return success
 
     def run_hybrid_system_tests(self):
-        """Run all hybrid system tests"""
+        """Run all hybrid system tests for REFINED intelligent hybrid AI system"""
         print("\n" + "="*60)
-        print("🚀 STARTING INTELLIGENT HYBRID AI SYSTEM TESTS")
+        print("🚀 STARTING REFINED INTELLIGENT HYBRID AI SYSTEM TESTS")
+        print("Testing NEW enhanced logic:")
+        print("1. AnythingLLM İlk Deneme - Try AnythingLLM first for every question")
+        print("2. Güvensiz Cevap Tespiti - Web search if AnythingLLM is uncertain")
+        print("3. Güncel Konu Tespiti - Direct web search for current info")
+        print("4. Soru Geri Sorma - Web search if AnythingLLM asks questions back")
         print("="*60)
         
         hybrid_tests = [
             self.test_hybrid_system_casual_question,
             self.test_hybrid_system_math_question,
+            self.test_hybrid_system_weather_direct_web,
+            self.test_hybrid_system_sports_direct_web,
             self.test_hybrid_system_current_info,
+            self.test_hybrid_system_anythingllm_uncertain,
             self.test_hybrid_system_general_knowledge,
             self.test_hybrid_system_conversation_modes,
             self.test_hybrid_system_turkish_errors
@@ -707,10 +715,14 @@ class BilginAIAPITester:
         
         # Print hybrid system test results
         print("\n" + "="*60)
-        print(f"🧪 HYBRID SYSTEM RESULTS: {self.hybrid_tests_passed}/{self.hybrid_tests_run} tests passed")
+        print(f"🧪 REFINED HYBRID SYSTEM RESULTS: {self.hybrid_tests_passed}/{self.hybrid_tests_run} tests passed")
         
         if self.hybrid_tests_passed == self.hybrid_tests_run:
-            print("🎉 All hybrid system tests passed!")
+            print("🎉 All REFINED hybrid system tests passed!")
+            print("✅ AnythingLLM first strategy working")
+            print("✅ Web search backup activation working")
+            print("✅ Direct web search for current topics working")
+            print("✅ Turkish error messages confirmed")
         else:
             print(f"❌ {self.hybrid_tests_run - self.hybrid_tests_passed} hybrid system tests failed")
         
