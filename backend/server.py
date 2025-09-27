@@ -545,15 +545,50 @@ def get_question_category(question: str) -> str:
         r'^(iyi geceler|günaydın|tünaydın)$'
     ]
     
-    # Current/live information - Web search required
+    # Current/live information - Web search required (Google'dan aratılabilecek bilgiler)
     current_info_patterns = [
-        r'(bugün|şu an|anlık|canlı|güncel|son)\s+',
-        r'(hava durumu|sıcaklık|yağmur)',
-        r'(dolar|euro|bitcoin)\s+(kur|fiyat)',
-        r'(maç|skor|sonuç).*(ne|nedir|nasıl|kaç)',
-        r'(haber|gelişme|olay).*(son|yeni|bugün)',
-        r'(açık|kapalı).*(şu an|bugün)',
-        r'(2024|2025).*(çıkan|yayınlanan|son)'
+        # Time-sensitive information
+        r'(bugün|şu an|anlık|canlı|güncel|son|şimdi)\s+',
+        r'(dün|geçen hafta|bu hafta|son hafta|yeni)\s+',
+        
+        # Weather - Google'dan aratılabilir
+        r'(hava durumu|hava|sıcaklık|yağmur|kar|rüzgar|nem)',
+        r'(meteoroloji|hava tahmini|iklim)',
+        
+        # Sports - Google'dan aratılabilir  
+        r'(maç|skor|sonuç|puan|derbi|lig)\s*',
+        r'(galatasaray|fenerbahçe|beşiktaş|trabzonspor).*(maç|skor)',
+        r'(barcelona|real madrid|manchester|chelsea).*(maç|skor)',
+        r'(şampiyonlar ligi|premier lig|süper lig|la liga).*(sonuç|tablo|puan)',
+        r'(futbol|basketbol|voleybol).*(sonuç|maç)',
+        
+        # Financial/Currency - Google'dan aratılabilir
+        r'(dolar|euro|bitcoin|altın|borsa|kripto)\s+(kur|fiyat|değer)',
+        r'(bist|nasdaq|dow jones|piyasa)',
+        
+        # News and Events - Google'dan aratılabilir
+        r'(haber|gelişme|olay|açıklama).*(son|yeni|bugün|güncel)',
+        r'(seçim|politika|hükümet|cumhurbaşkanı).*(son|güncel)',
+        r'(deprem|afet|kaza|olay).*(son|bugün)',
+        
+        # Traffic and Transportation - Google'dan aratılabilir
+        r'(trafik|yol durumu|ulaşım|metro|otobüs)',
+        r'(kapalı|açık).*(yol|köprü|tünel)',
+        
+        # Recent releases/publications - Google'dan aratılabilir
+        r'(yeni|son).*(çıkan|yayınlanan|piyasaya).*(kitap|film|müzik|oyun)',
+        r'(2024|2025).*(çıkan|yayınlanan|çıkacak)',
+        
+        # Store hours, opening times - Google'dan aratılabilir
+        r'(açık|kapalı|saat).*(market|mağaza|restoran|banka)',
+        r'(çalışma saatleri|açılış saati)',
+        
+        # Live events, concerts - Google'dan aratılabilir
+        r'(konser|etkinlik|festival|gösteri).*(bugün|yakında|tarih)',
+        
+        # Current prices, availability - Google'dan aratılabilir
+        r'(fiyat|ücret|maliyet).*(şu an|güncel|bugün)',
+        r'(satış|indirim|kampanya).*(aktif|geçerli)'
     ]
     
     # Check for casual questions first
@@ -561,7 +596,7 @@ def get_question_category(question: str) -> str:
         if re.search(pattern, question_lower):
             return 'casual'
     
-    # Check for current information needs
+    # Check for current information needs (Google'dan aratılabilecek bilgiler)
     for pattern in current_info_patterns:
         if re.search(pattern, question_lower):
             return 'current'
