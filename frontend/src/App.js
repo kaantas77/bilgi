@@ -24,6 +24,7 @@ function App() {
   const [normalMessages, setNormalMessages] = useState([]);
   const [modesMessages, setModesMessages] = useState([]);
   const [conversations, setConversations] = useState([]);
+  const [currentConversation, setCurrentConversation] = useState(null);
   const [inputMessage, setInputMessage] = useState('');
   const [isMessageLoading, setIsMessageLoading] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
