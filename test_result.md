@@ -212,14 +212,11 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus:
-    - "Normal Sohbet - Sohbet geçmişi sistemi ve mod sistemsiz chat"
-    - "Konuşma Modları - Sadece modes sekmesinde aktif mod sistemi"
+  current_focus: []
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
-  critical_issues:
-    - "NEW ISSUE: Message display broken - API calls succeed but messages don't appear in chat interface"
+  critical_issues: []
 
 agent_communication:
     - agent: "main"
