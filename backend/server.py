@@ -561,7 +561,7 @@ def are_responses_similar(response1: str, response2: str) -> bool:
     return similarity >= 0.6
 
 async def smart_hybrid_response(question: str, conversation_mode: str = 'normal') -> str:
-    """Smart hybrid system with quick analysis and deduplication"""
+    """Smart hybrid system - AnythingLLM first, web search only if needed"""
     
     logging.info(f"Starting smart hybrid analysis for: {question}")
     
@@ -569,53 +569,26 @@ async def smart_hybrid_response(question: str, conversation_mode: str = 'normal'
     category = get_question_category(question)
     logging.info(f"Question category: {category}")
     
-    if category == 'casual':
-        # Casual questions - only use AnythingLLM, no web search needed
-        logging.info("Casual question detected - using AnythingLLM only")
-        anythingllm_response = await get_anythingllm_response(question, conversation_mode)
-        return anythingllm_response
-        
-    elif category == 'current':
-        # Current information - prioritize web search but still check AnythingLLM
-        logging.info("Current information question - prioritizing web search")
-        
-        # Get web search first (faster for current info)
+    if category == 'current':
+        # Current information - directly use web search
+        logging.info("Current information question - using web search directly")
         web_search_response = await handle_web_search_question(question)
-        anythingllm_response = await get_anythingllm_response(question, conversation_mode)
-        
-        # Check if AnythingLLM has useful info
-        if can_anythingllm_answer(anythingllm_response):
-            # Check similarity to avoid duplication
-            if are_responses_similar(anythingllm_response, web_search_response):
-                # Similar responses - return cleaned web search only
-                return await clean_web_search_with_anythingllm(web_search_response, question)
-            else:
-                # Different info - combine them
-                return f"""**BİLGİN Cevabı:**
-{anythingllm_response}
-
-**Güncel Web Bilgisi:**
-{await clean_web_search_with_anythingllm(web_search_response, question)}"""
-        else:
-            # Only web search has good info
-            return await clean_web_search_with_anythingllm(web_search_response, question)
-            
-    elif category == 'math':
-        # Math questions - AnythingLLM is usually better, but verify with web if needed
-        logging.info("Math question detected - using AnythingLLM primarily")
-        anythingllm_response = await get_anythingllm_response(question, conversation_mode)
-        
-        if can_anythingllm_answer(anythingllm_response):
-            return anythingllm_response
-        else:
-            # AnythingLLM failed, try web search as backup
-            web_search_response = await handle_web_search_question(question)
-            return await clean_web_search_with_anythingllm(web_search_response, question)
-            
+        return await clean_web_search_with_anythingllm(web_search_response, question)
+    
+    # For all other categories (casual, math, factual, general)
+    # Try AnythingLLM first
+    logging.info("Trying AnythingLLM first...")
+    anythingllm_response = await get_anythingllm_response(question, conversation_mode)
+    
+    # Check if AnythingLLM provided a good answer
+    if can_anythingllm_answer(anythingllm_response):
+        logging.info("AnythingLLM provided good answer - using it")
+        return anythingllm_response
     else:
-        # Factual or general questions - use full hybrid system
-        logging.info("Factual/general question - using full hybrid system")
-        return await hybrid_response_system(question, conversation_mode)
+        # AnythingLLM couldn't answer properly, use web search
+        logging.info("AnythingLLM couldn't answer properly - using web search as backup")
+        web_search_response = await handle_web_search_question(question)
+        return await clean_web_search_with_anythingllm(web_search_response, question)
     """Advanced hybrid system: Use both AnythingLLM and web search, validate and choose best"""
     
     logging.info(f"Starting hybrid response system for: {question}")
