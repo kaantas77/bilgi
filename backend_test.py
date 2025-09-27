@@ -309,9 +309,111 @@ class BilginAIAPITester:
         
         return success
 
+    def test_hybrid_system_weather_direct_web(self):
+        """Test Scenario 2: Hava Durumu (Google'dan aratılabilir) - 'İstanbul hava durumu nasıl?'"""
+        print("\n🧪 HYBRID SYSTEM TEST 3A: Weather (Direct Web Search)")
+        
+        # Create new conversation
+        success, response = self.run_test(
+            "Create Conversation for Weather Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "Hybrid Test - Weather"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        
+        # Test weather question - should go directly to web search
+        start_time = time.time()
+        success, response = self.run_test(
+            "Send Weather Question: 'İstanbul hava durumu nasıl?'",
+            "POST",
+            f"conversations/{test_conv_id}/messages",
+            200,
+            data={"content": "İstanbul hava durumu nasıl?", "mode": "chat"}
+        )
+        
+        response_time = time.time() - start_time
+        
+        if success:
+            self.hybrid_tests_run += 1
+            ai_response = response.get('content', '')
+            print(f"   Response Time: {response_time:.2f} seconds")
+            print(f"   AI Response: {ai_response[:200]}...")
+            
+            # Check if web search was used (should go directly to web search, NOT AnythingLLM)
+            web_indicators = ['web araştırması', 'güncel', 'hava', 'sıcaklık', 'derece']
+            has_web_indicators = any(indicator in ai_response.lower() for indicator in web_indicators)
+            
+            # Check if response contains weather information
+            has_weather_info = any(pattern in ai_response.lower() for pattern in ['hava', 'sıcaklık', 'derece', 'yağmur', 'güneş', 'bulut'])
+            
+            if has_web_indicators or has_weather_info:
+                print("✅ PASSED: Web search used directly for weather (bypassed AnythingLLM)")
+                self.hybrid_tests_passed += 1
+            else:
+                print("❌ FAILED: Should use web search directly for weather, not AnythingLLM")
+        
+        return success
+
+    def test_hybrid_system_sports_direct_web(self):
+        """Test Scenario 3: Spor Sonucu (Google'dan aratılabilir) - 'Galatasaray son maç skoru nedir?'"""
+        print("\n🧪 HYBRID SYSTEM TEST 3B: Sports (Direct Web Search)")
+        
+        # Create new conversation
+        success, response = self.run_test(
+            "Create Conversation for Sports Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "Hybrid Test - Sports"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        
+        # Test sports question - should go directly to web search
+        start_time = time.time()
+        success, response = self.run_test(
+            "Send Sports Question: 'Galatasaray son maç skoru nedir?'",
+            "POST",
+            f"conversations/{test_conv_id}/messages",
+            200,
+            data={"content": "Galatasaray son maç skoru nedir?", "mode": "chat"}
+        )
+        
+        response_time = time.time() - start_time
+        
+        if success:
+            self.hybrid_tests_run += 1
+            ai_response = response.get('content', '')
+            print(f"   Response Time: {response_time:.2f} seconds")
+            print(f"   AI Response: {ai_response[:200]}...")
+            
+            # Check if web search was used (should go directly to web search, NOT AnythingLLM)
+            web_indicators = ['web araştırması', 'güncel', 'maç', 'skor', 'galatasaray']
+            has_web_indicators = any(indicator in ai_response.lower() for indicator in web_indicators)
+            
+            # Check if response contains sports information
+            has_sports_info = any(pattern in ai_response.lower() for pattern in ['maç', 'skor', 'galatasaray', 'sonuç', 'gol'])
+            
+            if has_web_indicators or has_sports_info:
+                print("✅ PASSED: Web search used directly for sports (bypassed AnythingLLM)")
+                self.hybrid_tests_passed += 1
+            else:
+                print("❌ FAILED: Should use web search directly for sports, not AnythingLLM")
+        
+        return success
+
     def test_hybrid_system_current_info(self):
-        """Test Scenario 3: Current Information (Direct Web Search) - 'bugün dolar kuru kaç TL?'"""
-        print("\n🧪 HYBRID SYSTEM TEST 3: Current Information (Direct Web Search)")
+        """Test Scenario: Current Information (Direct Web Search) - 'bugün dolar kuru kaç TL?'"""
+        print("\n🧪 HYBRID SYSTEM TEST 3C: Current Information (Direct Web Search)")
         
         # Create new conversation
         success, response = self.run_test(
