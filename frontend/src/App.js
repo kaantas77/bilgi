@@ -105,13 +105,16 @@ function App() {
 
   const createNewConversation = async () => {
     try {
+      console.log('Creating new conversation...');
       const response = await axios.post(`${API}/conversations`, {
         title: "Yeni Sohbet"
       });
+      console.log('New conversation response:', response.data);
       const newConversation = response.data;
       setConversations([newConversation, ...conversations]);
       setCurrentConversation(newConversation);
       setMessages([]);
+      console.log('Current conversation set to:', newConversation);
     } catch (error) {
       console.error('Error creating conversation:', error);
     }
