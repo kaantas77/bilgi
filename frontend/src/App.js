@@ -174,7 +174,7 @@ function App() {
         content: 'Üzgünüm, bir bağlantı sorunu yaşıyoruz. Lütfen tekrar deneyin.',
         timestamp: new Date().toISOString()
       };
-      setMessages(prev => [...prev, errorMessage]);
+      setCurrentMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsMessageLoading(false);
     }
