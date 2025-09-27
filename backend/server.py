@@ -1379,8 +1379,8 @@ async def send_message(conversation_id: str, input: MessageCreate):
         logging.info("Smart hybrid system completed successfully")
                 
     except Exception as e:
-        logging.error(f"AnythingLLM API error: {e}")
-        ai_content = "Sorry, I'm experiencing technical difficulties."
+        logging.error(f"Smart hybrid system error: {e}")
+        ai_content = "Üzgünüm, şu anda teknik bir sorun yaşıyorum. Lütfen sorunuzu tekrar deneyin."
     
     # Save AI response
     ai_message = Message(
