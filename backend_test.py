@@ -1264,6 +1264,7 @@ def main():
     print("=" * 60)
     print(f"📋 Basic API Tests: {tester.tests_passed}/{tester.tests_run} passed")
     print(f"🧪 Hybrid System Tests: {tester.hybrid_tests_passed}/{tester.hybrid_tests_run} passed")
+    print(f"📁 File Processing Tests: {tester.file_tests_passed}/{tester.file_tests_run} passed")
     print(f"📊 TOTAL: {total_passed}/{total_tests} tests passed")
     
     if total_passed == total_tests:
