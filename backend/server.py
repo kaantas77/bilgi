@@ -411,9 +411,12 @@ async def get_anythingllm_response(question: str, conversation_mode: str = 'norm
                 # Fix common English error messages - MORE COMPREHENSIVE
                 response_lower = raw_response.lower().strip()
                 
-                if "sorry, i'm experiencing technical difficulties" in response_lower:
+                # Check for exact English error message match
+                if response_lower == "sorry, i'm experiencing technical difficulties.":
                     return "Üzgünüm, şu anda teknik bir sorun yaşıyorum. Lütfen sorunuzu tekrar deneyin."
-                elif "sorry" in response_lower and "experiencing" in response_lower:
+                elif "sorry, i'm experiencing technical difficulties" in response_lower:
+                    return "Üzgünüm, şu anda teknik bir sorun yaşıyorum. Lütfen sorunuzu tekrar deneyin."
+                elif "sorry" in response_lower and "experiencing" in response_lower and "technical" in response_lower:
                     return "Teknik bir sorun nedeniyle yanıt veremedim. Lütfen tekrar deneyin."
                 elif "sorry" in response_lower and ("technical" in response_lower or "difficulties" in response_lower):
                     return "Üzgünüm, teknik sorun yaşıyorum. Lütfen tekrar deneyin."
