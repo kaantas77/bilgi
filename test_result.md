@@ -186,3 +186,5 @@ test_plan:
 agent_communication:
     - agent: "main"
     - message: "✅ BAŞARILI IMPLEMENTASYON TAMAMLANDI! Normal Sohbet: placeholder kaldırıldı, sohbet geçmişi sistemi eklendi (localStorage), tarihsel sıralama, başlık üretimi, Yeni/Sil butonları, HİÇBİR MOD aktif değil. Konuşma Modları: sadece modes sekmesinde modlar aktif, ayrı sohbet geçmişi, mode-specific prompts çalışıyor. Her iki sistem de test edildi ve sorunsuz çalışıyor. KaTeX matematik rendering de aktif."
+    - agent: "testing"
+    - message: "❌ CRITICAL RUNTIME ERROR FOUND: 'Cannot read properties of undefined (reading 'role')' error occurs when clicking conversations or sending messages. Error happens in message rendering (lines 738-774 in App.js) where message.role is accessed but some message objects are undefined or malformed. This causes red error overlay to appear and breaks conversation functionality. Error is reproducible when sending multiple messages and clicking conversations."
