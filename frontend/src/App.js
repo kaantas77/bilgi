@@ -561,10 +561,21 @@ function App() {
                   Matematik problemlerini KaTeX ile profesyonel kalitede görebilirsin!
                 </p>
                 <button
-                  onClick={createNewConversation}
-                  className="bg-transparent border border-gray-500 hover:border-white text-white px-6 py-2.5 rounded-full transition-all duration-500 hover:bg-white/10 animate-bounce-subtle text-sm"
+                  onClick={() => {
+                    console.log('DIRECT BUTTON CLICK!');
+                    alert('Button clicked!');
+                    createNewConversation();
+                  }}
+                  style={{
+                    background: 'red',
+                    color: 'white',
+                    padding: '20px',
+                    fontSize: '18px',
+                    border: 'none',
+                    cursor: 'pointer'
+                  }}
                 >
-                  Matematik sorusu sormak için tıkla
+                  ACİL TEST BUTONU - TIKLA!
                 </button>
               </div>
             </div>
