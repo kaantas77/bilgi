@@ -121,8 +121,11 @@ function App() {
   };
 
   const selectConversation = async (conversation) => {
+    console.log('Selecting conversation:', conversation);
     setCurrentConversation(conversation);
+    console.log('Current conversation set, loading messages...');
     await loadMessages(conversation.id);
+    console.log('Messages loaded for conversation:', conversation.id);
   };
 
   const deleteConversation = async (conversationId, e) => {
