@@ -8,7 +8,7 @@ import { Avatar, AvatarImage, AvatarFallback } from './components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from './components/ui/dropdown-menu';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './components/ui/dialog';
 import { useToast } from './hooks/use-toast';
-import { MessageCircle, Plus, Trash2, Send, Bot, User, Settings, Moon, Sun, Globe, Bell } from 'lucide-react';
+import { MessageCircle, Plus, Trash2, Send, Bot, User, Settings, Moon, Sun, Globe, Bell, Upload, Paperclip, FileText } from 'lucide-react';
 import MathRenderer from './components/MathRenderer';
 import axios from 'axios';
 
