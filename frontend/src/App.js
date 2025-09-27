@@ -80,73 +80,18 @@ function App() {
     loadConversations();
   }, []);
 
-  // Debug useEffect for currentConversation
-  useEffect(() => {
-    console.log('🔍 currentConversation changed to:', currentConversation);
-  }, [currentConversation]);
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  const loadConversations = () => {
-    // No backend - just empty function
-    setConversations([]);
-  };
-
-  const loadMessages = () => {
-    // No backend - just empty function  
+  // No backend functions - remove all API dependencies
+  const createNewConversation = () => {
+    // Just clear messages for fresh start
     setMessages([]);
   };
 
-  const createNewConversation = useCallback(async () => {
-    try {
-      console.log('🚀 BAŞLADI: Creating new conversation...');
-      
-      const response = await axios.post(`${API}/conversations`, {
-        title: "Yeni Sohbet"
-      });
-      
-      console.log('✅ BACKEND RESPONSE:', response.data);
-      const newConversation = response.data;
-      
-      console.log('🔄 UPDATING STATES...');
-      setMessages([]);
-      setConversations(prev => {
-        console.log('📝 Conversations updated, new list length:', prev.length + 1);
-        return [newConversation, ...prev];
-      });
-      
-      console.log('🎯 SETTING CURRENT CONVERSATION:', newConversation);
-      setCurrentConversation(newConversation);
-      
-      console.log('✅ TÜM STATES UPDATE EDİLDİ');
-      
-    } catch (error) {
-      console.error('❌ HATA:', error);
-    }
-  }, []); // Empty dependency array - safe with functional updates
-
-  const selectConversation = async (conversation) => {
-    console.log('Selecting conversation:', conversation);
-    setCurrentConversation(conversation);
-    console.log('Current conversation set, loading messages...');
-    await loadMessages(conversation.id);
-    console.log('Messages loaded for conversation:', conversation.id);
+  const selectConversation = () => {
+    // No backend - empty function
   };
 
-  const deleteConversation = async (conversationId, e) => {
-    e.stopPropagation();
-    try {
-      await axios.delete(`${API}/conversations/${conversationId}`);
-      setConversations(conversations.filter(conv => conv.id !== conversationId));
-      if (currentConversation?.id === conversationId) {
-        setCurrentConversation(null);
-        setMessages([]);
-      }
-    } catch (error) {
-      console.error('Error deleting conversation:', error);
-    }
+  const deleteConversation = () => {
+    // No backend - empty function  
   };
 
   const sendMessage = async () => {
