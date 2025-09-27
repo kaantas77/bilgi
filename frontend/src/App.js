@@ -319,11 +319,19 @@ function App() {
 
   const setCurrentMessages = (messages) => {
     // Ensure messages is always an array and filter invalid ones
-    const validMessages = Array.isArray(messages) 
-      ? messages.filter(msg => msg && typeof msg === 'object' && msg.role && msg.content && msg.id)
-      : [];
+    const messagesArray = Array.isArray(messages) ? messages : [];
+    
+    console.log('setCurrentMessages called with:', messagesArray);
+    
+    const validMessages = messagesArray.filter(msg => {
+      const isValid = msg && typeof msg === 'object' && msg.role && msg.content && msg.id;
+      if (!isValid) {
+        console.warn('Invalid message filtered out:', msg);
+      }
+      return isValid;
+    });
       
-    console.log(`Setting ${validMessages.length} valid messages out of ${Array.isArray(messages) ? messages.length : 0} total`);
+    console.log(`Setting ${validMessages.length} valid messages out of ${messagesArray.length} total`);
     
     if (activeTab === 'normal') {
       setNormalMessages(validMessages);
