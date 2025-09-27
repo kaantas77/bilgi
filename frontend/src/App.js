@@ -76,8 +76,7 @@ function App() {
       setNotifications(savedNotifications === 'true');
     }
 
-    // Load conversations directly on mount
-    loadConversations();
+    // No backend - conversations will be empty
   }, []);
 
   // No backend functions - remove all API dependencies
