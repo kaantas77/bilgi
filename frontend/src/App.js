@@ -23,6 +23,7 @@ function App() {
   // Separate conversation states for each tab
   const [normalMessages, setNormalMessages] = useState([]);
   const [modesMessages, setModesMessages] = useState([]);
+  const [conversations, setConversations] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isMessageLoading, setIsMessageLoading] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
