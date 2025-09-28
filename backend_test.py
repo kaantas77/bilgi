@@ -2720,6 +2720,8 @@ def main():
         
         if tester.tests_passed < tester.tests_run:
             print("   - Basic API issues detected")
+        if getattr(tester, 'conversation_mode_tests_passed', 0) < getattr(tester, 'conversation_mode_tests_run', 0):
+            print("   - NEW Conversation mode issues detected")
         if tester.routing_tests_passed < tester.routing_tests_run:
             print("   - NEW Routing system issues detected")
         if tester.hybrid_tests_passed < tester.hybrid_tests_run:
