@@ -1213,7 +1213,7 @@ function App() {
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept=".pdf,.xlsx,.xls,.docx,.txt"
+                  accept=".pdf,.xlsx,.xls,.docx,.txt,.jpg,.jpeg,.png,.gif,.bmp,.webp"
                   onChange={handleFileUpload}
                   className="hidden"
                 />
@@ -1394,7 +1394,7 @@ function App() {
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept=".pdf,.xlsx,.xls,.docx,.txt"
+                  accept=".pdf,.xlsx,.xls,.docx,.txt,.jpg,.jpeg,.png,.gif,.bmp,.webp"
                   onChange={handleFileUpload}
                   className="hidden"
                 />
