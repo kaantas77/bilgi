@@ -1940,10 +1940,17 @@ async def upload_file(
         extracted_text = await extract_text_from_file(str(file_path), file_type)
         
         # Auto-generate a system message about the uploaded file
+        if file_type in ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp']:
+            file_icon = "🖼️"
+            file_description = "Bu görsel hakkında soru sorabilir, içeriğini analiz ettirebilir, görseldeki metni okutabilir veya açıklama isteyebilirsiniz."
+        else:
+            file_icon = "📎"
+            file_description = "Bu dosya hakkında soru sorabilir, özet çıkartabilir, çeviri yaptırabilir veya analiz edebilirsiniz."
+        
         system_message = Message(
             conversation_id=conversation_id,
             role="assistant",
-            content=f"📎 **{file.filename}** dosyası başarıyla yüklendi!\n\nDosya türü: {file_type.upper()}\nDosya boyutu: {file.size / 1024:.1f} KB\n\nBu dosya hakkında soru sorabilir, özet çıkartabilir, çeviri yaptırabilir veya analiz edebilirsiniz."
+            content=f"{file_icon} **{file.filename}** dosyası başarıyla yüklendi!\n\nDosya türü: {file_type.upper()}\nDosya boyutu: {file.size / 1024:.1f} KB\n\n{file_description}"
         )
         
         system_message_dict = prepare_for_mongo(system_message.dict())
