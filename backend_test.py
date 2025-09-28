@@ -2181,6 +2181,9 @@ def main():
     print("\n" + "-" * 50)
     print(f"📊 Basic API Results: {tester.tests_passed}/{tester.tests_run} tests passed")
     
+    # Run NEW routing system tests (PRIORITY)
+    routing_success = tester.run_new_routing_system_tests()
+    
     # Run hybrid system tests
     hybrid_success = tester.run_hybrid_system_tests()
     
@@ -2188,8 +2191,8 @@ def main():
     file_success = tester.run_file_processing_tests()
     
     # Print final comprehensive results
-    total_tests = tester.tests_run + tester.hybrid_tests_run + tester.file_tests_run
-    total_passed = tester.tests_passed + tester.hybrid_tests_passed + tester.file_tests_passed
+    total_tests = tester.tests_run + tester.routing_tests_run + tester.hybrid_tests_run + tester.file_tests_run
+    total_passed = tester.tests_passed + tester.routing_tests_passed + tester.hybrid_tests_passed + tester.file_tests_passed
     
     print("\n" + "=" * 60)
     print("🏁 COMPREHENSIVE TEST RESULTS")
