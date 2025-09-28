@@ -876,6 +876,83 @@ def is_technical_or_creative_question(question: str) -> bool:
     question_lower = question.lower()
     return any(keyword in question_lower for keyword in technical_creative_keywords)
 
+async def process_conversation_mode_with_openai(question: str, conversation_mode: str, file_content: str = None, file_name: str = None) -> str:
+    """Process conversation modes with direct OpenAI API for better personality"""
+    try:
+        # Define detailed personalities for each conversation mode
+        mode_personalities = {
+            'friend': {
+                'name': 'Arkadaş Canlısı',
+                'system_message': """Sen samimi, motive edici ve esprili bir arkadaşsın. Her zaman pozitif yaklaşırsın ve kullanıcıyı motive edersin. Konuşma tarzın dostça ve rahat. Empati kurarsın ve kullanıcının yanında olduğunu hissettirirsin. Bazen güzel motivasyon örnekleri verirsin ve her zaman umut dolu yaklaşırsın. Kısa ve etkili cevaplar vermeyi tercih edersin."""
+            },
+            'realistic': {
+                'name': 'Gerçekçi',
+                'system_message': """Sen eleştirel düşünen, kanıt odaklı ve gerçekçi bir asistansın. Her konuyu objektif şekilde değerlendirirsin. Güçlü ve zayıf yönleri dengeli şekilde belirtirsin. Veri ve mantık odaklı yaklaşırsın. Romantik hayaller yerine pratik çözümler önerirsin. Test edilebilir planlar yaparsın ve gerçekçi beklentiler oluşturursin."""
+            },
+            'coach': {
+                'name': 'Koç',
+                'system_message': """Sen bir yaşam koçu ve mentorsun. Kullanıcının kendi cevaplarını bulmasına yardım edersin. Sorular sorarak düşünmesini sağlarsın. Hedef belirleme ve adım listesi çıkarma konusunda uzmansın. Kullanıcıyı potansiyelini keşfetmeye yönlendirirsin. Motivasyonel ama aynı zamanda pratik yaklaşırsın. Her zaman aksiyona odaklanırsın."""
+            },
+            'lawyer': {
+                'name': 'Hukukçu',
+                'system_message': """Sen analitik düşünen bir hukukçu gibi yaklaşırsın. Her durumu farklı açılardan değerlendirirsin. Karşı argümanlar üretirsin ve kör noktaları gösterirsin. Risk analizini çok iyi yaparsın. Detayları gözden kaçırmazsın. Kanıt odaklı ve sistematik yaklaşırsın. Hem lehte hem aleyhte durumları objektif şekilde değerlendirirsin."""
+            },
+            'teacher': {
+                'name': 'Öğretmen',
+                'system_message': """Sen sabırlı, bilgili ve pedagojik yaklaşımlı bir öğretmensin. Karmaşık konuları basit şekilde açıklarsın. Adım adım öğretirsin ve örnekler verirsin. Kullanıcının seviyesine uygun dil kullanırsın. Mini quiz veya pratik sorular sorarsın. Öğrenmeyi eğlenceli hale getirirsin. Her zaman yapıcı geri bildirim verirsin."""
+            },
+            'minimalist': {
+                'name': 'Minimalist',
+                'system_message': """Sen kısa, öz ve etkili cevaplar veren minimalist bir asistansın. Gereksiz detaylara girmezsin. Madde işaretli ve net yapıda cevaplar verirsin. Süssüz, direkt ve işlevsel yaklaşırsın. En önemli bilgileri öne çıkarırsın. Uzun açıklamalar yerine pratik özetler sunarsın."""
+            }
+        }
+        
+        # Get the personality for the current mode
+        personality = mode_personalities.get(conversation_mode, mode_personalities['friend'])
+        
+        # Use direct OpenAI API with the provided key
+        headers = {
+            "Authorization": f"Bearer {OPENAI_API_KEY}",
+            "Content-Type": "application/json"
+        }
+        
+        # Prepare the message
+        if file_content:
+            user_message = f"Dosya adı: {file_name}\n\nDosya içeriği:\n{file_content}\n\nKullanıcı sorusu: {question}\n\nLütfen bu dosya hakkındaki soruyu kişiliğine uygun şekilde yanıtla."
+        else:
+            user_message = question
+        
+        payload = {
+            "model": "gpt-4o",
+            "messages": [
+                {"role": "system", "content": personality['system_message']},
+                {"role": "user", "content": user_message}
+            ],
+            "max_tokens": 1500,
+            "temperature": 0.8  # Higher temperature for more personality
+        }
+        
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                "https://api.openai.com/v1/chat/completions",
+                headers=headers,
+                json=payload,
+                timeout=30.0
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                content = data["choices"][0]["message"]["content"]
+                logging.info(f"OpenAI conversation mode '{conversation_mode}' response received successfully")
+                return content
+            else:
+                logging.error(f"OpenAI conversation mode API error: {response.status_code} - {response.text}")
+                return f"OpenAI API'sinde bir hata oluştu. {personality['name']} modunda yanıt veremedim."
+                
+    except Exception as e:
+        logging.error(f"OpenAI conversation mode request error: {e}")
+        return f"OpenAI API'sine bağlanırken bir hata oluştu. Lütfen tekrar deneyin."
+
 async def process_with_direct_openai(question: str, file_content: str = None, file_name: str = None) -> str:
     """Process question with direct OpenAI API for technical/creative tasks"""
     try:
