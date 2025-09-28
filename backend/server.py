@@ -831,6 +831,91 @@ def is_file_processing_question(question: str) -> bool:
     question_lower = question.lower()
     return any(keyword in question_lower for keyword in file_processing_keywords)
 
+def is_technical_or_creative_question(question: str) -> bool:
+    """Check if question requires technical writing or creative capabilities"""
+    technical_creative_keywords = [
+        # Writing and content creation
+        'yaz', 'yazı yaz', 'metin yaz', 'makale yaz', 'blog yaz',
+        'hikaye yaz', 'şiir yaz', 'mektup yaz', 'email yaz',
+        'rapor yaz', 'özgeçmiş yaz', 'sunum hazırla',
+        
+        # Document processing and summarization  
+        'özetle', 'özet çıkar', 'kısalt', 'ana nokta', 'önemli kısmı',
+        'özet ver', 'özetini al', 'özetle',
+        
+        # Text correction and improvement
+        'düzelt', 'yazım hatası', 'imla hatası', 'grammar', 
+        'dil bilgisi', 'yazım kontrolü', 'metni düzelt',
+        'daha iyi yaz', 'geliştirebilir misin', 'iyileştir',
+        
+        # Translation
+        'çevir', 'translate', 'tercüme', 'çevirisi', 'ingilizcesi',
+        'türkçesi', 'fransızcası', 'almancası', 'İngilizce çevir',
+        
+        # Creative tasks
+        'tasarla', 'fikir ver', 'öneri', 'senaryo yaz', 'plan yap',
+        'strateji geliş', 'yaratıcı', 'kreatif', 'konsept',
+        
+        # Technical analysis
+        'analiz et', 'değerlendir', 'incele', 'yorumla',
+        'karşılaştır', 'araştır', 'detaylı', 'derinlemesine',
+        
+        # Professional tasks
+        'iş planı', 'proje planı', 'sunum', 'toplantı notları',
+        'agenda', 'şablon', 'format', 'profesyonel'
+    ]
+    
+    question_lower = question.lower()
+    return any(keyword in question_lower for keyword in technical_creative_keywords)
+
+async def process_with_direct_openai(question: str, file_content: str = None, file_name: str = None) -> str:
+    """Process question with direct OpenAI API for technical/creative tasks"""
+    try:
+        # Use direct OpenAI API with the provided key
+        headers = {
+            "Authorization": f"Bearer {OPENAI_API_KEY}",
+            "Content-Type": "application/json"
+        }
+        
+        # Prepare the message
+        if file_content:
+            user_message = f"Dosya adı: {file_name}\n\nDosya içeriği:\n{file_content}\n\nKullanıcı isteği: {question}\n\nLütfen bu dosya hakkındaki isteği profesyonel bir şekilde yerine getir."
+        else:
+            user_message = question
+        
+        system_message = "Sen profesyonel bir yazım asistanı, editör ve içerik üreticisisin. Metin yazma, düzeltme, çeviri, özet çıkarma ve yaratıcı içerik üretme konularında uzmansın. Her zaman kaliteli, doğru ve kullanıcı dostu yanıtlar verirsin."
+        
+        payload = {
+            "model": "gpt-4o",
+            "messages": [
+                {"role": "system", "content": system_message},
+                {"role": "user", "content": user_message}
+            ],
+            "max_tokens": 2000,
+            "temperature": 0.7
+        }
+        
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                "https://api.openai.com/v1/chat/completions",
+                headers=headers,
+                json=payload,
+                timeout=30.0
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                content = data["choices"][0]["message"]["content"]
+                logging.info("Direct OpenAI API response received successfully")
+                return content
+            else:
+                logging.error(f"Direct OpenAI API error: {response.status_code} - {response.text}")
+                return "OpenAI API'sinde bir hata oluştu. Lütfen tekrar deneyin."
+                
+    except Exception as e:
+        logging.error(f"Direct OpenAI API request error: {e}")
+        return "OpenAI API'sine bağlanırken bir hata oluştu. Lütfen tekrar deneyin."
+
 def is_question_about_uploaded_file(question: str) -> bool:
     """Check if the question is specifically about an uploaded file"""
     file_reference_keywords = [
