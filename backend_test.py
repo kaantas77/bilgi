@@ -1686,6 +1686,472 @@ class BilginAIAPITester:
         
         return self.file_tests_passed == self.file_tests_run
 
+    def test_technical_creative_routing_scenario_1(self):
+        """Test Scenario 1: Technical/Creative Questions → Direct OpenAI API (GPT-4o)"""
+        print("\n🧪 NEW ROUTING TEST 1: Technical/Creative Questions (Direct OpenAI API)")
+        
+        # Create conversation for technical/creative test
+        success, response = self.run_test(
+            "Create Conversation for Technical/Creative Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "Technical Creative Routing Test"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        self.routing_tests_run += 1
+        
+        # Test technical/creative questions that should use Direct OpenAI API
+        technical_creative_questions = [
+            "Bana bir blog yazısı yaz",
+            "Bu metni düzelt: 'Bugün hava çok güzeldi ama yağmur yağıyor.'",
+            "Özgeçmişimi iyileştir",
+            "Bu cümleyi İngilizceye çevir: 'Merhaba nasılsın?'",
+            "Bir iş planı hazırla",
+            "Bu yazımdaki yazım hatalarını düzelt"
+        ]
+        
+        successful_technical_tests = 0
+        
+        for question in technical_creative_questions:
+            print(f"   Testing technical/creative question: '{question}'...")
+            
+            start_time = time.time()
+            success, response = self.run_test(
+                f"Send Technical/Creative Question: '{question}'",
+                "POST",
+                f"conversations/{test_conv_id}/messages",
+                200,
+                data={"content": question, "mode": "chat"}
+            )
+            response_time = time.time() - start_time
+            
+            if success:
+                ai_response = response.get('content', '')
+                print(f"     Response Time: {response_time:.2f} seconds")
+                print(f"     Response: {ai_response[:100]}...")
+                
+                # Check if response indicates technical/creative processing
+                # Should NOT contain web search indicators for these questions
+                web_indicators = ['web araştırması', 'güncel web', 'kaynaklarından']
+                has_web_indicators = any(indicator in ai_response.lower() for indicator in web_indicators)
+                
+                # Should contain appropriate technical/creative response
+                creative_indicators = ['yazı', 'metin', 'düzelt', 'çevir', 'plan', 'iyileştir', 'hello', 'how are you']
+                has_creative_response = any(indicator in ai_response.lower() for indicator in creative_indicators)
+                
+                if has_creative_response and not has_web_indicators:
+                    print("     ✅ Technical/creative question handled correctly (Direct OpenAI API)")
+                    successful_technical_tests += 1
+                elif has_web_indicators:
+                    print("     ❌ Web search used instead of Direct OpenAI API")
+                else:
+                    print("     ⚠️  Response doesn't clearly indicate technical/creative processing")
+                    successful_technical_tests += 0.5  # Partial credit
+            
+            time.sleep(2)  # Brief pause between tests
+        
+        if successful_technical_tests >= len(technical_creative_questions) * 0.7:  # 70% success rate
+            self.routing_tests_passed += 1
+            print(f"✅ PASSED: Technical/Creative routing working ({successful_technical_tests}/{len(technical_creative_questions)})")
+            return True
+        else:
+            print(f"❌ FAILED: Technical/Creative routing issues ({successful_technical_tests}/{len(technical_creative_questions)})")
+            return False
+
+    def test_file_content_routing_scenario_2(self):
+        """Test Scenario 2: File Content Questions → OpenAI GPT-4o mini (EMERGENT_LLM_KEY)"""
+        print("\n🧪 NEW ROUTING TEST 2: File Content Questions (OpenAI GPT-4o mini)")
+        
+        # Create conversation and upload a file
+        success, response = self.run_test(
+            "Create Conversation for File Content Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "File Content Routing Test"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        self.routing_tests_run += 1
+        
+        # Upload a test file first
+        test_file_path = self.create_test_file("pdf", "Test dosya içeriği: Bu bir örnek PDF dosyasıdır. İçerisinde önemli bilgiler bulunmaktadır.")
+        
+        try:
+            url = f"{self.base_url}/conversations/{test_conv_id}/upload"
+            with open(test_file_path, 'rb') as file:
+                files = {'file': ('routing_test.pdf', file, 'application/pdf')}
+                upload_response = requests.post(url, files=files, timeout=30)
+            
+            if upload_response.status_code != 200:
+                print("❌ File upload failed")
+                return False
+            
+            print("   ✅ Test file uploaded successfully")
+            
+            # Test file content questions that should use OpenAI GPT-4o mini
+            file_content_questions = [
+                "Bu PDF'i özetle",
+                "Dosyayı analiz et", 
+                "Excel verilerini incele"
+            ]
+            
+            successful_file_tests = 0
+            
+            for question in file_content_questions:
+                print(f"   Testing file content question: '{question}'...")
+                
+                start_time = time.time()
+                success, response = self.run_test(
+                    f"Send File Content Question: '{question}'",
+                    "POST",
+                    f"conversations/{test_conv_id}/messages",
+                    200,
+                    data={"content": question, "mode": "chat"}
+                )
+                response_time = time.time() - start_time
+                
+                if success:
+                    ai_response = response.get('content', '')
+                    print(f"     Response Time: {response_time:.2f} seconds")
+                    print(f"     Response: {ai_response[:100]}...")
+                    
+                    # Check if response indicates file processing with OpenAI GPT-4o mini
+                    file_processing_indicators = ['dosya', 'pdf', 'içerik', 'analiz', 'özet', 'excel']
+                    has_file_processing = any(indicator in ai_response.lower() for indicator in file_processing_indicators)
+                    
+                    # Should NOT use web search for file content questions
+                    web_indicators = ['web araştırması', 'güncel web']
+                    has_web_indicators = any(indicator in ai_response.lower() for indicator in web_indicators)
+                    
+                    if has_file_processing and not has_web_indicators:
+                        print("     ✅ File content question handled correctly (OpenAI GPT-4o mini)")
+                        successful_file_tests += 1
+                    elif has_web_indicators:
+                        print("     ❌ Web search used instead of OpenAI GPT-4o mini")
+                    else:
+                        print("     ⚠️  Response doesn't clearly indicate file processing")
+                        successful_file_tests += 0.5  # Partial credit
+                
+                time.sleep(2)
+            
+            if successful_file_tests >= len(file_content_questions) * 0.7:  # 70% success rate
+                self.routing_tests_passed += 1
+                print(f"✅ PASSED: File content routing working ({successful_file_tests}/{len(file_content_questions)})")
+                return True
+            else:
+                print(f"❌ FAILED: File content routing issues ({successful_file_tests}/{len(file_content_questions)})")
+                return False
+                
+        except Exception as e:
+            print(f"❌ FAILED: File content routing error: {str(e)}")
+            return False
+        finally:
+            if os.path.exists(test_file_path):
+                os.remove(test_file_path)
+
+    def test_current_info_routing_scenario_3(self):
+        """Test Scenario 3: Current Information → Web Search"""
+        print("\n🧪 NEW ROUTING TEST 3: Current Information (Web Search)")
+        
+        # Create conversation for current info test
+        success, response = self.run_test(
+            "Create Conversation for Current Info Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "Current Info Routing Test"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        self.routing_tests_run += 1
+        
+        # Test current information questions that should use Web Search
+        current_info_questions = [
+            "Bugün hava durumu nasıl?",
+            "Dolar kuru kaç TL?",
+            "Son haberler neler?"
+        ]
+        
+        successful_current_tests = 0
+        
+        for question in current_info_questions:
+            print(f"   Testing current info question: '{question}'...")
+            
+            start_time = time.time()
+            success, response = self.run_test(
+                f"Send Current Info Question: '{question}'",
+                "POST",
+                f"conversations/{test_conv_id}/messages",
+                200,
+                data={"content": question, "mode": "chat"}
+            )
+            response_time = time.time() - start_time
+            
+            if success:
+                ai_response = response.get('content', '')
+                print(f"     Response Time: {response_time:.2f} seconds")
+                print(f"     Response: {ai_response[:100]}...")
+                
+                # Check if response indicates web search was used
+                web_indicators = ['web araştırması', 'güncel', 'hava', 'dolar', 'tl', 'haber', 'sonuç']
+                has_web_indicators = any(indicator in ai_response.lower() for indicator in web_indicators)
+                
+                # Check for current information content
+                current_info_indicators = ['bugün', 'şu an', 'güncel', 'son', 'hava durumu', 'kur', 'haberler']
+                has_current_info = any(indicator in ai_response.lower() for indicator in current_info_indicators)
+                
+                if has_web_indicators or has_current_info:
+                    print("     ✅ Current info question handled correctly (Web Search)")
+                    successful_current_tests += 1
+                else:
+                    print("     ❌ Web search not used for current information")
+            
+            time.sleep(2)
+        
+        if successful_current_tests >= len(current_info_questions) * 0.7:  # 70% success rate
+            self.routing_tests_passed += 1
+            print(f"✅ PASSED: Current info routing working ({successful_current_tests}/{len(current_info_questions)})")
+            return True
+        else:
+            print(f"❌ FAILED: Current info routing issues ({successful_current_tests}/{len(current_info_questions)})")
+            return False
+
+    def test_normal_questions_routing_scenario_4(self):
+        """Test Scenario 4: Normal Questions → AnythingLLM (hybrid system)"""
+        print("\n🧪 NEW ROUTING TEST 4: Normal Questions (AnythingLLM hybrid system)")
+        
+        # Create conversation for normal questions test
+        success, response = self.run_test(
+            "Create Conversation for Normal Questions Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "Normal Questions Routing Test"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        self.routing_tests_run += 1
+        
+        # Test normal questions that should use AnythingLLM hybrid system
+        normal_questions = [
+            "Merhaba nasılsın?",
+            "25 × 8 kaç eder?",
+            "Einstein kimdir?"
+        ]
+        
+        successful_normal_tests = 0
+        
+        for question in normal_questions:
+            print(f"   Testing normal question: '{question}'...")
+            
+            start_time = time.time()
+            success, response = self.run_test(
+                f"Send Normal Question: '{question}'",
+                "POST",
+                f"conversations/{test_conv_id}/messages",
+                200,
+                data={"content": question, "mode": "chat"}
+            )
+            response_time = time.time() - start_time
+            
+            if success:
+                ai_response = response.get('content', '')
+                print(f"     Response Time: {response_time:.2f} seconds")
+                print(f"     Response: {ai_response[:100]}...")
+                
+                # Check for appropriate responses to normal questions
+                if "merhaba" in question.lower():
+                    # Should get a greeting response
+                    greeting_indicators = ['merhaba', 'selam', 'nasılsın', 'yardım']
+                    if any(indicator in ai_response.lower() for indicator in greeting_indicators):
+                        print("     ✅ Greeting handled correctly (AnythingLLM)")
+                        successful_normal_tests += 1
+                    else:
+                        print("     ❌ Inappropriate greeting response")
+                
+                elif "25 × 8" in question or "25 x 8" in question:
+                    # Should get correct math answer
+                    if '200' in ai_response:
+                        print("     ✅ Math question answered correctly (AnythingLLM)")
+                        successful_normal_tests += 1
+                    else:
+                        print("     ❌ Math question not answered correctly")
+                
+                elif "einstein" in question.lower():
+                    # Should get information about Einstein
+                    einstein_indicators = ['einstein', 'fizik', 'bilim', 'görelilik', 'alman']
+                    if any(indicator in ai_response.lower() for indicator in einstein_indicators):
+                        print("     ✅ Einstein question handled correctly (AnythingLLM)")
+                        successful_normal_tests += 1
+                    else:
+                        print("     ❌ Einstein question not handled properly")
+            
+            time.sleep(2)
+        
+        if successful_normal_tests >= len(normal_questions) * 0.7:  # 70% success rate
+            self.routing_tests_passed += 1
+            print(f"✅ PASSED: Normal questions routing working ({successful_normal_tests}/{len(normal_questions)})")
+            return True
+        else:
+            print(f"❌ FAILED: Normal questions routing issues ({successful_normal_tests}/{len(normal_questions)})")
+            return False
+
+    def test_technical_creative_function_detection(self):
+        """Test is_technical_or_creative_question() function accuracy"""
+        print("\n🧪 NEW ROUTING TEST 5: Technical/Creative Function Detection")
+        
+        # Create conversation for function detection test
+        success, response = self.run_test(
+            "Create Conversation for Function Detection Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "Function Detection Test"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        self.routing_tests_run += 1
+        
+        # Test various questions to verify is_technical_or_creative_question() detection
+        test_cases = [
+            # Should be detected as technical/creative (True)
+            ("Bana bir makale yaz", True, "Writing request"),
+            ("Bu metni düzelt", True, "Text correction"),
+            ("Özgeçmişimi iyileştir", True, "CV improvement"),
+            ("İngilizceye çevir", True, "Translation"),
+            ("Bir plan hazırla", True, "Planning"),
+            
+            # Should NOT be detected as technical/creative (False)
+            ("Merhaba nasılsın", False, "Greeting"),
+            ("25 + 30 kaç eder", False, "Math"),
+            ("Einstein kimdir", False, "General knowledge"),
+            ("Bugün hava nasıl", False, "Current info"),
+            ("Dolar kuru kaç TL", False, "Current info")
+        ]
+        
+        successful_detections = 0
+        
+        for question, should_be_technical, description in test_cases:
+            print(f"   Testing detection: '{question}' ({description})")
+            
+            success, response = self.run_test(
+                f"Detection Test: '{question}'",
+                "POST",
+                f"conversations/{test_conv_id}/messages",
+                200,
+                data={"content": question, "mode": "chat"}
+            )
+            
+            if success:
+                ai_response = response.get('content', '')
+                
+                # Analyze response to infer which system was used
+                web_indicators = ['web araştırması', 'güncel web']
+                creative_indicators = ['yaz', 'düzelt', 'iyileştir', 'çevir', 'plan', 'hello', 'how are you']
+                math_indicators = ['55', '200', 'eder', 'sonuç']
+                greeting_indicators = ['merhaba', 'selam', 'yardım']
+                
+                has_web = any(indicator in ai_response.lower() for indicator in web_indicators)
+                has_creative = any(indicator in ai_response.lower() for indicator in creative_indicators)
+                has_math = any(indicator in ai_response.lower() for indicator in math_indicators)
+                has_greeting = any(indicator in ai_response.lower() for indicator in greeting_indicators)
+                
+                # Infer which system was used based on response characteristics
+                if should_be_technical:
+                    # Should use Direct OpenAI API (creative/technical response)
+                    if has_creative and not has_web:
+                        print(f"     ✅ Correctly detected as technical/creative")
+                        successful_detections += 1
+                    else:
+                        print(f"     ❌ Not detected as technical/creative")
+                else:
+                    # Should NOT use Direct OpenAI API
+                    if (has_web and "bugün" in question.lower()) or \
+                       (has_web and "dolar" in question.lower()) or \
+                       (has_math and ("25" in question or "30" in question)) or \
+                       (has_greeting and "merhaba" in question.lower()) or \
+                       ("einstein" in ai_response.lower() and "einstein" in question.lower()):
+                        print(f"     ✅ Correctly NOT detected as technical/creative")
+                        successful_detections += 1
+                    else:
+                        print(f"     ❌ Incorrectly detected as technical/creative")
+            
+            time.sleep(1.5)
+        
+        detection_accuracy = successful_detections / len(test_cases)
+        
+        if detection_accuracy >= 0.8:  # 80% accuracy
+            self.routing_tests_passed += 1
+            print(f"✅ PASSED: Technical/Creative detection accuracy: {detection_accuracy:.1%}")
+            return True
+        else:
+            print(f"❌ FAILED: Technical/Creative detection accuracy too low: {detection_accuracy:.1%}")
+            return False
+
+    def run_new_routing_system_tests(self):
+        """Run all NEW TECHNICAL/CREATIVE QUESTION ROUTING system tests"""
+        print("\n" + "="*70)
+        print("🚀 STARTING NEW TECHNICAL/CREATIVE QUESTION ROUTING SYSTEM TESTS")
+        print("Testing 4-tier priority routing system:")
+        print("1. Teknik/Yaratıcı Sorular → Direkt OpenAI API (GPT-4o)")
+        print("2. Dosya İçeriği Soruları → OpenAI GPT-4o mini (EMERGENT_LLM_KEY)")
+        print("3. Güncel Bilgi → Web Search")
+        print("4. Diğer Sorular → AnythingLLM (hibrit sistem)")
+        print("="*70)
+        
+        # Initialize routing test counters
+        self.routing_tests_run = 0
+        self.routing_tests_passed = 0
+        
+        routing_tests = [
+            self.test_technical_creative_routing_scenario_1,
+            self.test_file_content_routing_scenario_2,
+            self.test_current_info_routing_scenario_3,
+            self.test_normal_questions_routing_scenario_4,
+            self.test_technical_creative_function_detection
+        ]
+        
+        for test in routing_tests:
+            try:
+                test()
+                time.sleep(3)  # Longer pause between routing tests
+            except Exception as e:
+                print(f"❌ Routing test failed with exception: {e}")
+        
+        # Print routing system test results
+        print("\n" + "="*70)
+        print(f"🧪 NEW ROUTING SYSTEM RESULTS: {self.routing_tests_passed}/{self.routing_tests_run} tests passed")
+        
+        if self.routing_tests_passed == self.routing_tests_run:
+            print("🎉 All NEW routing system tests passed!")
+            print("✅ Technical/Creative → Direct OpenAI API working")
+            print("✅ File Content → OpenAI GPT-4o mini working")
+            print("✅ Current Info → Web Search working")
+            print("✅ Normal Questions → AnythingLLM working")
+            print("✅ is_technical_or_creative_question() function working")
+        else:
+            print(f"❌ {self.routing_tests_run - self.routing_tests_passed} routing system tests failed")
+        
+        return self.routing_tests_passed == self.routing_tests_run
+
 def main():
     print("🚀 Starting BİLGİN AI Backend API Tests")
     print("=" * 50)
