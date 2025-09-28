@@ -148,7 +148,7 @@ function App() {
     }
 
     // Check file type
-    const allowedTypes = ['pdf', 'xlsx', 'xls', 'docx', 'txt'];
+    const allowedTypes = ['pdf', 'xlsx', 'xls', 'docx', 'txt', 'jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'];
     const fileExtension = file.name.split('.').pop().toLowerCase();
     if (!allowedTypes.includes(fileExtension)) {
       toast({
