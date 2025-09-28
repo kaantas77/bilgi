@@ -52,8 +52,9 @@ ANYTHINGLLM_API_KEY = os.environ.get("ANYTHINGLLM_API_KEY", "FC6CT8Q-QRE433A-J9K
 SERPER_API_KEY = os.environ.get("SERPER_API_KEY")
 SERPER_API_URL = "https://google.serper.dev/search"
 
-# OpenAI configuration via EMERGENT_LLM_KEY
+# OpenAI configuration via EMERGENT_LLM_KEY and direct OpenAI API
 EMERGENT_LLM_KEY = os.environ.get("EMERGENT_LLM_KEY")
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 
 # File upload configuration
 UPLOAD_DIR = Path("/tmp/bilgin_uploads")
