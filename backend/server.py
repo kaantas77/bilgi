@@ -805,6 +805,67 @@ def get_file_type(filename: str) -> str:
     extension = filename.lower().split('.')[-1]
     return extension
 
+def encode_image_to_base64(image_path: str) -> str:
+    """Convert image to base64 for ChatGPT Vision API"""
+    with open(image_path, "rb") as image_file:
+        return base64.b64encode(image_file.read()).decode('utf-8')
+
+async def process_image_with_chatgpt_vision(question: str, image_path: str, image_name: str) -> str:
+    """Process image questions with ChatGPT Vision API"""
+    try:
+        # Encode image to base64
+        base64_image = encode_image_to_base64(image_path)
+        
+        # Use direct OpenAI API with Vision
+        headers = {
+            "Authorization": f"Bearer {OPENAI_API_KEY}",
+            "Content-Type": "application/json"
+        }
+        
+        payload = {
+            "model": "gpt-4o",
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": f"Görsel adı: {image_name}\n\nKullanıcı sorusu: {question}\n\nLütfen bu görsel hakkındaki soruyu yanıtla. Eğer görselde metin varsa oku ve analiz et."
+                        },
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:image/jpeg;base64,{base64_image}"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "max_tokens": 2000,
+            "temperature": 0.7
+        }
+        
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                "https://api.openai.com/v1/chat/completions",
+                headers=headers,
+                json=payload,
+                timeout=30.0
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                content = data["choices"][0]["message"]["content"]
+                logging.info("ChatGPT Vision API response received successfully")
+                return content
+            else:
+                logging.error(f"ChatGPT Vision API error: {response.status_code} - {response.text}")
+                return "Görsel analizi sırasında bir hata oluştu. Lütfen tekrar deneyin."
+                
+    except Exception as e:
+        logging.error(f"ChatGPT Vision API request error: {e}")
+        return "Görsel işleme sırasında bir hata oluştu. Lütfen tekrar deneyin."
+
 def is_file_processing_question(question: str) -> bool:
     """Check if question requires file processing capabilities"""
     file_processing_keywords = [
