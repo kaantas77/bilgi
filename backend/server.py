@@ -681,8 +681,11 @@ async def smart_hybrid_response(question: str, conversation_mode: str = 'normal'
     logging.info(f"Starting smart hybrid analysis for: {question}")
     
     # Check if this is a file processing question or we have file content
-    if file_content or is_file_processing_question(question):
-        logging.info("File processing question detected - using OpenAI GPT-4o mini")
+    if file_content:
+        logging.info("Question about uploaded file detected - using OpenAI GPT-4o mini")
+        return await process_with_openai(question, file_content, file_name)
+    elif is_file_processing_question(question):
+        logging.info("General file processing question detected - using OpenAI GPT-4o mini")
         return await process_with_openai(question, file_content, file_name)
     
     # Quick question categorization for non-file questions
