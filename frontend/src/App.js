@@ -330,6 +330,8 @@ function App() {
         setModesConversations(prev => [newConversation, ...prev]);
         setCurrentModesConversation(newConversation);
         setModesMessages([]);
+        // Clear uploaded files for new conversation
+        setUploadedFiles([]);
       } else {
         console.error('Failed to create modes conversation:', response.status);
         // Fallback to local conversation
