@@ -827,6 +827,42 @@ def is_file_processing_question(question: str) -> bool:
     question_lower = question.lower()
     return any(keyword in question_lower for keyword in file_processing_keywords)
 
+def is_question_about_uploaded_file(question: str) -> bool:
+    """Check if the question is specifically about an uploaded file"""
+    file_reference_keywords = [
+        'pdf', 'dosya', 'döküman', 'belge', 'excel', 'word',
+        'yüklediğim', 'bu dosya', 'bu pdf', 'bu belge',
+        'dosyada', 'pdf\'de', 'belgede', 'tabloda',
+        'içerik', 'metin', 'veri', 'bilgi',
+        'özet', 'özetle', 'çevir', 'analiz', 'inceleme',
+        'bu', 'şu', 'o' # simple referrals when context has files
+    ]
+    
+    question_lower = question.lower()
+    
+    # Direct file references
+    direct_references = [
+        'pdf', 'dosya', 'döküman', 'belge', 'excel', 'word',
+        'yüklediğim', 'bu dosya', 'bu pdf', 'bu belge'
+    ]
+    
+    # Check for direct file references first
+    for keyword in direct_references:
+        if keyword in question_lower:
+            return True
+    
+    # Check for file processing actions with context words
+    processing_actions = ['özet', 'özetle', 'çevir', 'analiz', 'inceleme', 'düzelt']
+    context_words = ['bu', 'şu', 'o', 'içerik', 'metin', 'veri']
+    
+    has_processing_action = any(action in question_lower for action in processing_actions)
+    has_context_word = any(context in question_lower for context in context_words)
+    
+    if has_processing_action and has_context_word:
+        return True
+    
+    return False
+
 async def process_with_openai(question: str, file_content: str = None, file_name: str = None) -> str:
     """Process question with OpenAI GPT-4o mini"""
     try:
