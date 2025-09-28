@@ -1857,8 +1857,7 @@ async def send_message(conversation_id: str, input: MessageCreate):
         if not processed:
             ai_content = await smart_hybrid_response(input.content, input.conversationMode, file_content, file_name)
         
-        ai_content = await smart_hybrid_response(input.content, input.conversationMode, file_content, file_name)
-        logging.info("Smart hybrid system completed successfully")
+            logging.info("Smart hybrid system completed successfully")
                 
     except Exception as e:
         logging.error(f"Smart hybrid system error: {e}")
