@@ -347,6 +347,8 @@ function App() {
         setModesConversations(prev => [newConversation, ...prev]);
         setCurrentModesConversation(newConversation);
         setModesMessages([]);
+        // Clear uploaded files for new conversation
+        setUploadedFiles([]);
       }
     } catch (error) {
       console.error('Error creating modes conversation:', error);
