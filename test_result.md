@@ -333,7 +333,10 @@ metadata:
 
 test_plan:
   current_focus: 
-    - "NEW CONVERSATION MODES with direct ChatGPT API integration"
+    - "Improved AnythingLLM Evaluation System"
+    - "Image Upload Support (JPG, PNG, GIF, BMP, WEBP)"
+    - "ChatGPT Vision API Integration"
+    - "File Visibility in Chat Interface"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
