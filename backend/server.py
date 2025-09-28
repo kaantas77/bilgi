@@ -25,6 +25,8 @@ from io import BytesIO
 import PyPDF2
 import openpyxl
 from docx import Document
+import base64
+from PIL import Image
 
 # OpenAI integration via emergentintegrations
 from emergentintegrations.llm.chat import LlmChat, UserMessage, FileContentWithMimeType
