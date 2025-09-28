@@ -375,6 +375,9 @@ function App() {
       
       setCurrentNormalConversation(conversation);
       
+      // Clear uploaded files when switching conversations
+      setUploadedFiles([]);
+      
       // Validate and clean messages
       const messages = (conversation.messages || []).filter(msg => 
         msg && msg.role && msg.content && msg.id && msg.timestamp
