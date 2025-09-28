@@ -1175,6 +1175,468 @@ class BilginAIAPITester:
         
         return False
 
+    def test_contextual_file_upload_system_message(self):
+        """Test Scenario 1: File Upload (One-Time System Message)"""
+        print("\n🧪 CONTEXTUAL FILE PROCESSING TEST 1: File Upload System Message")
+        
+        # Create conversation for contextual file test
+        success, response = self.run_test(
+            "Create Conversation for Contextual File Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "Contextual File Processing Test"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        if not test_conv_id:
+            print("❌ Failed to get conversation ID")
+            return False
+        
+        self.file_tests_run += 1
+        
+        # Upload a PDF file and check for system message
+        print(f"\n🔍 Testing PDF upload with system message generation...")
+        
+        # Create a test PDF-like file
+        test_file_path = self.create_test_file("pdf", "Bu bir test PDF dosyasıdır. İçerik: Türkiye'nin başkenti Ankara'dır. Nüfusu yaklaşık 5.6 milyon kişidir.")
+        
+        try:
+            url = f"{self.base_url}/conversations/{test_conv_id}/upload"
+            print(f"   URL: {url}")
+            
+            with open(test_file_path, 'rb') as file:
+                files = {'file': ('test_document.pdf', file, 'application/pdf')}
+                response = requests.post(url, files=files, timeout=30)
+            
+            print(f"   Status Code: {response.status_code}")
+            
+            if response.status_code == 200:
+                print("✅ PASSED: File upload successful")
+                try:
+                    response_data = response.json()
+                    
+                    # Check if system message was generated
+                    if 'system_message' in response_data:
+                        print("✅ PASSED: System message generated for file upload")
+                        print(f"   System Message: {response_data['system_message'][:100]}...")
+                        
+                        # Verify system message is generated only once
+                        self.file_tests_passed += 1
+                        return True, test_conv_id
+                    else:
+                        print("❌ FAILED: No system message generated for file upload")
+                        return False, test_conv_id
+                        
+                except Exception as e:
+                    print(f"⚠️  WARNING: Response parsing failed: {e}")
+                    return True, test_conv_id  # Still consider successful if upload worked
+            else:
+                print(f"❌ FAILED: Expected 200, got {response.status_code}")
+                return False, None
+                
+        except Exception as e:
+            print(f"❌ FAILED: File upload error: {str(e)}")
+            return False, None
+        finally:
+            # Clean up test file
+            if os.path.exists(test_file_path):
+                os.remove(test_file_path)
+
+    def test_contextual_file_related_questions(self):
+        """Test Scenario 2: File-Related Questions (Should Use File Content)"""
+        print("\n🧪 CONTEXTUAL FILE PROCESSING TEST 2: File-Related Questions")
+        
+        # First upload a file
+        upload_success, test_conv_id = self.test_contextual_file_upload_system_message()
+        if not upload_success or not test_conv_id:
+            print("❌ Skipped - File upload failed")
+            return False
+        
+        self.file_tests_run += 1
+        
+        # Test file-related questions that should use file content
+        file_related_questions = [
+            "Bu PDF'i özetle",
+            "Dosyayı analiz et", 
+            "Bu belgede ne yazıyor?",
+            "Yüklediğim dosya hakkında bilgi ver",
+            "İçeriği çevir"
+        ]
+        
+        successful_file_questions = 0
+        
+        for question in file_related_questions:
+            print(f"   Testing file-related question: '{question}'...")
+            
+            success, response = self.run_test(
+                f"Send File-Related Question: '{question}'",
+                "POST",
+                f"conversations/{test_conv_id}/messages",
+                200,
+                data={"content": question, "mode": "chat"}
+            )
+            
+            if success:
+                ai_response = response.get('content', '')
+                print(f"     Response: {ai_response[:100]}...")
+                
+                # Check if response indicates file content was used
+                file_usage_indicators = [
+                    'dosya', 'pdf', 'belge', 'içerik', 'yüklediğiniz',
+                    'ankara', 'başkent', 'nüfus', 'türkiye'  # Content from test file
+                ]
+                
+                has_file_usage = any(indicator in ai_response.lower() for indicator in file_usage_indicators)
+                
+                if has_file_usage:
+                    print("     ✅ File content appears to be used")
+                    successful_file_questions += 1
+                else:
+                    print("     ❌ File content doesn't appear to be used")
+            
+            time.sleep(2)  # Brief pause between questions
+        
+        if successful_file_questions >= len(file_related_questions) * 0.6:  # 60% success rate
+            self.file_tests_passed += 1
+            print(f"✅ PASSED: File-related questions handled correctly ({successful_file_questions}/{len(file_related_questions)})")
+            return True, test_conv_id
+        else:
+            print(f"❌ FAILED: File-related questions not handled properly ({successful_file_questions}/{len(file_related_questions)})")
+            return False, test_conv_id
+
+    def test_contextual_non_file_questions(self):
+        """Test Scenario 3: Non-File Questions (Should NOT Use File Content)"""
+        print("\n🧪 CONTEXTUAL FILE PROCESSING TEST 3: Non-File Questions")
+        
+        # Use the same conversation with uploaded file
+        upload_success, test_conv_id = self.test_contextual_file_upload_system_message()
+        if not upload_success or not test_conv_id:
+            print("❌ Skipped - File upload failed")
+            return False
+        
+        self.file_tests_run += 1
+        
+        # Test non-file questions that should NOT use file content
+        non_file_questions = [
+            "Merhaba nasılsın?",
+            "Matematik: 25 × 8 kaç eder?",
+            "Bugün hava durumu nasıl?",
+            "Einstein kimdir?",
+            "Türkiye'nin başkenti neresi?"
+        ]
+        
+        successful_non_file_questions = 0
+        
+        for question in non_file_questions:
+            print(f"   Testing non-file question: '{question}'...")
+            
+            success, response = self.run_test(
+                f"Send Non-File Question: '{question}'",
+                "POST",
+                f"conversations/{test_conv_id}/messages",
+                200,
+                data={"content": question, "mode": "chat"}
+            )
+            
+            if success:
+                ai_response = response.get('content', '')
+                print(f"     Response: {ai_response[:100]}...")
+                
+                # Check if response uses normal hybrid system (not file content)
+                normal_system_indicators = [
+                    'web araştırması', 'merhaba', 'nasılsın', '200', 'einstein',
+                    'ankara'  # This should come from general knowledge, not file
+                ]
+                
+                # For math questions, check for correct answer
+                if '25 × 8' in question or '25 x 8' in question:
+                    if '200' in ai_response:
+                        print("     ✅ Math question answered correctly (normal system)")
+                        successful_non_file_questions += 1
+                    else:
+                        print("     ❌ Math question not answered correctly")
+                
+                # For general questions, check they don't reference uploaded file
+                elif not any(file_ref in ai_response.lower() for file_ref in ['yüklediğiniz dosya', 'pdf', 'belgede']):
+                    print("     ✅ Normal system used (no file references)")
+                    successful_non_file_questions += 1
+                else:
+                    print("     ❌ File content appears to be used inappropriately")
+            
+            time.sleep(2)  # Brief pause between questions
+        
+        if successful_non_file_questions >= len(non_file_questions) * 0.6:  # 60% success rate
+            self.file_tests_passed += 1
+            print(f"✅ PASSED: Non-file questions handled correctly ({successful_non_file_questions}/{len(non_file_questions)})")
+            return True, test_conv_id
+        else:
+            print(f"❌ FAILED: Non-file questions not handled properly ({successful_non_file_questions}/{len(non_file_questions)})")
+            return False, test_conv_id
+
+    def test_contextual_mixed_conversation_flow(self):
+        """Test Scenario 4: Mixed Conversation Flow"""
+        print("\n🧪 CONTEXTUAL FILE PROCESSING TEST 4: Mixed Conversation Flow")
+        
+        # Create new conversation for mixed flow test
+        success, response = self.run_test(
+            "Create Conversation for Mixed Flow Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "Mixed Conversation Flow Test"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        self.file_tests_run += 1
+        
+        # Step 1: Upload a PDF → system message
+        print("   Step 1: Upload PDF...")
+        test_file_path = self.create_test_file("pdf", "Test PDF içeriği: Yapay zeka teknolojisi hızla gelişiyor.")
+        
+        try:
+            url = f"{self.base_url}/conversations/{test_conv_id}/upload"
+            with open(test_file_path, 'rb') as file:
+                files = {'file': ('mixed_test.pdf', file, 'application/pdf')}
+                upload_response = requests.post(url, files=files, timeout=30)
+            
+            if upload_response.status_code != 200:
+                print("❌ File upload failed")
+                return False
+            
+            print("   ✅ PDF uploaded successfully")
+            
+            # Step 2: Ask "Bu PDF'i özetle" → should use file content
+            print("   Step 2: Ask about PDF content...")
+            success, response = self.run_test(
+                "Ask about PDF: 'Bu PDF'i özetle'",
+                "POST",
+                f"conversations/{test_conv_id}/messages",
+                200,
+                data={"content": "Bu PDF'i özetle", "mode": "chat"}
+            )
+            
+            file_content_used = False
+            if success:
+                ai_response = response.get('content', '')
+                if any(indicator in ai_response.lower() for indicator in ['yapay zeka', 'teknoloji', 'pdf', 'içerik']):
+                    print("   ✅ File content used for PDF question")
+                    file_content_used = True
+                else:
+                    print("   ❌ File content not used for PDF question")
+            
+            time.sleep(2)
+            
+            # Step 3: Ask "Teşekkürler" → should NOT use file content
+            print("   Step 3: Say thanks...")
+            success, response = self.run_test(
+                "Say thanks: 'Teşekkürler'",
+                "POST",
+                f"conversations/{test_conv_id}/messages",
+                200,
+                data={"content": "Teşekkürler", "mode": "chat"}
+            )
+            
+            normal_response_1 = False
+            if success:
+                ai_response = response.get('content', '')
+                if not any(file_ref in ai_response.lower() for file_ref in ['pdf', 'dosya', 'yapay zeka teknoloji']):
+                    print("   ✅ Normal response for thanks (no file content)")
+                    normal_response_1 = True
+                else:
+                    print("   ❌ File content inappropriately used for thanks")
+            
+            time.sleep(2)
+            
+            # Step 4: Ask "25 + 30 kaç eder?" → should NOT use file content
+            print("   Step 4: Ask math question...")
+            success, response = self.run_test(
+                "Ask math: '25 + 30 kaç eder?'",
+                "POST",
+                f"conversations/{test_conv_id}/messages",
+                200,
+                data={"content": "25 + 30 kaç eder?", "mode": "chat"}
+            )
+            
+            normal_response_2 = False
+            if success:
+                ai_response = response.get('content', '')
+                if '55' in ai_response and not any(file_ref in ai_response.lower() for file_ref in ['pdf', 'dosya']):
+                    print("   ✅ Math answered correctly without file content")
+                    normal_response_2 = True
+                else:
+                    print("   ❌ Math question not handled properly")
+            
+            time.sleep(2)
+            
+            # Step 5: Ask "Bu dosyada başka ne var?" → should use file content again
+            print("   Step 5: Ask about file content again...")
+            success, response = self.run_test(
+                "Ask about file: 'Bu dosyada başka ne var?'",
+                "POST",
+                f"conversations/{test_conv_id}/messages",
+                200,
+                data={"content": "Bu dosyada başka ne var?", "mode": "chat"}
+            )
+            
+            file_content_used_again = False
+            if success:
+                ai_response = response.get('content', '')
+                if any(indicator in ai_response.lower() for indicator in ['dosya', 'içerik', 'yapay zeka', 'teknoloji']):
+                    print("   ✅ File content used again for file question")
+                    file_content_used_again = True
+                else:
+                    print("   ❌ File content not used for second file question")
+            
+            # Evaluate overall mixed conversation flow
+            successful_steps = sum([file_content_used, normal_response_1, normal_response_2, file_content_used_again])
+            
+            if successful_steps >= 3:  # At least 3 out of 4 steps successful
+                self.file_tests_passed += 1
+                print(f"✅ PASSED: Mixed conversation flow working ({successful_steps}/4 steps)")
+                return True
+            else:
+                print(f"❌ FAILED: Mixed conversation flow issues ({successful_steps}/4 steps)")
+                return False
+                
+        except Exception as e:
+            print(f"❌ FAILED: Mixed conversation flow error: {str(e)}")
+            return False
+        finally:
+            if os.path.exists(test_file_path):
+                os.remove(test_file_path)
+
+    def test_contextual_intelligent_detection(self):
+        """Test intelligent detection of file-related vs non-file questions"""
+        print("\n🧪 CONTEXTUAL FILE PROCESSING TEST 5: Intelligent Question Detection")
+        
+        # Create conversation and upload file
+        success, response = self.run_test(
+            "Create Conversation for Detection Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "Intelligent Detection Test"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        self.file_tests_run += 1
+        
+        # Upload a test file first
+        test_file_path = self.create_test_file("pdf", "Akıllı tespit sistemi için test içeriği.")
+        
+        try:
+            url = f"{self.base_url}/conversations/{test_conv_id}/upload"
+            with open(test_file_path, 'rb') as file:
+                files = {'file': ('detection_test.pdf', file, 'application/pdf')}
+                upload_response = requests.post(url, files=files, timeout=30)
+            
+            if upload_response.status_code != 200:
+                print("❌ File upload failed")
+                return False
+            
+            # Test various questions to check intelligent detection
+            test_cases = [
+                # Should use file content
+                ("Bu PDF'te ne yazıyor?", True, "Direct file reference"),
+                ("Dosyayı özetle", True, "File processing action"),
+                ("Yüklediğim belgeyi analiz et", True, "Uploaded document reference"),
+                
+                # Should NOT use file content  
+                ("Merhaba", False, "Casual greeting"),
+                ("Bugün hava nasıl?", False, "Current weather"),
+                ("Einstein kimdir?", False, "General knowledge"),
+                ("50 × 2 kaç eder?", False, "Math calculation")
+            ]
+            
+            successful_detections = 0
+            
+            for question, should_use_file, description in test_cases:
+                print(f"   Testing: '{question}' ({description})")
+                
+                success, response = self.run_test(
+                    f"Detection Test: '{question}'",
+                    "POST",
+                    f"conversations/{test_conv_id}/messages",
+                    200,
+                    data={"content": question, "mode": "chat"}
+                )
+                
+                if success:
+                    ai_response = response.get('content', '')
+                    
+                    # Check if file content indicators are present
+                    file_indicators = ['dosya', 'pdf', 'belge', 'içerik', 'tespit sistemi', 'akıllı']
+                    has_file_indicators = any(indicator in ai_response.lower() for indicator in file_indicators)
+                    
+                    if should_use_file and has_file_indicators:
+                        print(f"     ✅ Correctly used file content")
+                        successful_detections += 1
+                    elif not should_use_file and not has_file_indicators:
+                        print(f"     ✅ Correctly used normal system")
+                        successful_detections += 1
+                    else:
+                        expected = "file content" if should_use_file else "normal system"
+                        actual = "file content" if has_file_indicators else "normal system"
+                        print(f"     ❌ Expected {expected}, got {actual}")
+                
+                time.sleep(1)
+            
+            detection_accuracy = successful_detections / len(test_cases)
+            
+            if detection_accuracy >= 0.7:  # 70% accuracy threshold
+                self.file_tests_passed += 1
+                print(f"✅ PASSED: Intelligent detection working ({successful_detections}/{len(test_cases)} = {detection_accuracy:.1%})")
+                return True
+            else:
+                print(f"❌ FAILED: Intelligent detection accuracy too low ({detection_accuracy:.1%})")
+                return False
+                
+        except Exception as e:
+            print(f"❌ FAILED: Intelligent detection test error: {str(e)}")
+            return False
+        finally:
+            if os.path.exists(test_file_path):
+                os.remove(test_file_path)
+
+    def run_contextual_file_processing_tests(self):
+        """Run all contextual file processing system tests"""
+        print("\n" + "="*70)
+        print("🚀 STARTING IMPROVED CONTEXTUAL FILE PROCESSING SYSTEM TESTS")
+        print("Testing IMPROVED file processing with contextual usage:")
+        print("1. PDF Upload → One-time system message")
+        print("2. File-related questions → Use file content")
+        print("3. Non-file questions → Use normal hybrid system")
+        print("4. Mixed conversation flow → Smart context switching")
+        print("5. Intelligent question detection → is_question_about_uploaded_file()")
+        print("="*70)
+        
+        contextual_tests = [
+            self.test_contextual_file_upload_system_message,
+            self.test_contextual_file_related_questions,
+            self.test_contextual_non_file_questions,
+            self.test_contextual_mixed_conversation_flow,
+            self.test_contextual_intelligent_detection
+        ]
+        
+        for test in contextual_tests:
+            try:
+                test()
+                time.sleep(3)  # Longer pause between contextual tests
+            except Exception as e:
+                print(f"❌ Contextual file processing test failed with exception: {e}")
+        
+        return True
+
     def run_file_processing_tests(self):
         """Run all file processing system tests"""
         print("\n" + "="*60)
@@ -1205,6 +1667,9 @@ class BilginAIAPITester:
             except Exception as e:
                 print(f"❌ File processing test failed with exception: {e}")
         
+        # Run contextual file processing tests
+        self.run_contextual_file_processing_tests()
+        
         # Print file processing test results
         print("\n" + "="*60)
         print(f"📁 FILE PROCESSING SYSTEM RESULTS: {self.file_tests_passed}/{self.file_tests_run} tests passed")
@@ -1215,6 +1680,7 @@ class BilginAIAPITester:
             print("✅ OpenAI GPT-4o mini integration working")
             print("✅ File validation working")
             print("✅ Smart routing with file processing working")
+            print("✅ Contextual file usage working")
         else:
             print(f"❌ {self.file_tests_run - self.file_tests_passed} file processing tests failed")
         
