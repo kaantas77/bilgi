@@ -285,6 +285,8 @@ function App() {
         setNormalConversations(prev => [newConversation, ...prev]);
         setCurrentNormalConversation(newConversation);
         setNormalMessages([]);
+        // Clear uploaded files for new conversation
+        setUploadedFiles([]);
       }
     } catch (error) {
       console.error('Error creating conversation:', error);
