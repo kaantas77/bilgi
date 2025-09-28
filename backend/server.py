@@ -1894,7 +1894,7 @@ async def upload_file(
     
     # Check file type
     file_type = get_file_type(file.filename)
-    allowed_types = ['pdf', 'xlsx', 'xls', 'docx', 'txt']
+    allowed_types = ['pdf', 'xlsx', 'xls', 'docx', 'txt', 'jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp']
     if file_type not in allowed_types:
         raise HTTPException(status_code=400, detail=f"Unsupported file type. Allowed: {', '.join(allowed_types)}")
     
