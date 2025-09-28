@@ -793,6 +793,10 @@ async def extract_text_from_file(file_path: str, file_type: str) -> str:
             with open(file_path, 'r', encoding='utf-8') as file:
                 return file.read().strip()
         
+        elif file_type in ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp']:
+            # For images, we don't extract text here - we'll use Vision API
+            return f"[GÖRSEL DOSYASI: {file_path}]"
+        
         else:
             return "Desteklenmeyen dosya türü."
             
