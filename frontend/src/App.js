@@ -218,13 +218,7 @@ function App() {
         }
       }
 
-      // Update uploaded files list
-      setUploadedFiles(prev => [...prev, {
-        id: result.file_id,
-        name: result.file_name,
-        type: result.file_type,
-        uploadedAt: new Date().toISOString()
-      }]);
+      // Dosya listesi güncellemesi kaldırıldı - sadece sistem mesajı yeterli
 
       toast({
         title: "Dosya yüklendi!",
