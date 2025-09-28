@@ -1819,6 +1819,8 @@ async def send_message(conversation_id: str, input: MessageCreate):
         # Check if the question is about uploaded files
         file_content = None
         file_name = None
+        file_path = None
+        file_type = None
         
         # Only use file content if the question is specifically about uploaded files
         if is_question_about_uploaded_file(input.content):
@@ -1829,14 +1831,31 @@ async def send_message(conversation_id: str, input: MessageCreate):
             )
             
             if recent_file and os.path.exists(recent_file["file_path"]):
-                # Extract text from the most recent uploaded file
-                file_content = await extract_text_from_file(recent_file["file_path"], recent_file["file_type"])
+                file_path = recent_file["file_path"]
                 file_name = recent_file["file_name"]
-                logging.info(f"Question is about uploaded file, using file for context: {file_name}")
+                file_type = recent_file["file_type"]
+                
+                # For images, we'll handle them differently
+                if file_type in ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp']:
+                    logging.info(f"Question is about uploaded image, using ChatGPT Vision: {file_name}")
+                    ai_content = await process_image_with_chatgpt_vision(input.content, file_path, file_name)
+                    # Skip the normal hybrid system for images
+                    processed = True
+                else:
+                    # Extract text from non-image files
+                    file_content = await extract_text_from_file(file_path, file_type)
+                    logging.info(f"Question is about uploaded file, using file for context: {file_name}")
+                    processed = False
             else:
                 logging.info("Question seems to be about a file, but no file found in conversation")
+                processed = False
         else:
             logging.info("Question is not about uploaded files, proceeding without file context")
+            processed = False
+        
+        # Only process with hybrid system if not already processed (e.g., not an image)
+        if not processed:
+            ai_content = await smart_hybrid_response(input.content, input.conversationMode, file_content, file_name)
         
         ai_content = await smart_hybrid_response(input.content, input.conversationMode, file_content, file_name)
         logging.info("Smart hybrid system completed successfully")
