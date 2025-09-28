@@ -677,11 +677,16 @@ def are_responses_similar(response1: str, response2: str) -> bool:
     return similarity >= 0.6
 
 async def smart_hybrid_response(question: str, conversation_mode: str = 'normal', file_content: str = None, file_name: str = None) -> str:
-    """Smart hybrid system - AnythingLLM first, web search only if needed, OpenAI for file processing"""
+    """Smart hybrid system with direct OpenAI for technical/creative tasks"""
     
     logging.info(f"Starting smart hybrid analysis for: {question}")
     
-    # Check if this is a file processing question or we have file content
+    # Priority 1: Technical/Creative questions - Use direct OpenAI API
+    if is_technical_or_creative_question(question):
+        logging.info("Technical/creative question detected - using direct OpenAI API")
+        return await process_with_direct_openai(question, file_content, file_name)
+    
+    # Priority 2: File content questions - Use OpenAI via EMERGENT_LLM_KEY  
     if file_content:
         logging.info("Question about uploaded file detected - using OpenAI GPT-4o mini")
         return await process_with_openai(question, file_content, file_name)
@@ -689,18 +694,16 @@ async def smart_hybrid_response(question: str, conversation_mode: str = 'normal'
         logging.info("General file processing question detected - using OpenAI GPT-4o mini")
         return await process_with_openai(question, file_content, file_name)
     
-    # Quick question categorization for non-file questions
+    # Priority 3: Current information - Web search
     category = get_question_category(question)
     logging.info(f"Question category: {category}")
     
     if category == 'current':
-        # Current information - directly use web search
         logging.info("Current information question - using web search directly")
         web_search_response = await handle_web_search_question(question)
         return await clean_web_search_with_anythingllm(web_search_response, question)
     
-    # For all other categories (casual, math, factual, general)
-    # Try AnythingLLM first
+    # Priority 4: All other questions - AnythingLLM first, web search backup
     logging.info("Trying AnythingLLM first...")
     anythingllm_response = await get_anythingllm_response(question, conversation_mode)
     
