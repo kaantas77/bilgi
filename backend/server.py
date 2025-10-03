@@ -1266,7 +1266,7 @@ async def process_with_direct_openai(question: str, file_content: str = None, fi
         system_message = "Sen profesyonel bir yazım asistanı, editör ve içerik üreticisisin. Metin yazma, düzeltme, çeviri, özet çıkarma ve yaratıcı içerik üretme konularında uzmansın. Her zaman kaliteli, doğru ve kullanıcı dostu yanıtlar verirsin."
         
         payload = {
-            "model": "gpt-4o",
+            "model": "gpt-5-nano",
             "messages": [
                 {"role": "system", "content": system_message},
                 {"role": "user", "content": user_message}
