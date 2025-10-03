@@ -1010,7 +1010,7 @@ async def process_with_gemini_free(question: str, conversation_mode: str = 'norm
                 }
             ],
             "generationConfig": {
-                "temperature": 0.8,
+                "temperature": 1,
                 "maxOutputTokens": 1500
             }
         }
@@ -1198,7 +1198,7 @@ async def process_conversation_mode_with_openai(question: str, conversation_mode
                 {"role": "user", "content": user_message}
             ],
             "max_completion_tokens": 1500,
-            "temperature": 0.8  # Higher temperature for more personality
+            "temperature": 1  # Higher temperature for more personality
         }
         
         async with httpx.AsyncClient() as client:
