@@ -1110,7 +1110,7 @@ function App() {
                 <h2 className="text-lg font-semibold text-white">{getCurrentConversation().title}</h2>
                 
                 {/* Version Selection Dropdown */}
-                <div className="relative">
+                <div className="relative version-dropdown">
                   <button
                     onClick={() => setIsVersionDropdownOpen(!isVersionDropdownOpen)}
                     className="flex items-center space-x-2 bg-gray-800 hover:bg-gray-700 text-white px-3 py-2 rounded-lg transition-colors"
@@ -1310,7 +1310,7 @@ function App() {
                 </h2>
                 
                 {/* Version Selection Dropdown */}
-                <div className="relative">
+                <div className="relative version-dropdown">
                   <button
                     onClick={() => setIsVersionDropdownOpen(!isVersionDropdownOpen)}
                     className="flex items-center space-x-2 bg-gray-800 hover:bg-gray-700 text-white px-3 py-2 rounded-lg transition-colors"
