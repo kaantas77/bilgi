@@ -657,51 +657,98 @@ def are_responses_similar(response1: str, response2: str) -> bool:
     logging.info(f"Response similarity: {similarity:.2f} (threshold: 0.6)")
     return similarity >= 0.6
 
+async def process_with_openai_gpt5_nano(question: str, conversation_mode: str = 'normal', file_content: str = None, file_name: str = None) -> str:
+    """Process question with OpenAI GPT-5-nano for PRO version fallback"""
+    try:
+        # Use direct OpenAI API with GPT-5-nano
+        headers = {
+            "Authorization": f"Bearer {OPENAI_API_KEY}",
+            "Content-Type": "application/json"
+        }
+        
+        # Prepare personality prompt if conversation mode is active
+        if conversation_mode and conversation_mode != 'normal':
+            mode_personalities = {
+                'friend': "Sen samimi, motive edici ve esprili bir arkadaşsın. Her zaman pozitif yaklaşırsın ve kullanıcıyı motive edersin.",
+                'realistic': "Sen eleştirel düşünen, kanıt odaklı ve gerçekçi bir asistansın. Her konuyu objektif şekilde değerlendirirsin.",
+                'coach': "Sen bir yaşam koçu ve mentorsun. Kullanıcının kendi cevaplarını bulmasına yardım edersin.",
+                'lawyer': "Sen analitik düşünen bir hukukçu gibi yaklaşırsın. Her durumu farklı açılardan değerlendirirsin.",
+                'teacher': "Sen sabırlı, bilgili ve pedagojik yaklaşımlı bir öğretmensin. Karmaşık konuları basit şekilde açıklarsın.",
+                'minimalist': "Sen kısa, öz ve etkili cevaplar veren minimalist bir asistansın."
+            }
+            system_message = mode_personalities.get(conversation_mode, "Sen Türkçe konuşan yardımcı bir asistansın.")
+        else:
+            system_message = "Sen Türkçe konuşan yardımcı bir asistansın. Kullanıcının sorularına detaylı ve doğru cevaplar verirsin."
+        
+        # Prepare the message
+        if file_content:
+            user_message = f"Dosya adı: {file_name}\n\nDosya içeriği:\n{file_content}\n\nKullanıcı sorusu: {question}\n\nLütfen bu dosya hakkındaki soruyu yanıtla."
+        else:
+            user_message = question
+        
+        payload = {
+            "model": "gpt-5-nano",
+            "messages": [
+                {"role": "system", "content": system_message},
+                {"role": "user", "content": user_message}
+            ],
+            "max_tokens": 2000,
+            "temperature": 0.7
+        }
+        
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                "https://api.openai.com/v1/chat/completions",
+                headers=headers,
+                json=payload,
+                timeout=30.0
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                content = data["choices"][0]["message"]["content"]
+                logging.info("OpenAI GPT-5-nano PRO response received successfully")
+                return content
+            else:
+                logging.error(f"OpenAI GPT-5-nano API error: {response.status_code} - {response.text}")
+                return "OpenAI API'sinde bir hata oluştu. Lütfen tekrar deneyin."
+                
+    except Exception as e:
+        logging.error(f"OpenAI GPT-5-nano request error: {e}")
+        return "OpenAI API'sine bağlanırken bir hata oluştu. Lütfen tekrar deneyin."
+
 async def smart_hybrid_response(question: str, conversation_mode: str = 'normal', file_content: str = None, file_name: str = None) -> str:
-    """Smart hybrid system with direct OpenAI for technical/creative tasks and conversation modes"""
+    """PRO version: Simple RAG system - AnythingLLM first, then OpenAI GPT-5-nano fallback"""
     
-    logging.info(f"Starting smart hybrid analysis for: {question}")
+    logging.info(f"PRO version - Starting RAG analysis for: {question}")
     
-    # Priority 1: Conversation Modes - Use direct OpenAI API with personality
-    if conversation_mode and conversation_mode != 'normal':
-        logging.info(f"Conversation mode '{conversation_mode}' detected - using direct OpenAI API")
-        return await process_conversation_mode_with_openai(question, conversation_mode, file_content, file_name)
-    
-    # Priority 2: Technical/Creative questions - Use direct OpenAI API
-    if is_technical_or_creative_question(question):
-        logging.info("Technical/creative question detected - using direct OpenAI API")
-        return await process_with_direct_openai(question, file_content, file_name)
-    
-    # Priority 3: File content questions - Use OpenAI via EMERGENT_LLM_KEY  
-    if file_content:
-        logging.info("Question about uploaded file detected - using OpenAI GPT-4o mini")
-        return await process_with_openai(question, file_content, file_name)
-    elif is_file_processing_question(question):
-        logging.info("General file processing question detected - using OpenAI GPT-4o mini")
-        return await process_with_openai(question, file_content, file_name)
-    
-    # Priority 4: Current information - Web search
+    # Priority 1: Current/daily life information - Use web search directly
     category = get_question_category(question)
-    logging.info(f"Question category: {category}")
-    
     if category == 'current':
-        logging.info("Current information question - using web search directly")
+        logging.info("PRO: Current information question - using web search directly")
         web_search_response = await handle_web_search_question(question)
         return await clean_web_search_with_anythingllm(web_search_response, question)
     
-    # Priority 5: All other questions - AnythingLLM first, web search backup
-    logging.info("Trying AnythingLLM first...")
+    # Priority 2: Technical/Creative tasks and file processing - Use OpenAI GPT-5-nano
+    if is_technical_or_creative_question(question) or file_content or is_file_processing_question(question):
+        if file_content:
+            logging.info("PRO: File processing question - using OpenAI GPT-5-nano")
+        else:
+            logging.info("PRO: Technical/creative question - using OpenAI GPT-5-nano")
+        return await process_with_openai_gpt5_nano(question, conversation_mode, file_content, file_name)
+    
+    # Priority 3: Regular questions - Try AnythingLLM first, fallback to OpenAI GPT-5-nano
+    logging.info("PRO: Regular question - trying AnythingLLM (RAG) first...")
     anythingllm_response = await get_anythingllm_response(question, conversation_mode)
     
-    # Check if AnythingLLM provided a good answer
+    # Check if AnythingLLM provided a satisfactory answer
     if can_anythingllm_answer(anythingllm_response):
-        logging.info("AnythingLLM provided good answer - using it")
+        logging.info("PRO: AnythingLLM (RAG) provided good answer - using it")
         return anythingllm_response
     else:
-        # AnythingLLM couldn't answer properly, use web search
-        logging.info("AnythingLLM couldn't answer properly - using web search as backup")
-        web_search_response = await handle_web_search_question(question)
-        return await clean_web_search_with_anythingllm(web_search_response, question)
+        # AnythingLLM couldn't answer satisfactorily, use OpenAI GPT-5-nano as fallback
+        logging.info("PRO: AnythingLLM (RAG) inadequate - falling back to OpenAI GPT-5-nano")
+        return await process_with_openai_gpt5_nano(question, conversation_mode, file_content, file_name)
 
 def optimize_search_query(question: str) -> str:
     """Optimize question for better web search results"""
