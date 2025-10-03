@@ -474,61 +474,35 @@ async def handle_web_search_question(question: str) -> str:
     return response
 
 def can_anythingllm_answer(anythingllm_response: str) -> bool:
-    """Check if AnythingLLM provided a satisfactory answer - only reject if clearly inadequate"""
-    
-    # Only reject if AnythingLLM clearly cannot or will not answer
-    clear_rejection_indicators = [
-        # Direct admission of not knowing
-        "bilmiyorum", "hiç bilmiyorum", "bu konuda bilgim yok", 
-        "hiçbir fikrim yok", "kesin bilgi veremem",
-        
-        # Technical/access issues
-        "erişemiyorum", "bağlantı hatası", "yanıt veremedi",
-        "sorry", "i don't know", "can't access", "unable to",
-        "technical difficulties", "experiencing difficulties",
-        
-        # Redirection to other sources (clear avoidance)
-        "web'de arayın", "google'da aratın", "internette aratın",
-        "başka kaynaklardan bakın", "uzman görüşü alın",
-        
-        # Clear inability to help
-        "yardımcı olamıyorum", "cevap veremiyorum", 
-        "bilgi bulamıyorum", "o konuda yardım edemem"
-    ]
-    
-    # Only reject if asking multiple clarifying questions (clearly confused)
-    excessive_question_patterns = [
-        r'hangi.*\?.*ne.*\?', r'nasıl.*\?.*hangi.*\?',  # Multiple questions in one response
-        r'daha spesifik.*\?.*hangi.*\?'
-    ]
+    """Check if AnythingLLM provided answer - specifically look for 'no answer' indicator"""
     
     response_lower = anythingllm_response.lower().strip()
     
-    # If response is very short (less than 10 chars), probably not useful
+    # Check for "no answer" response from AnythingLLM
+    if "no answer" in response_lower:
+        logging.info("AnythingLLM returned 'no answer' - RAG system has no information")
+        return False
+    
+    # Check for very short responses (likely inadequate)
     if len(anythingllm_response.strip()) < 10:
         logging.info("Response too short - considering as inadequate")
         return False
     
-    # Check for clear rejection indicators only
-    for indicator in clear_rejection_indicators:
+    # Check for clear inability indicators
+    no_answer_indicators = [
+        "bilmiyorum", "hiç bilmiyorum", "bu konuda bilgim yok",
+        "hiçbir fikrim yok", "cevap veremiyorum", "bilgi bulamıyorum",
+        "erişemiyorum", "bağlantı hatası", "yanıt veremedi",
+        "sorry", "i don't know", "can't access", "unable to"
+    ]
+    
+    for indicator in no_answer_indicators:
         if indicator in response_lower:
-            logging.info(f"Clear inadequate response detected: '{indicator}' found in response")
+            logging.info(f"AnythingLLM cannot answer: '{indicator}' found in response")
             return False
     
-    # Check for excessive questioning (multiple questions indicating confusion)
-    for pattern in excessive_question_patterns:
-        if re.search(pattern, response_lower):
-            logging.info(f"Excessive questioning pattern detected: '{pattern}'")
-            return False
-    
-    # If response has more than 3 question marks, likely very confused
-    if response_lower.count('?') >= 4:
-        logging.info("Too many questions detected - likely confused/unable to answer")
-        return False
-    
-    # Otherwise, accept the response as satisfactory
-    # Even if it's uncertain or asks for clarification, it may still be helpful
-    logging.info("AnythingLLM response appears satisfactory - accepting it")
+    # If AnythingLLM provided a substantive response, use it
+    logging.info("AnythingLLM provided answer from RAG system - using it")
     return True
 
 def get_question_category(question: str) -> str:
