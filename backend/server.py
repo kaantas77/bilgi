@@ -1357,7 +1357,7 @@ async def process_with_openai(question: str, file_content: str = None, file_name
             api_key=EMERGENT_LLM_KEY,
             session_id=f"file-processing-{hash(question)}",
             system_message="Sen Türkçe konuşan yardımcı bir asistansın. Dosya analizi, özet çıkarma, çeviri, metin düzeltme ve Excel işleme konularında uzmansın."
-        ).with_model("openai", "gpt-4o-mini")
+        ).with_model("openai", "gpt-5-nano")
         
         # Prepare the message
         if file_content:
