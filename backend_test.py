@@ -16,6 +16,8 @@ class BilginAIAPITester:
         self.hybrid_tests_run = 0
         self.file_tests_passed = 0
         self.file_tests_run = 0
+        self.pro_version_tests_passed = 0
+        self.pro_version_tests_run = 0
 
     def run_test(self, name, method, endpoint, expected_status, data=None):
         """Run a single API test"""
