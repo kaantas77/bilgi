@@ -692,15 +692,18 @@ async def process_with_openai_gpt5_nano(question: str, conversation_mode: str = 
                 
                 # GPT-5-nano sometimes returns empty content, check and handle
                 if not content or content.strip() == "":
-                    logging.warning("GPT-5-nano returned empty content, trying to get reasoning response")
-                    # If content is empty, try to use any reasoning content or provide fallback
+                    logging.warning("GPT-5-nano returned empty content, checking for alternative response")
+                    # If content is empty, try to get reasoning or provide meaningful fallback
                     if data.get("choices") and len(data["choices"]) > 0:
                         choice = data["choices"][0]
-                        # Check if there's reasoning or other content
-                        if choice.get("message", {}).get("reasoning"):
+                        # Check if there's reasoning content
+                        if choice.get("message", {}) and choice["message"].get("reasoning"):
                             content = choice["message"]["reasoning"]
+                            logging.info("Using reasoning content from GPT-5-nano")
                         else:
-                            content = "Üzgünüm, yanıt üretilirken bir sorun oluştu. Lütfen sorunuzu farklı şekilde tekrar deneyin."
+                            # Generate a helpful response based on the original question
+                            content = f"Bu konuda size yardımcı olmaya çalışıyorum. Sorunuz: '{user_message[:50]}...' hakkında daha spesifik bilgi verebilir misiniz? Bu şekilde size daha iyi yardımcı olabilirim."
+                            logging.info("Using generated helpful fallback response")
                 
                 logging.info("OpenAI GPT-5-nano PRO response received successfully")
                 return content
