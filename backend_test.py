@@ -3231,6 +3231,525 @@ class BilginAIAPITester:
         
         return self.version_tests_passed == self.version_tests_run
 
+    def test_free_version_current_topics_serper_gemini(self):
+        """Test FREE version current topics using Serper + Gemini"""
+        print("\n🧪 FREE VERSION TEST 1: Current Topics → Serper + Gemini")
+        
+        # Create conversation for FREE version current topics test
+        success, response = self.run_test(
+            "Create Conversation for FREE Current Topics Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "FREE Current Topics Test"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        
+        # Test current topic questions with FREE version
+        current_topic_questions = [
+            "Bugün dolar kuru kaç TL?",
+            "Son Ballon d'Or kazananı kim?", 
+            "Güncel haberler neler?",
+            "Bugün hava durumu nasıl?",
+            "2024 yılı son haberleri"
+        ]
+        
+        successful_tests = 0
+        
+        for question in current_topic_questions:
+            print(f"   Testing FREE current topic: '{question}'...")
+            
+            start_time = time.time()
+            success, response = self.run_test(
+                f"FREE Current Topic: '{question}'",
+                "POST",
+                f"conversations/{test_conv_id}/messages",
+                200,
+                data={"content": question, "mode": "chat", "version": "free"}
+            )
+            response_time = time.time() - start_time
+            
+            if success:
+                ai_response = response.get('content', '')
+                print(f"     Response Time: {response_time:.2f}s")
+                print(f"     Response: {ai_response[:150]}...")
+                
+                # Check for Serper + Gemini indicators
+                serper_indicators = ['güncel', 'son', 'bugün', 'dolar', 'tl', 'haber', 'hava']
+                has_current_info = any(indicator in ai_response.lower() for indicator in serper_indicators)
+                
+                # Should NOT have web search source attribution (cleaned by Gemini)
+                source_indicators = ['web araştırması sonucunda', 'güncel web kaynaklarından', 'kaynak']
+                has_source_attribution = any(indicator in ai_response.lower() for indicator in source_indicators)
+                
+                if has_current_info and not has_source_attribution:
+                    print("     ✅ PASSED: Current info with clean Gemini presentation")
+                    successful_tests += 1
+                elif has_current_info:
+                    print("     ⚠️  WARNING: Current info found but sources not cleaned by Gemini")
+                    successful_tests += 0.5
+                else:
+                    print("     ❌ FAILED: No current information detected")
+            
+            time.sleep(2)
+        
+        if successful_tests >= len(current_topic_questions) * 0.7:  # 70% success rate
+            print(f"✅ PASSED: FREE version current topics with Serper + Gemini ({successful_tests}/{len(current_topic_questions)})")
+            return True
+        else:
+            print(f"❌ FAILED: FREE version current topics not working properly ({successful_tests}/{len(current_topic_questions)})")
+            return False
+
+    def test_free_version_regular_questions_gemini_only(self):
+        """Test FREE version regular questions using Gemini only"""
+        print("\n🧪 FREE VERSION TEST 2: Regular Questions → Gemini Only")
+        
+        # Create conversation for FREE version regular questions test
+        success, response = self.run_test(
+            "Create Conversation for FREE Regular Questions Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "FREE Regular Questions Test"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        
+        # Test regular (non-current) questions with FREE version
+        regular_questions = [
+            "Merhaba nasılsın?",
+            "25 × 8 kaç eder?",
+            "Python nedir?",
+            "Einstein kimdir?"
+        ]
+        
+        successful_tests = 0
+        
+        for question in regular_questions:
+            print(f"   Testing FREE regular question: '{question}'...")
+            
+            start_time = time.time()
+            success, response = self.run_test(
+                f"FREE Regular Question: '{question}'",
+                "POST",
+                f"conversations/{test_conv_id}/messages",
+                200,
+                data={"content": question, "mode": "chat", "version": "free"}
+            )
+            response_time = time.time() - start_time
+            
+            if success:
+                ai_response = response.get('content', '')
+                print(f"     Response Time: {response_time:.2f}s")
+                print(f"     Response: {ai_response[:150]}...")
+                
+                # Should NOT have web search indicators (Gemini only)
+                web_indicators = ['web araştırması', 'güncel web', 'serper', 'arama sonucu']
+                has_web_search = any(indicator in ai_response.lower() for indicator in web_indicators)
+                
+                # Should have appropriate content for the question
+                if '25 × 8' in question or '25 x 8' in question:
+                    has_appropriate_content = '200' in ai_response
+                elif 'python' in question.lower():
+                    has_appropriate_content = any(term in ai_response.lower() for term in ['programlama', 'dil', 'kod', 'yazılım'])
+                elif 'einstein' in question.lower():
+                    has_appropriate_content = any(term in ai_response.lower() for term in ['fizik', 'bilim', 'albert', 'görelilik'])
+                else:
+                    has_appropriate_content = len(ai_response.strip()) > 10
+                
+                if has_appropriate_content and not has_web_search:
+                    print("     ✅ PASSED: Regular Gemini response (no web search)")
+                    successful_tests += 1
+                elif has_appropriate_content:
+                    print("     ⚠️  WARNING: Good response but web search indicators found")
+                    successful_tests += 0.5
+                else:
+                    print("     ❌ FAILED: Inappropriate response content")
+            
+            time.sleep(2)
+        
+        if successful_tests >= len(regular_questions) * 0.7:  # 70% success rate
+            print(f"✅ PASSED: FREE version regular questions with Gemini only ({successful_tests}/{len(regular_questions)})")
+            return True
+        else:
+            print(f"❌ FAILED: FREE version regular questions not working properly ({successful_tests}/{len(regular_questions)})")
+            return False
+
+    def test_free_version_conversation_modes_current_topics(self):
+        """Test FREE version conversation modes with current topics"""
+        print("\n🧪 FREE VERSION TEST 3: Conversation Modes with Current Topics")
+        
+        # Create conversation for FREE version modes test
+        success, response = self.run_test(
+            "Create Conversation for FREE Modes Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "FREE Modes Current Topics Test"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        
+        # Test conversation modes with current topics in FREE version
+        mode_tests = [
+            ("friend", "Bugün dolar kuru kaç TL?", ["dostum", "arkadaş", "motivasyon", "pozitif"]),
+            ("teacher", "Son teknoloji haberleri neler?", ["öğret", "açıkla", "adım", "bilgi"])
+        ]
+        
+        successful_tests = 0
+        
+        for mode, question, personality_indicators in mode_tests:
+            print(f"   Testing FREE {mode} mode with current topic: '{question}'...")
+            
+            start_time = time.time()
+            success, response = self.run_test(
+                f"FREE {mode.upper()} Mode Current Topic: '{question}'",
+                "POST",
+                f"conversations/{test_conv_id}/messages",
+                200,
+                data={"content": question, "mode": "chat", "version": "free", "conversationMode": mode}
+            )
+            response_time = time.time() - start_time
+            
+            if success:
+                ai_response = response.get('content', '')
+                print(f"     Response Time: {response_time:.2f}s")
+                print(f"     Response: {ai_response[:150]}...")
+                
+                # Check for personality indicators
+                has_personality = any(indicator in ai_response.lower() for indicator in personality_indicators)
+                
+                # Check for current information (should use Serper + Gemini)
+                current_info_indicators = ['dolar', 'tl', 'kur', 'teknoloji', 'haber', 'güncel']
+                has_current_info = any(indicator in ai_response.lower() for indicator in current_info_indicators)
+                
+                # Should NOT have source attribution (cleaned by Gemini)
+                source_indicators = ['web araştırması sonucunda', 'kaynaklarından']
+                has_source_attribution = any(indicator in ai_response.lower() for indicator in source_indicators)
+                
+                if has_personality and has_current_info and not has_source_attribution:
+                    print(f"     ✅ PASSED: {mode} personality + current info + clean presentation")
+                    successful_tests += 1
+                elif has_current_info:
+                    print(f"     ⚠️  WARNING: Current info found but personality/cleaning issues")
+                    successful_tests += 0.5
+                else:
+                    print(f"     ❌ FAILED: No current information or personality detected")
+            
+            time.sleep(3)
+        
+        if successful_tests >= len(mode_tests) * 0.7:  # 70% success rate
+            print(f"✅ PASSED: FREE version conversation modes with current topics ({successful_tests}/{len(mode_tests)})")
+            return True
+        else:
+            print(f"❌ FAILED: FREE version conversation modes not working properly ({successful_tests}/{len(mode_tests)})")
+            return False
+
+    def test_serper_api_integration(self):
+        """Test Serper API integration with Turkish settings"""
+        print("\n🧪 FREE VERSION TEST 4: Serper API Integration")
+        
+        # Create conversation for Serper API test
+        success, response = self.run_test(
+            "Create Conversation for Serper API Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "Serper API Integration Test"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        
+        # Test questions that should trigger Serper API
+        serper_test_questions = [
+            "Bugün İstanbul hava durumu nasıl?",
+            "Son dakika haberler neler?",
+            "Dolar kuru bugün kaç TL?"
+        ]
+        
+        successful_tests = 0
+        
+        for question in serper_test_questions:
+            print(f"   Testing Serper API with: '{question}'...")
+            
+            start_time = time.time()
+            success, response = self.run_test(
+                f"Serper API Test: '{question}'",
+                "POST",
+                f"conversations/{test_conv_id}/messages",
+                200,
+                data={"content": question, "mode": "chat", "version": "free"}
+            )
+            response_time = time.time() - start_time
+            
+            if success:
+                ai_response = response.get('content', '')
+                print(f"     Response Time: {response_time:.2f}s")
+                print(f"     Response: {ai_response[:200]}...")
+                
+                # Check for Turkish localized content
+                turkish_indicators = ['türkiye', 'istanbul', 'ankara', 'tl', 'lira', 'türk']
+                has_turkish_content = any(indicator in ai_response.lower() for indicator in turkish_indicators)
+                
+                # Check for current/real-time information
+                current_indicators = ['bugün', 'şu an', 'güncel', 'son', 'dakika']
+                has_current_info = any(indicator in ai_response.lower() for indicator in current_indicators)
+                
+                # Should have relevant content for the question
+                if 'hava' in question.lower():
+                    has_relevant_content = any(term in ai_response.lower() for term in ['hava', 'sıcaklık', 'derece', 'yağmur', 'güneş'])
+                elif 'haber' in question.lower():
+                    has_relevant_content = any(term in ai_response.lower() for term in ['haber', 'gelişme', 'olay', 'açıklama'])
+                elif 'dolar' in question.lower():
+                    has_relevant_content = any(term in ai_response.lower() for term in ['dolar', 'kur', 'tl', 'fiyat'])
+                else:
+                    has_relevant_content = True
+                
+                if has_relevant_content and (has_turkish_content or has_current_info):
+                    print("     ✅ PASSED: Serper API working with Turkish localization")
+                    successful_tests += 1
+                else:
+                    print("     ❌ FAILED: Serper API not providing localized/current content")
+            
+            time.sleep(2)
+        
+        if successful_tests >= len(serper_test_questions) * 0.7:  # 70% success rate
+            print(f"✅ PASSED: Serper API integration working ({successful_tests}/{len(serper_test_questions)})")
+            return True
+        else:
+            print(f"❌ FAILED: Serper API integration issues ({successful_tests}/{len(serper_test_questions)})")
+            return False
+
+    def test_gemini_cleaning_process(self):
+        """Test Gemini cleaning of web search results"""
+        print("\n🧪 FREE VERSION TEST 5: Gemini Cleaning Process")
+        
+        # Create conversation for Gemini cleaning test
+        success, response = self.run_test(
+            "Create Conversation for Gemini Cleaning Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "Gemini Cleaning Test"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        
+        # Test questions that should trigger web search + Gemini cleaning
+        cleaning_test_questions = [
+            "Bugün borsa nasıl?",
+            "Son spor haberleri neler?",
+            "Güncel teknoloji gelişmeleri"
+        ]
+        
+        successful_tests = 0
+        
+        for question in cleaning_test_questions:
+            print(f"   Testing Gemini cleaning with: '{question}'...")
+            
+            start_time = time.time()
+            success, response = self.run_test(
+                f"Gemini Cleaning Test: '{question}'",
+                "POST",
+                f"conversations/{test_conv_id}/messages",
+                200,
+                data={"content": question, "mode": "chat", "version": "free"}
+            )
+            response_time = time.time() - start_time
+            
+            if success:
+                ai_response = response.get('content', '')
+                print(f"     Response Time: {response_time:.2f}s")
+                print(f"     Response: {ai_response[:200]}...")
+                
+                # Check that sources are NOT mentioned (cleaned by Gemini)
+                source_mentions = [
+                    'web araştırması sonucunda',
+                    'güncel web kaynaklarından',
+                    'kaynak:',
+                    'kaynaklar:',
+                    'alınmıştır',
+                    'sonuç'
+                ]
+                has_source_mentions = any(mention in ai_response.lower() for mention in source_mentions)
+                
+                # Check for coherent Turkish response
+                is_coherent = len(ai_response.strip()) > 50 and not ai_response.startswith('Hata')
+                
+                # Check for relevant content
+                if 'borsa' in question.lower():
+                    has_relevant_content = any(term in ai_response.lower() for term in ['borsa', 'piyasa', 'hisse', 'endeks'])
+                elif 'spor' in question.lower():
+                    has_relevant_content = any(term in ai_response.lower() for term in ['spor', 'maç', 'takım', 'futbol'])
+                elif 'teknoloji' in question.lower():
+                    has_relevant_content = any(term in ai_response.lower() for term in ['teknoloji', 'yapay zeka', 'yazılım', 'dijital'])
+                else:
+                    has_relevant_content = True
+                
+                if not has_source_mentions and is_coherent and has_relevant_content:
+                    print("     ✅ PASSED: Clean Gemini response without source attribution")
+                    successful_tests += 1
+                elif is_coherent and has_relevant_content:
+                    print("     ⚠️  WARNING: Good content but source cleaning incomplete")
+                    successful_tests += 0.5
+                else:
+                    print("     ❌ FAILED: Poor response quality or cleaning")
+            
+            time.sleep(2)
+        
+        if successful_tests >= len(cleaning_test_questions) * 0.7:  # 70% success rate
+            print(f"✅ PASSED: Gemini cleaning process working ({successful_tests}/{len(cleaning_test_questions)})")
+            return True
+        else:
+            print(f"❌ FAILED: Gemini cleaning process issues ({successful_tests}/{len(cleaning_test_questions)})")
+            return False
+
+    def test_free_version_error_handling(self):
+        """Test error handling in FREE version"""
+        print("\n🧪 FREE VERSION TEST 6: Error Handling")
+        
+        # Create conversation for error handling test
+        success, response = self.run_test(
+            "Create Conversation for Error Handling Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "FREE Error Handling Test"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        
+        # Test various scenarios that might cause errors
+        error_test_scenarios = [
+            ("Very complex question", "Bu çok karmaşık bir soru ve sistem bunu anlayamayabilir belki"),
+            ("Empty-like question", "..."),
+            ("Mixed language", "What is merhaba in English?")
+        ]
+        
+        successful_tests = 0
+        
+        for scenario_name, question in error_test_scenarios:
+            print(f"   Testing error handling: {scenario_name}")
+            
+            success, response = self.run_test(
+                f"Error Handling: {scenario_name}",
+                "POST",
+                f"conversations/{test_conv_id}/messages",
+                200,
+                data={"content": question, "mode": "chat", "version": "free"}
+            )
+            
+            if success:
+                ai_response = response.get('content', '')
+                print(f"     Response: {ai_response[:100]}...")
+                
+                # Check that error messages are in Turkish
+                english_errors = ['error', 'failed', 'sorry', 'technical difficulties', 'unable to']
+                has_english_errors = any(error.lower() in ai_response.lower() for error in english_errors)
+                
+                # Check for appropriate Turkish error handling
+                turkish_responses = ['üzgünüm', 'anlayamadım', 'yardım', 'tekrar', 'sorun']
+                has_turkish_response = any(response_word in ai_response.lower() for response_word in turkish_responses)
+                
+                # Response should not be empty or too short
+                is_adequate_length = len(ai_response.strip()) > 10
+                
+                if not has_english_errors and is_adequate_length:
+                    print("     ✅ PASSED: Proper Turkish error handling")
+                    successful_tests += 1
+                else:
+                    print("     ❌ FAILED: Poor error handling or English errors")
+            
+            time.sleep(2)
+        
+        if successful_tests >= len(error_test_scenarios) * 0.7:  # 70% success rate
+            print(f"✅ PASSED: FREE version error handling working ({successful_tests}/{len(error_test_scenarios)})")
+            return True
+        else:
+            print(f"❌ FAILED: FREE version error handling issues ({successful_tests}/{len(error_test_scenarios)})")
+            return False
+
+    def run_free_version_enhanced_tests(self):
+        """Run all FREE version enhanced tests with Serper + Gemini"""
+        print("\n" + "="*80)
+        print("🚀 STARTING ENHANCED FREE VERSION TESTS - SERPER API + GEMINI CLEANING")
+        print("Testing NEW FREE VERSION features:")
+        print("1. Current Topics → Serper + Gemini cleaning")
+        print("2. Regular Questions → Gemini Only")
+        print("3. Serper API Integration with Turkish settings")
+        print("4. Gemini Cleaning Process (no source attribution)")
+        print("5. Conversation Modes with current topics")
+        print("6. Error Handling in Turkish")
+        print("="*80)
+        
+        free_version_tests = [
+            self.test_free_version_current_topics_serper_gemini,
+            self.test_free_version_regular_questions_gemini_only,
+            self.test_free_version_conversation_modes_current_topics,
+            self.test_serper_api_integration,
+            self.test_gemini_cleaning_process,
+            self.test_free_version_error_handling
+        ]
+        
+        free_tests_passed = 0
+        free_tests_run = 0
+        
+        for test in free_version_tests:
+            try:
+                free_tests_run += 1
+                if test():
+                    free_tests_passed += 1
+                time.sleep(3)  # Longer pause between FREE version tests
+            except Exception as e:
+                print(f"❌ FREE version test failed with exception: {e}")
+        
+        # Print FREE version test results
+        print("\n" + "="*80)
+        print(f"🧪 ENHANCED FREE VERSION RESULTS: {free_tests_passed}/{free_tests_run} tests passed")
+        
+        if free_tests_passed == free_tests_run:
+            print("🎉 ALL ENHANCED FREE VERSION TESTS PASSED!")
+            print("✅ Current Topics → Serper + Gemini working")
+            print("✅ Regular Questions → Gemini Only working")
+            print("✅ Serper API integration with Turkish settings working")
+            print("✅ Gemini cleaning process working (no source attribution)")
+            print("✅ Conversation modes with current topics working")
+            print("✅ Turkish error handling working")
+        else:
+            print(f"❌ {free_tests_run - free_tests_passed} FREE version tests failed")
+            
+            # Detailed failure analysis
+            if free_tests_passed < free_tests_run * 0.5:
+                print("🚨 CRITICAL: Less than 50% of FREE version tests passed")
+                print("   → Check Serper API key configuration")
+                print("   → Check Gemini API key configuration")
+                print("   → Verify FREE version routing logic")
+            elif free_tests_passed < free_tests_run * 0.8:
+                print("⚠️  WARNING: Some FREE version features not working optimally")
+                print("   → Check web search + Gemini integration")
+                print("   → Verify cleaning process effectiveness")
+        
+        return free_tests_passed, free_tests_run
+
 def main():
     print("🚀 Starting BİLGİN AI Backend API Tests")
     print("=" * 50)
