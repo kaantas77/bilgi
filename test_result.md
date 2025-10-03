@@ -276,6 +276,21 @@ backend:
         - agent: "testing"
         - comment: "✅ FILE VISIBILITY SYSTEM WORKING! Comprehensive testing confirms file visibility features are operational: ✅ PDF VISIBILITY: PDF files are successfully uploaded and tracked in the system ✅ IMAGE VISIBILITY: Image files (JPG, PNG, GIF, WEBP, BMP) are successfully uploaded and tracked ✅ FILE LIST ENDPOINT: GET /api/conversations/{id}/files endpoint working correctly, returning comprehensive file lists (tested with 7 files successfully retrieved) ✅ SYSTEM MESSAGES: File uploads generate system messages to notify users of successful uploads ✅ BACKEND TRACKING: All uploaded files are properly stored and can be retrieved via API endpoints ⚠️ MINOR ISSUE: File icons (📎 for PDFs, 🖼️ for images) not consistently appearing in system messages, but core file tracking and visibility functionality working perfectly. FILE VISIBILITY SYSTEM IS PRODUCTION-READY!"
 
+  - task: "NEW FREE/PRO VERSION SYSTEM with Gemini API Integration"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+        - agent: "main"
+        - comment: "NEW FREE/PRO VERSION SYSTEM: Implemented version parameter routing - PRO version uses existing hybrid system (ChatGPT API, AnythingLLM, web search), FREE version uses Google Gemini API for all responses. MessageCreate model accepts version parameter, backend routing logic implemented."
+        - working: true
+        - agent: "testing"
+        - comment: "🎉 NEW FREE/PRO VERSION SYSTEM WITH GEMINI API INTEGRATION FULLY OPERATIONAL! Comprehensive testing confirms all 7 critical scenarios working perfectly: ✅ PRO VERSION (DEFAULT): Uses existing hybrid system correctly - backend logs show 'PRO version selected - using full hybrid system'. Casual greetings (2.7s), math questions (7.8s) handled by AnythingLLM/web search as expected. ✅ FREE VERSION (GEMINI API): Uses Google Gemini API (gemini-2.0-flash model) successfully - backend logs show 'Gemini FREE API response received successfully'. Fast response times (0.6-0.8s), coherent Turkish responses, no hybrid system indicators. ✅ FREE VERSION CONVERSATION MODES: Friend mode shows motivational personality ('Dostum! Motivasyona ihtiyacın olduğunu duymak...'), Teacher mode shows educational approach with structured content. Gemini applies personality prompts correctly. ✅ FREE VERSION FILE PROCESSING: Handles file processing questions through Gemini without hybrid system. ✅ GEMINI API ENDPOINT: API key (AIzaSyB32TodK6P6lCTaBNIQXzf2nCLOAaIYjMo) configured correctly, gemini-2.0-flash model working with generateContent endpoint. ✅ VERSION PARAMETER ROUTING: Backend correctly processes version parameter, MessageCreate model accepts 'version' field, routing logic differentiates PRO vs FREE successfully. ✅ PERFORMANCE COMPARISON: FREE version faster (0.6-11s) vs PRO version (2.7-15s), both provide quality Turkish responses. NEW FREE/PRO VERSION SYSTEM IS PRODUCTION-READY!"
+
 frontend:
   - task: "Normal Sohbet - Sohbet geçmişi sistemi ve mod sistemsiz chat"
     implemented: true
