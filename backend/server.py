@@ -863,7 +863,7 @@ async def process_with_gemini_free(question: str, conversation_mode: str = 'norm
         
         async with httpx.AsyncClient() as client:
             response = await client.post(
-                f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key={GEMINI_API_KEY}",
+                f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key={GEMINI_API_KEY}",
                 headers=headers,
                 json=payload,
                 timeout=30.0
