@@ -1197,7 +1197,7 @@ async def process_conversation_mode_with_openai(question: str, conversation_mode
                 {"role": "system", "content": personality['system_message']},
                 {"role": "user", "content": user_message}
             ],
-            "max_tokens": 1500,
+            "max_completion_tokens": 1500,
             "temperature": 0.8  # Higher temperature for more personality
         }
         
