@@ -474,17 +474,24 @@ async def handle_web_search_question(question: str) -> str:
     return response
 
 def can_anythingllm_answer(anythingllm_response: str) -> bool:
-    """Check if AnythingLLM provided answer - specifically look for 'no answer' indicator"""
+    """Check if AnythingLLM provided answer - specifically look for 'NO_ANSWER' pattern"""
     
-    response_lower = anythingllm_response.lower().strip()
+    response_stripped = anythingllm_response.strip()
     
-    # Check for "no answer" response from AnythingLLM
+    # Check for the specific "NO_ANSWER\nSources:" pattern from AnythingLLM
+    if "NO_ANSWER" in response_stripped and "Sources:" in response_stripped:
+        logging.info("AnythingLLM returned 'NO_ANSWER\\nSources:' - RAG system has no information")
+        return False
+    
+    # Check for other no answer patterns
+    response_lower = response_stripped.lower()
+    
     if "no answer" in response_lower:
         logging.info("AnythingLLM returned 'no answer' - RAG system has no information")
         return False
     
     # Check for very short responses (likely inadequate)
-    if len(anythingllm_response.strip()) < 10:
+    if len(response_stripped) < 10:
         logging.info("Response too short - considering as inadequate")
         return False
     
