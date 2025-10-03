@@ -4594,6 +4594,26 @@ def main():
     
     tester = BilginAIAPITester()
     
+    # Check if we should run CORRECTED PRO VERSION tests specifically
+    import sys
+    if len(sys.argv) > 1 and sys.argv[1] == "corrected_pro":
+        print("\n🎯 Running CORRECTED PRO VERSION RAG SYSTEM Tests ONLY...")
+        corrected_pro_success = tester.run_corrected_pro_rag_tests()
+        
+        # Print final results for CORRECTED PRO tests
+        print("\n" + "="*80)
+        print("📊 CORRECTED PRO VERSION RAG SYSTEM TEST RESULTS")
+        print("="*80)
+        print(f"🎯 CORRECTED PRO Version Tests: {tester.pro_version_tests_passed}/{tester.pro_version_tests_run}")
+        
+        if corrected_pro_success:
+            print("🎉 ALL CORRECTED PRO VERSION RAG SYSTEM TESTS PASSED!")
+            print("✅ CORRECTED PRO RAG system with 'no answer' detection is working perfectly!")
+            return 0
+        else:
+            print(f"❌ {tester.pro_version_tests_run - tester.pro_version_tests_passed} CORRECTED PRO tests failed.")
+            return 1
+    
     # Run basic API tests first
     print("\n📋 BASIC API TESTS")
     print("-" * 30)
@@ -4617,7 +4637,10 @@ def main():
     print("\n" + "-" * 50)
     print(f"📊 Basic API Results: {tester.tests_passed}/{tester.tests_run} tests passed")
     
-    # Run ENHANCED FREE VERSION tests with Serper + Gemini (HIGHEST PRIORITY)
+    # Run CORRECTED PRO VERSION RAG SYSTEM tests (HIGHEST PRIORITY)
+    corrected_pro_success = tester.run_corrected_pro_rag_tests()
+    
+    # Run ENHANCED FREE VERSION tests with Serper + Gemini
     enhanced_free_passed, enhanced_free_run = tester.run_free_version_enhanced_tests()
     
     # Run NEW FREE/PRO VERSION SYSTEM tests
@@ -4636,13 +4659,14 @@ def main():
     file_success = tester.run_file_processing_tests()
     
     # Print final comprehensive results
-    total_tests = tester.tests_run + enhanced_free_run + getattr(tester, 'version_tests_run', 0) + getattr(tester, 'conversation_mode_tests_run', 0) + tester.routing_tests_run + tester.hybrid_tests_run + tester.file_tests_run
-    total_passed = tester.tests_passed + enhanced_free_passed + getattr(tester, 'version_tests_passed', 0) + getattr(tester, 'conversation_mode_tests_passed', 0) + tester.routing_tests_passed + tester.hybrid_tests_passed + tester.file_tests_passed
+    total_tests = tester.tests_run + tester.pro_version_tests_run + enhanced_free_run + getattr(tester, 'version_tests_run', 0) + getattr(tester, 'conversation_mode_tests_run', 0) + tester.routing_tests_run + tester.hybrid_tests_run + tester.file_tests_run
+    total_passed = tester.tests_passed + tester.pro_version_tests_passed + enhanced_free_passed + getattr(tester, 'version_tests_passed', 0) + getattr(tester, 'conversation_mode_tests_passed', 0) + tester.routing_tests_passed + tester.hybrid_tests_passed + tester.file_tests_passed
     
-    print("\n" + "=" * 60)
+    print("\n" + "=" * 80)
     print("🏁 COMPREHENSIVE TEST RESULTS")
-    print("=" * 60)
+    print("=" * 80)
     print(f"📋 Basic API Tests: {tester.tests_passed}/{tester.tests_run} passed")
+    print(f"🎯 CORRECTED PRO Version RAG Tests: {tester.pro_version_tests_passed}/{tester.pro_version_tests_run} passed")
     print(f"🚀 ENHANCED FREE Version Tests (Serper + Gemini): {enhanced_free_passed}/{enhanced_free_run} passed")
     print(f"🆓 NEW FREE/PRO Version Tests: {getattr(tester, 'version_tests_passed', 0)}/{getattr(tester, 'version_tests_run', 0)} passed")
     print(f"🗣️ NEW Conversation Mode Tests: {getattr(tester, 'conversation_mode_tests_passed', 0)}/{getattr(tester, 'conversation_mode_tests_run', 0)} passed")
@@ -4660,6 +4684,8 @@ def main():
         
         if tester.tests_passed < tester.tests_run:
             print("   - Basic API issues detected")
+        if tester.pro_version_tests_passed < tester.pro_version_tests_run:
+            print("   - CORRECTED PRO Version RAG system issues detected")
         if enhanced_free_passed < enhanced_free_run:
             print("   - ENHANCED FREE Version (Serper + Gemini) issues detected")
         if getattr(tester, 'version_tests_passed', 0) < getattr(tester, 'version_tests_run', 0):
