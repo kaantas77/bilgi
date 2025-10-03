@@ -1172,7 +1172,7 @@ def is_technical_or_creative_question(question: str) -> bool:
     return any(keyword in question_lower for keyword in technical_creative_keywords)
 
 async def process_conversation_mode_with_openai(question: str, conversation_mode: str, file_content: str = None, file_name: str = None) -> str:
-    """Process conversation modes with direct OpenAI API for better personality"""
+    """Process conversation modes with OpenAI GPT-5-nano for better personality"""
     try:
         # Define detailed personalities for each conversation mode
         mode_personalities = {
