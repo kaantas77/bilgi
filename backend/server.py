@@ -1218,7 +1218,7 @@ async def process_conversation_mode_with_openai(question: str, conversation_mode
             user_message = question
         
         payload = {
-            "model": "gpt-4o",
+            "model": "gpt-5-nano",
             "messages": [
                 {"role": "system", "content": personality['system_message']},
                 {"role": "user", "content": user_message}
