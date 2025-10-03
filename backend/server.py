@@ -48,7 +48,7 @@ api_router = APIRouter(prefix="/api")
 
 # AnythingLLM configuration
 ANYTHINGLLM_API_URL = os.environ.get("ANYTHINGLLM_API_URL", "https://pilj1jbx.rcsrv.com/api/v1/workspace/bilgin/chat")
-ANYTHINGLLM_API_KEY = os.environ.get("ANYTHINGLLM_API_KEY", "FC6CT8Q-QRE433A-J9K8SV8-S7E2M4N")
+ANYTHINGLLM_API_KEY = os.environ.get("ANYTHINGLLM_API_KEY")
 
 # Serper API configuration  
 SERPER_API_KEY = os.environ.get("SERPER_API_KEY")
