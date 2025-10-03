@@ -692,36 +692,36 @@ async def process_with_openai_gpt5_nano(question: str, conversation_mode: str = 
         return "OpenAI API'sine bağlanırken bir hata oluştu. Lütfen tekrar deneyin."
 
 async def smart_hybrid_response(question: str, conversation_mode: str = 'normal', file_content: str = None, file_name: str = None) -> str:
-    """PRO version: Simple RAG system - AnythingLLM first, then OpenAI GPT-5-nano fallback"""
+    """PRO version: RAG first, then GPT-5-nano fallback for specific cases"""
     
-    logging.info(f"PRO version - Starting RAG analysis for: {question}")
+    logging.info(f"PRO version - Starting analysis for: {question}")
     
     # Priority 1: Current/daily life information - Use web search directly
     category = get_question_category(question)
     if category == 'current':
-        logging.info("PRO: Current information question - using web search directly")
+        logging.info("PRO: Current/daily life question - using web search directly")
         web_search_response = await handle_web_search_question(question)
         return await clean_web_search_with_anythingllm(web_search_response, question)
     
-    # Priority 2: Technical/Creative tasks and file processing - Use OpenAI GPT-5-nano
+    # Priority 2: PDF/görsel/metin yazma gibi gündelik işler - Use OpenAI GPT-5-nano directly
     if is_technical_or_creative_question(question) or file_content or is_file_processing_question(question):
         if file_content:
-            logging.info("PRO: File processing question - using OpenAI GPT-5-nano")
+            logging.info("PRO: File processing (PDF/görsel) - using OpenAI GPT-5-nano directly")
         else:
-            logging.info("PRO: Technical/creative question - using OpenAI GPT-5-nano")
+            logging.info("PRO: Daily tasks (metin yazma/düzeltme) - using OpenAI GPT-5-nano directly")
         return await process_with_openai_gpt5_nano(question, conversation_mode, file_content, file_name)
     
-    # Priority 3: Regular questions - Try AnythingLLM first, fallback to OpenAI GPT-5-nano
+    # Priority 3: All other questions - Try AnythingLLM (RAG) first
     logging.info("PRO: Regular question - trying AnythingLLM (RAG) first...")
     anythingllm_response = await get_anythingllm_response(question, conversation_mode)
     
-    # Check if AnythingLLM provided a satisfactory answer
+    # Check if AnythingLLM provided answer (specifically check for "no answer")
     if can_anythingllm_answer(anythingllm_response):
-        logging.info("PRO: AnythingLLM (RAG) provided good answer - using it")
+        logging.info("PRO: AnythingLLM (RAG) has answer in system - using it")
         return anythingllm_response
     else:
-        # AnythingLLM couldn't answer satisfactorily, use OpenAI GPT-5-nano as fallback
-        logging.info("PRO: AnythingLLM (RAG) inadequate - falling back to OpenAI GPT-5-nano")
+        # AnythingLLM returned "no answer" or couldn't respond, use OpenAI GPT-5-nano
+        logging.info("PRO: AnythingLLM (RAG) returned 'no answer' - falling back to OpenAI GPT-5-nano")
         return await process_with_openai_gpt5_nano(question, conversation_mode, file_content, file_name)
 
 def optimize_search_query(question: str) -> str:
