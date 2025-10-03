@@ -5517,6 +5517,95 @@ def main():
             print(f"❌ {tester.pro_version_tests_run - tester.pro_version_tests_passed} CORRECTED PRO tests failed.")
             return 1
     
+    def test_chatgpt_api_fallback_pro_version(self):
+        """Test ChatGPT API Fallback (PRO Version) - Scenario 1"""
+        print("\n🧪 CHATGPT API TEST 1: ChatGPT API Fallback (PRO Version)")
+        
+        # Create conversation for ChatGPT API test
+        success, response = self.run_test(
+            "Create Conversation for ChatGPT API Fallback Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "ChatGPT API Test - Fallback"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        self.pro_version_tests_run += 1
+        
+        # Test questions that should trigger ChatGPT API fallback
+        fallback_questions = [
+            "Çok spesifik bir teknoloji konusunda detaylı bilgi ver",
+            "Yaratıcı bir hikaye yaz",
+            "Karmaşık bir matematik problemini çöz ve açıkla"
+        ]
+        
+        successful_tests = 0
+        
+        for question in fallback_questions:
+            print(f"   Testing ChatGPT API fallback: '{question[:50]}...'")
+            
+            start_time = time.time()
+            success, response = self.run_test(
+                f"ChatGPT API Fallback: '{question[:30]}...'",
+                "POST",
+                f"conversations/{test_conv_id}/messages",
+                200,
+                data={"content": question, "mode": "chat", "version": "pro"}
+            )
+            response_time = time.time() - start_time
+            
+            if success:
+                ai_response = response.get('content', '')
+                print(f"     Response Time: {response_time:.2f}s")
+                print(f"     Response: {ai_response[:150]}...")
+                
+                # Check that response is not empty and doesn't contain "bir hata oluştu"
+                error_indicators = ['bir hata oluştu', 'hata oluştu', 'error occurred', 'technical difficulties']
+                has_error = any(indicator in ai_response.lower() for indicator in error_indicators)
+                
+                if not has_error and len(ai_response.strip()) > 20:
+                    print("     ✅ ChatGPT API working - no 'bir hata oluştu' errors")
+                    successful_tests += 1
+                else:
+                    print("     ❌ ChatGPT API error or empty response detected")
+            
+            time.sleep(2)
+        
+        if successful_tests >= len(fallback_questions) * 0.75:  # 75% success rate
+            self.pro_version_tests_passed += 1
+            print(f"✅ PASSED: ChatGPT API Fallback ({successful_tests}/{len(fallback_questions)})")
+            return True
+        else:
+            print(f"❌ FAILED: ChatGPT API Fallback ({successful_tests}/{len(fallback_questions)})")
+            return False
+
+    # Add ChatGPT API tests to the tester instance
+    tester.test_chatgpt_api_fallback_pro_version = lambda: test_chatgpt_api_fallback_pro_version(tester)
+    
+    # Check if we should run ChatGPT API tests specifically
+    if len(sys.argv) > 1 and sys.argv[1] == "chatgpt":
+        print("\n🤖 Running CHATGPT API INTEGRATION Tests ONLY...")
+        chatgpt_success = tester.run_chatgpt_api_tests()
+        
+        # Print final results for ChatGPT API tests
+        print("\n" + "="*80)
+        print("📊 CHATGPT API INTEGRATION TEST RESULTS")
+        print("="*80)
+        
+        if chatgpt_success:
+            print("🎉 ALL CHATGPT API INTEGRATION TESTS PASSED!")
+            print("✅ gpt-4o-mini model working correctly!")
+            print("✅ API parameters fixed (max_tokens, temperature: 0.7)!")
+            print("✅ No more 'bir hata oluştu' errors!")
+            return 0
+        else:
+            print("❌ Some ChatGPT API tests failed.")
+            return 1
+
     # Run basic API tests first
     print("\n📋 BASIC API TESTS")
     print("-" * 30)
