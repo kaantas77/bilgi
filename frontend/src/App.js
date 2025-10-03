@@ -125,6 +125,25 @@ function App() {
     localStorage.setItem('bilgin-modes-conversations', JSON.stringify(modesConversations));
   }, [modesConversations]);
 
+  // Scroll to bottom when messages change
+  useEffect(() => {
+    scrollToBottom();
+  }, [normalMessages, modesMessages]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isVersionDropdownOpen && !event.target.closest('.version-dropdown')) {
+        setIsVersionDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isVersionDropdownOpen]);
+
   // Helper function to generate conversation title from first message
   const generateConversationTitle = (message) => {
     if (message.length <= 50) return message;
