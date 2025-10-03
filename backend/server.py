@@ -1308,6 +1308,7 @@ class MessageCreate(BaseModel):
     content: str
     mode: str = "chat"  # "chat" or "query" 
     conversationMode: Optional[str] = None  # Test için konuşma modları
+    version: str = "pro"  # "pro" or "free" - version selection
 
 class FileUpload(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
