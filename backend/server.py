@@ -1075,7 +1075,7 @@ async def process_image_with_chatgpt_vision(question: str, image_path: str, imag
                     ]
                 }
             ],
-            "max_completion_tokens": 2000,
+            "max_tokens": 2000,
             "temperature": 0.7
         }
         
