@@ -710,7 +710,12 @@ async def smart_hybrid_response(question: str, conversation_mode: str = 'normal'
         web_search_response = await handle_web_search_question(question)
         return await clean_web_search_with_anythingllm(web_search_response, question)
     
-    # Priority 2: PDF/görsel/metin yazma gibi gündelik işler - Use OpenAI GPT-5-nano directly
+    # Priority 2: Casual chat/sohbet tarzı metinler - Use OpenAI GPT-5-nano directly
+    if is_casual_chat(question):
+        logging.info("PRO: Casual chat/conversation - using OpenAI GPT-5-nano directly")
+        return await process_with_openai_gpt5_nano(question, conversation_mode, file_content, file_name)
+    
+    # Priority 3: PDF/görsel/metin yazma gibi gündelik işler - Use OpenAI GPT-5-nano directly
     if is_technical_or_creative_question(question) or file_content or is_file_processing_question(question):
         if file_content:
             logging.info("PRO: File processing (PDF/görsel) - using OpenAI GPT-5-nano directly")
@@ -718,17 +723,17 @@ async def smart_hybrid_response(question: str, conversation_mode: str = 'normal'
             logging.info("PRO: Daily tasks (metin yazma/düzeltme) - using OpenAI GPT-5-nano directly")
         return await process_with_openai_gpt5_nano(question, conversation_mode, file_content, file_name)
     
-    # Priority 3: All other questions - Try AnythingLLM (RAG) first
+    # Priority 4: All other questions - Try AnythingLLM (RAG) first
     logging.info("PRO: Regular question - trying AnythingLLM (RAG) first...")
     anythingllm_response = await get_anythingllm_response(question, conversation_mode)
     
-    # Check if AnythingLLM provided answer (specifically check for "no answer")
+    # Check if AnythingLLM provided answer (specifically check for "NO_ANSWER\nSources:")
     if can_anythingllm_answer(anythingllm_response):
         logging.info("PRO: AnythingLLM (RAG) has answer in system - using it")
         return anythingllm_response
     else:
-        # AnythingLLM returned "no answer" or couldn't respond, use OpenAI GPT-5-nano
-        logging.info("PRO: AnythingLLM (RAG) returned 'no answer' - falling back to OpenAI GPT-5-nano")
+        # AnythingLLM returned "NO_ANSWER\nSources:" or couldn't respond, use OpenAI GPT-5-nano
+        logging.info("PRO: AnythingLLM (RAG) returned 'NO_ANSWER\\nSources:' - falling back to OpenAI GPT-5-nano")
         return await process_with_openai_gpt5_nano(question, conversation_mode, file_content, file_name)
 
 def optimize_search_query(question: str) -> str:
