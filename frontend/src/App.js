@@ -156,6 +156,10 @@ function App() {
     fileInputRef.current?.click();
   };
 
+  const handleImageSelect = () => {
+    imageInputRef.current?.click();
+  };
+
   const handleFileUpload = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
