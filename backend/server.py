@@ -675,7 +675,7 @@ async def process_with_openai_gpt5_nano(question: str, conversation_mode: str = 
                 {"role": "user", "content": user_message}
             ],
             "max_completion_tokens": 2000,
-            "temperature": 0.7
+            "temperature": 1.0
         }
         
         async with httpx.AsyncClient() as client:
@@ -1089,7 +1089,7 @@ async def process_image_with_chatgpt_vision(question: str, image_path: str, imag
                 }
             ],
             "max_tokens": 2000,
-            "temperature": 0.7
+            "temperature": 1.0
         }
         
         async with httpx.AsyncClient() as client:
@@ -1254,7 +1254,7 @@ async def process_conversation_mode_with_openai(question: str, conversation_mode
                 {"role": "user", "content": user_message}
             ],
             "max_completion_tokens": 1500,
-            "temperature": 0.7  # Moderate temperature for personality
+            "temperature": 1.0  # Moderate temperature for personality
         }
         
         async with httpx.AsyncClient() as client:
@@ -1308,7 +1308,7 @@ async def process_with_direct_openai(question: str, file_content: str = None, fi
                 {"role": "user", "content": user_message}
             ],
             "max_completion_tokens": 2000,
-            "temperature": 0.7
+            "temperature": 1.0
         }
         
         async with httpx.AsyncClient() as client:
