@@ -6272,6 +6272,33 @@ def main():
             print("❌ Some ChatGPT API tests failed.")
             return 1
 
+    # Check if we should run GPT-5-nano tests specifically
+    if len(sys.argv) > 1 and sys.argv[1] == "gpt5_nano":
+        print("\n🧪 Running GPT-5-NANO WITH IMPROVED EMPTY CONTENT HANDLING Tests ONLY...")
+        gpt5_nano_passed, gpt5_nano_total = tester.run_gpt5_nano_tests()
+        
+        # Print final results for GPT-5-nano tests
+        print("\n" + "="*80)
+        print("📊 GPT-5-NANO WITH IMPROVED EMPTY CONTENT HANDLING TEST RESULTS")
+        print("="*80)
+        print(f"🧪 GPT-5-nano Tests: {gpt5_nano_passed}/{gpt5_nano_total}")
+        
+        if gpt5_nano_passed == gpt5_nano_total:
+            print("🎉 ALL GPT-5-NANO TESTS PASSED!")
+            print("✅ Simple questions working with PRO version!")
+            print("✅ Backend logs show GPT-5-nano integration!")
+            print("✅ Conversation consistency and Turkish support confirmed!")
+            return 0
+        else:
+            print(f"❌ {gpt5_nano_total - gpt5_nano_passed} GPT-5-nano tests failed.")
+            if gpt5_nano_passed == 0:
+                print("🚨 CRITICAL: GPT-5-nano integration appears to be broken")
+            elif gpt5_nano_passed == 1:
+                print("⚠️  WARNING: GPT-5-nano has significant issues")
+            else:
+                print("ℹ️  INFO: GPT-5-nano partially working but needs attention")
+            return 1
+
     # Run basic API tests first
     print("\n📋 BASIC API TESTS")
     print("-" * 30)
