@@ -817,13 +817,141 @@ def encode_image_to_base64(image_path: str) -> str:
     with open(image_path, "rb") as image_file:
         return base64.b64encode(image_file.read()).decode('utf-8')
 
-async def process_with_gemini_free(question: str, conversation_mode: str = 'normal', file_content: str = None, file_name: str = None) -> str:
-    """Process question with free Gemini API for FREE version"""
+async def search_web_for_free_version(question: str) -> str:
+    """Search web using Serper API for FREE version current information"""
     try:
-        # Use Google Gemini API
+        headers = {
+            "X-API-KEY": SERPER_API_KEY,
+            "Content-Type": "application/json"
+        }
+        
+        payload = {
+            "q": question,
+            "gl": "tr",  # Turkey
+            "hl": "tr",  # Turkish
+            "num": 5
+        }
+        
+        async with httpx.AsyncClient() as client:
+            response = await client.post(SERPER_API_URL, headers=headers, json=payload, timeout=10.0)
+            
+            if response.status_code == 200:
+                data = response.json()
+                
+                # Extract results
+                results = []
+                if 'organic' in data:
+                    for item in data['organic'][:3]:  # Top 3 results
+                        title = item.get('title', '')
+                        snippet = item.get('snippet', '')
+                        if title and snippet:
+                            results.append(f"• {title}: {snippet}")
+                
+                if results:
+                    web_content = "\n".join(results)
+                    logging.info("Serper API search successful for FREE version")
+                    return web_content
+                else:
+                    return "Web araması sonuç bulamadı."
+                    
+            else:
+                logging.error(f"Serper API error: {response.status_code}")
+                return "Web araması sırasında hata oluştu."
+                
+    except Exception as e:
+        logging.error(f"Serper web search error: {e}")
+        return "Web araması sırasında hata oluştu."
+
+async def clean_web_results_with_gemini(web_results: str, question: str, conversation_mode: str = 'normal') -> str:
+    """Clean and process web search results using Gemini API"""
+    try:
         headers = {
             "Content-Type": "application/json"
         }
+        
+        # Prepare personality prompt if needed
+        if conversation_mode and conversation_mode != 'normal':
+            mode_personalities = {
+                'friend': "Sen samimi, motive edici ve esprili bir arkadaşsın.",
+                'realistic': "Sen eleştirel düşünen, kanıt odaklı ve gerçekçi bir asistansın.",
+                'coach': "Sen bir yaşam koçu ve mentorsun.",
+                'lawyer': "Sen analitik düşünen bir hukukçu gibi yaklaşırsın.",
+                'teacher': "Sen sabırlı, bilgili ve pedagojik yaklaşımlı bir öğretmensin.",
+                'minimalist': "Sen kısa, öz ve etkili cevaplar veren minimalist bir asistansın."
+            }
+            personality = mode_personalities.get(conversation_mode, "Sen yardımcı bir asistansın.")
+        else:
+            personality = "Sen yardımcı bir asistansın."
+        
+        cleaning_prompt = f"""Sistem: {personality} Aşağıdaki web araması sonuçlarını kullanarak kullanıcının sorusunu Türkçe olarak yanıtla. Sadece önemli ve doğru bilgileri kullan, gereksiz detayları çıkar.
+
+Web Araması Sonuçları:
+{web_results}
+
+Kullanıcı Sorusu: {question}
+
+Lütfen bu bilgileri temizleyip düzenli bir Türkçe cevap ver. Kaynakları belirtme, sadece temiz ve anlaşılır bilgiyi sun."""
+        
+        payload = {
+            "contents": [
+                {
+                    "parts": [
+                        {
+                            "text": cleaning_prompt
+                        }
+                    ]
+                }
+            ],
+            "generationConfig": {
+                "temperature": 0.7,
+                "maxOutputTokens": 1000
+            }
+        }
+        
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}",
+                headers=headers,
+                json=payload,
+                timeout=30.0
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get('candidates') and data['candidates'][0].get('content'):
+                    content = data['candidates'][0]['content']['parts'][0]['text']
+                    logging.info("Gemini web result cleaning successful")
+                    return content
+                else:
+                    return web_results  # Fallback to original web results
+            else:
+                logging.error(f"Gemini cleaning error: {response.status_code}")
+                return web_results  # Fallback to original web results
+                
+    except Exception as e:
+        logging.error(f"Gemini cleaning error: {e}")
+        return web_results  # Fallback to original web results
+
+async def process_with_gemini_free(question: str, conversation_mode: str = 'normal', file_content: str = None, file_name: str = None) -> str:
+    """Process question with free Gemini API for FREE version - includes web search for current topics"""
+    try:
+        # Check if this is a current information question that needs web search
+        category = get_question_category(question)
+        
+        if category == 'current':
+            logging.info("FREE version: Current information question detected - using Serper + Gemini")
+            # Get web search results first
+            web_results = await search_web_for_free_version(question)
+            
+            if web_results and "hata" not in web_results.lower():
+                # Clean web results with Gemini
+                return await clean_web_results_with_gemini(web_results, question, conversation_mode)
+            else:
+                # Fallback to regular Gemini if web search fails
+                logging.info("Web search failed, falling back to regular Gemini")
+        
+        # Regular Gemini processing for non-current questions or web search fallback
+        logging.info("FREE version: Using regular Gemini API")
         
         # Prepare the message based on conversation mode
         if conversation_mode and conversation_mode != 'normal':
@@ -883,8 +1011,8 @@ async def process_with_gemini_free(question: str, conversation_mode: str = 'norm
                 return "Gemini API'sinde bir hata oluştu. Lütfen tekrar deneyin."
                 
     except Exception as e:
-        logging.error(f"Gemini API request error: {e}")
-        return "Gemini API'sine bağlanırken bir hata oluştu. Lütfen tekrar deneyin."
+        logging.error(f"Gemini FREE system error: {e}")
+        return "Gemini FREE sisteminde bir hata oluştu. Lütfen tekrar deneyin."
 
 async def process_image_with_chatgpt_vision(question: str, image_path: str, image_name: str) -> str:
     """Process image questions with ChatGPT Vision API"""
