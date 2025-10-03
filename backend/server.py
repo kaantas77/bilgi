@@ -2087,8 +2087,13 @@ async def send_message(conversation_id: str, input: MessageCreate):
                 logging.info("FREE version selected - using Gemini API")
                 ai_content = await process_with_gemini_free(input.content, input.conversationMode, file_content, file_name)
             else:
-                logging.info("PRO version selected - using full hybrid system")
-                ai_content = await smart_hybrid_response(input.content, input.conversationMode, file_content, file_name)
+                # PRO version - check if conversation mode is active
+                if input.conversationMode and input.conversationMode != 'normal':
+                    logging.info(f"PRO version - Conversation mode '{input.conversationMode}' - using OpenAI GPT-5-nano directly")
+                    ai_content = await process_with_openai_gpt5_nano(input.content, input.conversationMode, file_content, file_name)
+                else:
+                    logging.info("PRO version selected - using RAG system")
+                    ai_content = await smart_hybrid_response(input.content, input.conversationMode, file_content, file_name)
         
             logging.info("AI processing completed successfully")
                 
