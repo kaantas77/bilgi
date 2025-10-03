@@ -1115,6 +1115,45 @@ def is_file_processing_question(question: str) -> bool:
     question_lower = question.lower()
     return any(keyword in question_lower for keyword in file_processing_keywords)
 
+def is_casual_chat(question: str) -> bool:
+    """Check if this is casual conversational text"""
+    casual_patterns = [
+        # Greetings
+        r'^(merhaba|selam|hello|hi|hey|günaydın|iyi akşam|tünaydın)$',
+        r'^(merhaba|selam|hello|hi|hey)\s*(nasılsın|naber|ne var ne yok).*',
+        
+        # Social conversation
+        r'nasılsın', r'naber', r'ne yapıyorsun', r'keyifler nasıl',
+        r'ne var ne yok', r'hayat nasıl', r'işler nasıl',
+        
+        # Casual responses
+        r'^(teşekkür|sağol|eyvallah|thanks|thank you)$',
+        r'^(tamam|ok|peki|anladım|iyi|güzel)$',
+        
+        # Conversation starters
+        r'sohbet etmek', r'konuşmak istiyorum', r'muhabbet',
+        r'canım sıkılıyor', r'vakit geçirmek', r'chat yapalım',
+        
+        # Personal sharing
+        r'bugün.*oldu', r'dün.*gittim', r'şimdi.*yapıyorum',
+        r'hissediyorum', r'mutluyum', r'üzgünüm', r'yorgunum',
+        
+        # Simple questions that invite conversation
+        r'^(nasıl|ne|neden).*\?$'
+    ]
+    
+    question_lower = question.lower().strip()
+    
+    # Very short conversational expressions
+    if len(question_lower) <= 15 and any(word in question_lower for word in ['merhaba', 'selam', 'naber', 'nasıl', 'hi', 'hello']):
+        return True
+    
+    for pattern in casual_patterns:
+        if re.search(pattern, question_lower):
+            return True
+    
+    return False
+
 def is_technical_or_creative_question(question: str) -> bool:
     """Check if question requires technical writing or creative capabilities"""
     technical_creative_keywords = [
