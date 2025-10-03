@@ -662,7 +662,8 @@ function App() {
     try {
       const payload = {
         content: inputMessage,
-        conversationMode: activeTab === 'modes' ? selectedMode : 'normal'
+        conversationMode: activeTab === 'modes' ? selectedMode : 'normal',
+        version: selectedVersion // Pro or Free version
       };
 
       console.log('Calling backend API with payload:', payload);
