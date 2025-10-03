@@ -1322,6 +1322,12 @@ async def process_with_direct_openai(question: str, file_content: str = None, fi
             if response.status_code == 200:
                 data = response.json()
                 content = data["choices"][0]["message"]["content"]
+                
+                # GPT-5-nano sometimes returns empty content, check and handle
+                if not content or content.strip() == "":
+                    logging.warning("GPT-5-nano returned empty content in direct API")
+                    content = "Üzgünüm, yanıt üretilirken bir sorun oluştu. Lütfen sorunuzu farklı şekilde tekrar deneyin."
+                
                 logging.info("Direct OpenAI API response received successfully")
                 return content
             else:
