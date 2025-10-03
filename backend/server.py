@@ -817,6 +817,75 @@ def encode_image_to_base64(image_path: str) -> str:
     with open(image_path, "rb") as image_file:
         return base64.b64encode(image_file.read()).decode('utf-8')
 
+async def process_with_gemini_free(question: str, conversation_mode: str = 'normal', file_content: str = None, file_name: str = None) -> str:
+    """Process question with free Gemini API for FREE version"""
+    try:
+        # Use Google Gemini API
+        headers = {
+            "Content-Type": "application/json"
+        }
+        
+        # Prepare the message based on conversation mode
+        if conversation_mode and conversation_mode != 'normal':
+            mode_personalities = {
+                'friend': "Sen samimi, motive edici ve esprili bir arkadaşsın. Her zaman pozitif yaklaşırsın ve kullanıcıyı motive edersin.",
+                'realistic': "Sen eleştirel düşünen, kanıt odaklı ve gerçekçi bir asistansın. Her konuyu objektif şekilde değerlendirirsin.",
+                'coach': "Sen bir yaşam koçu ve mentorsun. Kullanıcının kendi cevaplarını bulmasına yardım edersin.",
+                'lawyer': "Sen analitik düşünen bir hukukçu gibi yaklaşırsın. Her durumu farklı açılardan değerlendirirsin.",
+                'teacher': "Sen sabırlı, bilgili ve pedagojik yaklaşımlı bir öğretmensin. Karmaşık konuları basit şekilde açıklarsın.",
+                'minimalist': "Sen kısa, öz ve etkili cevaplar veren minimalist bir asistansın."
+            }
+            system_prompt = mode_personalities.get(conversation_mode, "Sen yardımsever bir asistansın.")
+        else:
+            system_prompt = "Sen Türkçe konuşan yardımcı bir asistansın."
+        
+        # Prepare the content
+        if file_content:
+            user_content = f"Sistem: {system_prompt}\n\nDosya adı: {file_name}\nDosya içeriği: {file_content}\n\nKullanıcı sorusu: {question}"
+        else:
+            user_content = f"Sistem: {system_prompt}\n\nKullanıcı sorusu: {question}"
+        
+        payload = {
+            "contents": [
+                {
+                    "parts": [
+                        {
+                            "text": user_content
+                        }
+                    ]
+                }
+            ],
+            "generationConfig": {
+                "temperature": 0.8,
+                "maxOutputTokens": 1500
+            }
+        }
+        
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}",
+                headers=headers,
+                json=payload,
+                timeout=30.0
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get('candidates') and data['candidates'][0].get('content'):
+                    content = data['candidates'][0]['content']['parts'][0]['text']
+                    logging.info("Gemini FREE API response received successfully")
+                    return content
+                else:
+                    logging.error(f"Gemini API unexpected response format: {data}")
+                    return "Gemini API'sinde beklenmeyen yanıt formatı. Lütfen tekrar deneyin."
+            else:
+                logging.error(f"Gemini API error: {response.status_code} - {response.text}")
+                return "Gemini API'sinde bir hata oluştu. Lütfen tekrar deneyin."
+                
+    except Exception as e:
+        logging.error(f"Gemini API request error: {e}")
+        return "Gemini API'sine bağlanırken bir hata oluştu. Lütfen tekrar deneyin."
+
 async def process_image_with_chatgpt_vision(question: str, image_path: str, image_name: str) -> str:
     """Process image questions with ChatGPT Vision API"""
     try:
