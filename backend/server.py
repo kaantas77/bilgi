@@ -953,6 +953,11 @@ async def process_with_gemini_free(question: str, conversation_mode: str = 'norm
         # Regular Gemini processing for non-current questions or web search fallback
         logging.info("FREE version: Using regular Gemini API")
         
+        # Headers for Gemini API
+        headers = {
+            "Content-Type": "application/json"
+        }
+        
         # Prepare the message based on conversation mode
         if conversation_mode and conversation_mode != 'normal':
             mode_personalities = {
