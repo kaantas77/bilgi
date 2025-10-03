@@ -3279,13 +3279,14 @@ def main():
     file_success = tester.run_file_processing_tests()
     
     # Print final comprehensive results
-    total_tests = tester.tests_run + getattr(tester, 'version_tests_run', 0) + getattr(tester, 'conversation_mode_tests_run', 0) + tester.routing_tests_run + tester.hybrid_tests_run + tester.file_tests_run
-    total_passed = tester.tests_passed + getattr(tester, 'version_tests_passed', 0) + getattr(tester, 'conversation_mode_tests_passed', 0) + tester.routing_tests_passed + tester.hybrid_tests_passed + tester.file_tests_passed
+    total_tests = tester.tests_run + enhanced_free_run + getattr(tester, 'version_tests_run', 0) + getattr(tester, 'conversation_mode_tests_run', 0) + tester.routing_tests_run + tester.hybrid_tests_run + tester.file_tests_run
+    total_passed = tester.tests_passed + enhanced_free_passed + getattr(tester, 'version_tests_passed', 0) + getattr(tester, 'conversation_mode_tests_passed', 0) + tester.routing_tests_passed + tester.hybrid_tests_passed + tester.file_tests_passed
     
     print("\n" + "=" * 60)
     print("🏁 COMPREHENSIVE TEST RESULTS")
     print("=" * 60)
     print(f"📋 Basic API Tests: {tester.tests_passed}/{tester.tests_run} passed")
+    print(f"🚀 ENHANCED FREE Version Tests (Serper + Gemini): {enhanced_free_passed}/{enhanced_free_run} passed")
     print(f"🆓 NEW FREE/PRO Version Tests: {getattr(tester, 'version_tests_passed', 0)}/{getattr(tester, 'version_tests_run', 0)} passed")
     print(f"🗣️ NEW Conversation Mode Tests: {getattr(tester, 'conversation_mode_tests_passed', 0)}/{getattr(tester, 'conversation_mode_tests_run', 0)} passed")
     print(f"🔀 NEW Routing System Tests: {tester.routing_tests_passed}/{tester.routing_tests_run} passed")
