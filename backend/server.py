@@ -1079,7 +1079,7 @@ async def process_image_with_chatgpt_vision(question: str, image_path: str, imag
         }
         
         payload = {
-            "model": "gpt-4o",
+            "model": "gpt-5-nano",
             "messages": [
                 {
                     "role": "user",
