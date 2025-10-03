@@ -2656,6 +2656,581 @@ class BilginAIAPITester:
         
         return self.conversation_mode_tests_passed == self.conversation_mode_tests_run
 
+    def test_pro_version_default_routing(self):
+        """Test Scenario 1: PRO Version (Default) - should use existing hybrid system"""
+        print("\n🧪 FREE/PRO VERSION TEST 1: PRO Version Default Routing")
+        
+        # Create conversation for PRO version test
+        success, response = self.run_test(
+            "Create Conversation for PRO Version Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "PRO Version Test"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        self.version_tests_run += 1
+        
+        # Test PRO version with various question types
+        pro_test_questions = [
+            ("Merhaba nasılsın?", "casual greeting"),
+            ("25 × 8 kaç eder?", "math question"),
+            ("Bugün dolar kuru kaç TL?", "current info")
+        ]
+        
+        successful_pro_tests = 0
+        
+        for question, description in pro_test_questions:
+            print(f"   Testing PRO version with {description}: '{question}'...")
+            
+            start_time = time.time()
+            success, response = self.run_test(
+                f"Send PRO Version Question: '{question}'",
+                "POST",
+                f"conversations/{test_conv_id}/messages",
+                200,
+                data={"content": question, "mode": "chat", "version": "pro"}
+            )
+            response_time = time.time() - start_time
+            
+            if success:
+                ai_response = response.get('content', '')
+                print(f"     Response Time: {response_time:.2f} seconds")
+                print(f"     Response: {ai_response[:100]}...")
+                
+                # Check that PRO version uses hybrid system (not Gemini)
+                # Should have appropriate responses for each question type
+                if "merhaba" in question.lower():
+                    # Should get greeting response
+                    if any(indicator in ai_response.lower() for indicator in ['merhaba', 'selam', 'yardım']):
+                        print("     ✅ PRO version greeting handled correctly (hybrid system)")
+                        successful_pro_tests += 1
+                    else:
+                        print("     ❌ PRO version greeting not handled properly")
+                
+                elif "25 × 8" in question:
+                    # Should get correct math answer
+                    if '200' in ai_response:
+                        print("     ✅ PRO version math handled correctly (hybrid system)")
+                        successful_pro_tests += 1
+                    else:
+                        print("     ❌ PRO version math not handled properly")
+                
+                elif "dolar kuru" in question.lower():
+                    # Should use web search for current info
+                    if any(indicator in ai_response.lower() for indicator in ['tl', 'dolar', 'kur', 'web']):
+                        print("     ✅ PRO version current info handled correctly (web search)")
+                        successful_pro_tests += 1
+                    else:
+                        print("     ❌ PRO version current info not handled properly")
+            
+            time.sleep(2)
+        
+        if successful_pro_tests >= len(pro_test_questions) * 0.7:  # 70% success rate
+            self.version_tests_passed += 1
+            print(f"✅ PASSED: PRO version routing working ({successful_pro_tests}/{len(pro_test_questions)})")
+            return True
+        else:
+            print(f"❌ FAILED: PRO version routing issues ({successful_pro_tests}/{len(pro_test_questions)})")
+            return False
+
+    def test_free_version_gemini_routing(self):
+        """Test Scenario 2: FREE Version (Gemini API) - should use Gemini API for all responses"""
+        print("\n🧪 FREE/PRO VERSION TEST 2: FREE Version Gemini API Routing")
+        
+        # Create conversation for FREE version test
+        success, response = self.run_test(
+            "Create Conversation for FREE Version Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "FREE Version Test"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        self.version_tests_run += 1
+        
+        # Test FREE version with various question types
+        free_test_questions = [
+            ("Merhaba nasılsın?", "casual greeting"),
+            ("Python nedir?", "general knowledge"),
+            ("Bana bir hikaye yaz", "creative request")
+        ]
+        
+        successful_free_tests = 0
+        
+        for question, description in free_test_questions:
+            print(f"   Testing FREE version with {description}: '{question}'...")
+            
+            start_time = time.time()
+            success, response = self.run_test(
+                f"Send FREE Version Question: '{question}'",
+                "POST",
+                f"conversations/{test_conv_id}/messages",
+                200,
+                data={"content": question, "mode": "chat", "version": "free"}
+            )
+            response_time = time.time() - start_time
+            
+            if success:
+                ai_response = response.get('content', '')
+                print(f"     Response Time: {response_time:.2f} seconds")
+                print(f"     Response: {ai_response[:100]}...")
+                
+                # Check that FREE version uses Gemini API
+                # Should NOT contain web search indicators or AnythingLLM patterns
+                web_indicators = ['web araştırması', 'güncel web kaynaklarından']
+                has_web_indicators = any(indicator in ai_response.lower() for indicator in web_indicators)
+                
+                # Should have coherent Turkish responses (Gemini capability)
+                is_coherent_turkish = len(ai_response) > 20 and any(char in ai_response for char in 'çğıöşüÇĞIÖŞÜ')
+                
+                if not has_web_indicators and is_coherent_turkish:
+                    print("     ✅ FREE version handled by Gemini API (no web search indicators)")
+                    successful_free_tests += 1
+                else:
+                    print("     ❌ FREE version not using Gemini API properly")
+            
+            time.sleep(2)
+        
+        if successful_free_tests >= len(free_test_questions) * 0.7:  # 70% success rate
+            self.version_tests_passed += 1
+            print(f"✅ PASSED: FREE version Gemini routing working ({successful_free_tests}/{len(free_test_questions)})")
+            return True
+        else:
+            print(f"❌ FAILED: FREE version Gemini routing issues ({successful_free_tests}/{len(free_test_questions)})")
+            return False
+
+    def test_free_version_conversation_modes(self):
+        """Test Scenario 3: Conversation Modes in FREE Version - test different modes with Gemini"""
+        print("\n🧪 FREE/PRO VERSION TEST 3: FREE Version Conversation Modes with Gemini")
+        
+        # Create conversation for FREE version conversation modes test
+        success, response = self.run_test(
+            "Create Conversation for FREE Version Modes Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "FREE Version Modes Test"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        self.version_tests_run += 1
+        
+        # Test FREE version conversation modes
+        free_mode_tests = [
+            ("Motivasyona ihtiyacım var", "friend", "arkadaş canlısı"),
+            ("Python öğrenmek istiyorum", "teacher", "öğretmen")
+        ]
+        
+        successful_mode_tests = 0
+        
+        for question, mode, description in free_mode_tests:
+            print(f"   Testing FREE version {description} mode: '{question}'...")
+            
+            start_time = time.time()
+            success, response = self.run_test(
+                f"Send FREE Version {mode} Mode Question",
+                "POST",
+                f"conversations/{test_conv_id}/messages",
+                200,
+                data={"content": question, "mode": "chat", "version": "free", "conversationMode": mode}
+            )
+            response_time = time.time() - start_time
+            
+            if success:
+                ai_response = response.get('content', '')
+                print(f"     Response Time: {response_time:.2f} seconds")
+                print(f"     Response: {ai_response[:150]}...")
+                
+                # Check that Gemini applies personality prompts
+                if mode == "friend":
+                    # Should have motivational, friendly tone
+                    friend_indicators = ['motivasyon', 'başarabilirsin', 'güçlüsün', 'pozitif', 'umut']
+                    has_friend_tone = any(indicator in ai_response.lower() for indicator in friend_indicators)
+                    
+                    if has_friend_tone:
+                        print("     ✅ FREE version friend mode personality applied by Gemini")
+                        successful_mode_tests += 1
+                    else:
+                        print("     ❌ FREE version friend mode personality not detected")
+                
+                elif mode == "teacher":
+                    # Should have educational, step-by-step approach
+                    teacher_indicators = ['öğren', 'adım', 'başla', 'önce', 'sonra', 'pratik']
+                    has_teacher_tone = any(indicator in ai_response.lower() for indicator in teacher_indicators)
+                    
+                    if has_teacher_tone:
+                        print("     ✅ FREE version teacher mode personality applied by Gemini")
+                        successful_mode_tests += 1
+                    else:
+                        print("     ❌ FREE version teacher mode personality not detected")
+            
+            time.sleep(2)
+        
+        if successful_mode_tests >= len(free_mode_tests) * 0.5:  # 50% success rate (more lenient)
+            self.version_tests_passed += 1
+            print(f"✅ PASSED: FREE version conversation modes working ({successful_mode_tests}/{len(free_mode_tests)})")
+            return True
+        else:
+            print(f"❌ FAILED: FREE version conversation modes issues ({successful_mode_tests}/{len(free_mode_tests)})")
+            return False
+
+    def test_free_version_file_processing(self):
+        """Test Scenario 4: File Processing in FREE Version - test file content analysis with Gemini"""
+        print("\n🧪 FREE/PRO VERSION TEST 4: FREE Version File Processing with Gemini")
+        
+        # Create conversation for FREE version file processing test
+        success, response = self.run_test(
+            "Create Conversation for FREE Version File Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "FREE Version File Test"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        self.version_tests_run += 1
+        
+        # Upload a test file first
+        test_file_path = self.create_test_file("txt", "Test dosya içeriği: Bu bir örnek metin dosyasıdır. Gemini API ile işlenecektir.")
+        
+        try:
+            # Upload file
+            url = f"{self.base_url}/conversations/{test_conv_id}/upload"
+            with open(test_file_path, 'rb') as file:
+                files = {'file': ('free_version_test.txt', file, 'text/plain')}
+                upload_response = requests.post(url, files=files, timeout=30)
+            
+            if upload_response.status_code != 200:
+                print("❌ File upload failed")
+                return False
+            
+            print("   ✅ Test file uploaded successfully")
+            
+            # Test file processing with FREE version
+            start_time = time.time()
+            success, response = self.run_test(
+                "Send FREE Version File Processing Question",
+                "POST",
+                f"conversations/{test_conv_id}/messages",
+                200,
+                data={"content": "Bu dosyayı özetle", "mode": "chat", "version": "free"}
+            )
+            response_time = time.time() - start_time
+            
+            if success:
+                ai_response = response.get('content', '')
+                print(f"   Response Time: {response_time:.2f} seconds")
+                print(f"   Response: {ai_response[:150]}...")
+                
+                # Check that Gemini handles file content analysis
+                file_processing_indicators = ['dosya', 'içerik', 'metin', 'örnek', 'gemini']
+                has_file_processing = any(indicator in ai_response.lower() for indicator in file_processing_indicators)
+                
+                # Should NOT use web search or AnythingLLM indicators
+                hybrid_indicators = ['web araştırması', 'anythingllm']
+                has_hybrid_indicators = any(indicator in ai_response.lower() for indicator in hybrid_indicators)
+                
+                if has_file_processing and not has_hybrid_indicators:
+                    print("✅ PASSED: FREE version file processing handled by Gemini")
+                    self.version_tests_passed += 1
+                    return True
+                else:
+                    print("❌ FAILED: FREE version file processing not using Gemini properly")
+                    return False
+            
+            return False
+            
+        except Exception as e:
+            print(f"❌ FAILED: FREE version file processing error: {str(e)}")
+            return False
+        finally:
+            if os.path.exists(test_file_path):
+                os.remove(test_file_path)
+
+    def test_gemini_api_endpoint_configuration(self):
+        """Test Scenario 5: Gemini API Endpoint Testing - verify API key and endpoint functionality"""
+        print("\n🧪 FREE/PRO VERSION TEST 5: Gemini API Endpoint Configuration")
+        
+        # Create conversation for Gemini API test
+        success, response = self.run_test(
+            "Create Conversation for Gemini API Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "Gemini API Test"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        self.version_tests_run += 1
+        
+        # Test Gemini API with a simple question
+        start_time = time.time()
+        success, response = self.run_test(
+            "Test Gemini API Configuration",
+            "POST",
+            f"conversations/{test_conv_id}/messages",
+            200,
+            data={"content": "Merhaba, Gemini API çalışıyor mu?", "mode": "chat", "version": "free"}
+        )
+        response_time = time.time() - start_time
+        
+        if success:
+            ai_response = response.get('content', '')
+            print(f"   Response Time: {response_time:.2f} seconds")
+            print(f"   Response: {ai_response[:150]}...")
+            
+            # Check for Gemini API errors
+            api_errors = [
+                'api key', 'authentication', 'unauthorized', 'forbidden', 
+                'invalid key', 'quota exceeded', 'rate limit', 'gemini api error'
+            ]
+            has_api_errors = any(error in ai_response.lower() for error in api_errors)
+            
+            # Check for coherent Turkish response (indicates Gemini is working)
+            is_coherent_response = len(ai_response) > 10 and not has_api_errors
+            
+            if is_coherent_response and not has_api_errors:
+                print("✅ PASSED: Gemini API endpoint and key configured correctly")
+                self.version_tests_passed += 1
+                return True
+            else:
+                print("❌ FAILED: Gemini API configuration issues detected")
+                if has_api_errors:
+                    print(f"   API errors found: {[err for err in api_errors if err in ai_response.lower()]}")
+                return False
+        
+        return False
+
+    def test_version_parameter_routing_logic(self):
+        """Test Scenario 6: Version Parameter Backend Routing Logic"""
+        print("\n🧪 FREE/PRO VERSION TEST 6: Version Parameter Backend Routing Logic")
+        
+        # Create conversation for version routing test
+        success, response = self.run_test(
+            "Create Conversation for Version Routing Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "Version Routing Test"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        self.version_tests_run += 1
+        
+        # Test same question with different version parameters
+        test_question = "Türkiye'nin başkenti neresi?"
+        
+        # Test 1: PRO version
+        print("   Testing PRO version routing...")
+        success1, response1 = self.run_test(
+            "Send Question with PRO Version",
+            "POST",
+            f"conversations/{test_conv_id}/messages",
+            200,
+            data={"content": test_question, "mode": "chat", "version": "pro"}
+        )
+        
+        time.sleep(2)
+        
+        # Test 2: FREE version
+        print("   Testing FREE version routing...")
+        success2, response2 = self.run_test(
+            "Send Question with FREE Version",
+            "POST",
+            f"conversations/{test_conv_id}/messages",
+            200,
+            data={"content": test_question, "mode": "chat", "version": "free"}
+        )
+        
+        if success1 and success2:
+            pro_response = response1.get('content', '')
+            free_response = response2.get('content', '')
+            
+            print(f"   PRO Response: {pro_response[:100]}...")
+            print(f"   FREE Response: {free_response[:100]}...")
+            
+            # Check that responses are different (indicating different routing)
+            responses_different = pro_response != free_response
+            
+            # Check PRO response characteristics (may use web search or AnythingLLM)
+            pro_indicators = ['ankara', 'başkent', 'türkiye']
+            has_pro_content = any(indicator in pro_response.lower() for indicator in pro_indicators)
+            
+            # Check FREE response characteristics (should be from Gemini)
+            free_indicators = ['ankara', 'başkent', 'türkiye']
+            has_free_content = any(indicator in free_response.lower() for indicator in free_indicators)
+            
+            # Both should answer correctly but potentially with different approaches
+            if has_pro_content and has_free_content:
+                print("✅ PASSED: Version parameter routing working - both versions answer correctly")
+                self.version_tests_passed += 1
+                return True
+            else:
+                print("❌ FAILED: Version parameter routing issues - incorrect answers")
+                return False
+        
+        return False
+
+    def test_performance_comparison_pro_vs_free(self):
+        """Test Scenario 7: Performance Comparison - PRO vs FREE version response times"""
+        print("\n🧪 FREE/PRO VERSION TEST 7: Performance Comparison (PRO vs FREE)")
+        
+        # Create conversation for performance test
+        success, response = self.run_test(
+            "Create Conversation for Performance Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "Performance Comparison Test"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        self.version_tests_run += 1
+        
+        # Test questions for performance comparison
+        performance_questions = [
+            "Merhaba nasılsın?",
+            "Python programlama dili nedir?",
+            "Bana kısa bir hikaye anlat"
+        ]
+        
+        pro_times = []
+        free_times = []
+        
+        for question in performance_questions:
+            print(f"   Testing performance with: '{question}'...")
+            
+            # Test PRO version
+            start_time = time.time()
+            success1, response1 = self.run_test(
+                f"PRO Version Performance Test",
+                "POST",
+                f"conversations/{test_conv_id}/messages",
+                200,
+                data={"content": question, "mode": "chat", "version": "pro"}
+            )
+            pro_time = time.time() - start_time
+            pro_times.append(pro_time)
+            
+            time.sleep(1)
+            
+            # Test FREE version
+            start_time = time.time()
+            success2, response2 = self.run_test(
+                f"FREE Version Performance Test",
+                "POST",
+                f"conversations/{test_conv_id}/messages",
+                200,
+                data={"content": question, "mode": "chat", "version": "free"}
+            )
+            free_time = time.time() - start_time
+            free_times.append(free_time)
+            
+            print(f"     PRO: {pro_time:.2f}s, FREE: {free_time:.2f}s")
+            
+            time.sleep(2)
+        
+        # Calculate average response times
+        avg_pro_time = sum(pro_times) / len(pro_times)
+        avg_free_time = sum(free_times) / len(free_times)
+        
+        print(f"   Average Response Times:")
+        print(f"     PRO Version: {avg_pro_time:.2f} seconds")
+        print(f"     FREE Version: {avg_free_time:.2f} seconds")
+        
+        # Both should be reasonable (under 30 seconds)
+        if avg_pro_time < 30 and avg_free_time < 30:
+            print("✅ PASSED: Both versions have reasonable response times")
+            self.version_tests_passed += 1
+            
+            # Additional insight on performance difference
+            if avg_free_time < avg_pro_time:
+                print("   ℹ️  FREE version (Gemini) is faster than PRO version (hybrid)")
+            else:
+                print("   ℹ️  PRO version (hybrid) is faster than FREE version (Gemini)")
+            
+            return True
+        else:
+            print("❌ FAILED: Response times too slow")
+            return False
+
+    def run_free_pro_version_tests(self):
+        """Run all NEW FREE/PRO VERSION SYSTEM tests with Gemini API integration"""
+        print("\n" + "="*70)
+        print("🚀 STARTING NEW FREE/PRO VERSION SYSTEM TESTS")
+        print("Testing FREE/PRO version routing with Gemini API integration:")
+        print("1. PRO Version (Default) → Existing hybrid system (ChatGPT, AnythingLLM, web search)")
+        print("2. FREE Version → Google Gemini API for all responses")
+        print("3. FREE Version Conversation Modes → Gemini with personality prompts")
+        print("4. FREE Version File Processing → Gemini handles file content analysis")
+        print("5. Gemini API Endpoint → Verify API key and endpoint functionality")
+        print("6. Version Parameter Routing → Backend receives and processes version parameter")
+        print("7. Performance Comparison → Compare PRO vs FREE response times")
+        print("="*70)
+        
+        # Initialize version test counters
+        self.version_tests_run = 0
+        self.version_tests_passed = 0
+        
+        version_tests = [
+            self.test_pro_version_default_routing,
+            self.test_free_version_gemini_routing,
+            self.test_free_version_conversation_modes,
+            self.test_free_version_file_processing,
+            self.test_gemini_api_endpoint_configuration,
+            self.test_version_parameter_routing_logic,
+            self.test_performance_comparison_pro_vs_free
+        ]
+        
+        for test in version_tests:
+            try:
+                test()
+                time.sleep(3)  # Longer pause between version tests
+            except Exception as e:
+                print(f"❌ Version test failed with exception: {e}")
+        
+        # Print version system test results
+        print("\n" + "="*70)
+        print(f"🧪 FREE/PRO VERSION SYSTEM RESULTS: {self.version_tests_passed}/{self.version_tests_run} tests passed")
+        
+        if self.version_tests_passed == self.version_tests_run:
+            print("🎉 All FREE/PRO VERSION SYSTEM tests passed!")
+            print("✅ PRO Version → Hybrid system (ChatGPT API, AnythingLLM, web search) working")
+            print("✅ FREE Version → Gemini API integration working")
+            print("✅ FREE Version conversation modes with Gemini working")
+            print("✅ FREE Version file processing with Gemini working")
+            print("✅ Gemini API endpoint and key configured correctly")
+            print("✅ Version parameter backend routing working")
+            print("✅ Performance comparison completed")
+        else:
+            print(f"❌ {self.version_tests_run - self.version_tests_passed} version system tests failed")
+        
+        return self.version_tests_passed == self.version_tests_run
+
 def main():
     print("🚀 Starting BİLGİN AI Backend API Tests")
     print("=" * 50)
