@@ -3303,6 +3303,8 @@ def main():
         
         if tester.tests_passed < tester.tests_run:
             print("   - Basic API issues detected")
+        if enhanced_free_passed < enhanced_free_run:
+            print("   - ENHANCED FREE Version (Serper + Gemini) issues detected")
         if getattr(tester, 'version_tests_passed', 0) < getattr(tester, 'version_tests_run', 0):
             print("   - NEW FREE/PRO Version system issues detected")
         if getattr(tester, 'conversation_mode_tests_passed', 0) < getattr(tester, 'conversation_mode_tests_run', 0):
