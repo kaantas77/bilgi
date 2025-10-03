@@ -1928,9 +1928,15 @@ async def send_message(conversation_id: str, input: MessageCreate):
         
         # Only process with hybrid system if not already processed (e.g., not an image)
         if not processed:
-            ai_content = await smart_hybrid_response(input.content, input.conversationMode, file_content, file_name)
+            # Check version and route accordingly
+            if input.version == "free":
+                logging.info("FREE version selected - using Gemini API")
+                ai_content = await process_with_gemini_free(input.content, input.conversationMode, file_content, file_name)
+            else:
+                logging.info("PRO version selected - using full hybrid system")
+                ai_content = await smart_hybrid_response(input.content, input.conversationMode, file_content, file_name)
         
-            logging.info("Smart hybrid system completed successfully")
+            logging.info("AI processing completed successfully")
                 
     except Exception as e:
         logging.error(f"Smart hybrid system error: {e}")
