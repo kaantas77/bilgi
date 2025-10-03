@@ -698,42 +698,33 @@ async def process_with_openai_gpt5_nano(question: str, conversation_mode: str = 
         logging.error(f"OpenAI GPT-5-nano request error: {e}")
         return "OpenAI API'sine bağlanırken bir hata oluştu. Lütfen tekrar deneyin."
 
-async def smart_hybrid_response(question: str, conversation_mode: str = 'normal', file_content: str = None, file_name: str = None) -> str:
-    """PRO version: RAG first, then GPT-5-nano fallback for specific cases"""
+async def simple_pro_system(question: str, conversation_mode: str = 'normal', file_content: str = None, file_name: str = None) -> str:
+    """Simple PRO system: Check current topics first, then AnythingLLM, then ChatGPT GPT-5-nano fallback"""
     
-    logging.info(f"PRO version - Starting analysis for: {question}")
+    logging.info(f"PRO version - Simple system for: {question}")
     
-    # Priority 1: Current/daily life information - Use web search directly
+    # Step 1: Check if question is about current/güncel topics (hava durumu, son Ballon d'Or kazananı gibi)
     category = get_question_category(question)
     if category == 'current':
-        logging.info("PRO: Current/daily life question - using web search directly")
+        logging.info("PRO: Current topic detected (hava durumu, son haberler, etc.) - using web search")
         web_search_response = await handle_web_search_question(question)
         return await clean_web_search_with_anythingllm(web_search_response, question)
     
-    # Priority 2: Casual chat/sohbet tarzı metinler - Use OpenAI GPT-5-nano directly
-    if is_casual_chat(question):
-        logging.info("PRO: Casual chat/conversation - using OpenAI GPT-5-nano directly")
-        return await process_with_openai_gpt5_nano(question, conversation_mode, file_content, file_name)
-    
-    # Priority 3: PDF/görsel/metin yazma gibi gündelik işler - Use OpenAI GPT-5-nano directly
-    if is_technical_or_creative_question(question) or file_content or is_file_processing_question(question):
-        if file_content:
-            logging.info("PRO: File processing (PDF/görsel) - using OpenAI GPT-5-nano directly")
+    # Step 2: Try AnythingLLM first for all other questions
+    logging.info("PRO: Not current topic - trying AnythingLLM first...")
+    try:
+        anythingllm_response = await get_anythingllm_response(question, conversation_mode)
+        
+        # Check if AnythingLLM gave "no answer" or error
+        if can_anythingllm_answer(anythingllm_response):
+            logging.info("PRO: AnythingLLM provided good answer - using it")
+            return anythingllm_response
         else:
-            logging.info("PRO: Daily tasks (metin yazma/düzeltme) - using OpenAI GPT-5-nano directly")
-        return await process_with_openai_gpt5_nano(question, conversation_mode, file_content, file_name)
-    
-    # Priority 4: All other questions - Try AnythingLLM (RAG) first
-    logging.info("PRO: Regular question - trying AnythingLLM (RAG) first...")
-    anythingllm_response = await get_anythingllm_response(question, conversation_mode)
-    
-    # Check if AnythingLLM provided answer (specifically check for "NO_ANSWER\nSources:")
-    if can_anythingllm_answer(anythingllm_response):
-        logging.info("PRO: AnythingLLM (RAG) has answer in system - using it")
-        return anythingllm_response
-    else:
-        # AnythingLLM returned "NO_ANSWER\nSources:" or couldn't respond, use OpenAI GPT-5-nano
-        logging.info("PRO: AnythingLLM (RAG) returned 'NO_ANSWER\\nSources:' - falling back to OpenAI GPT-5-nano")
+            logging.info("PRO: AnythingLLM returned 'no answer' or error - falling back to ChatGPT GPT-5-nano")
+            return await process_with_openai_gpt5_nano(question, conversation_mode, file_content, file_name)
+            
+    except Exception as e:
+        logging.error(f"PRO: AnythingLLM error: {e} - falling back to ChatGPT GPT-5-nano")
         return await process_with_openai_gpt5_nano(question, conversation_mode, file_content, file_name)
 
 def optimize_search_query(question: str) -> str:
