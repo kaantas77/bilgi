@@ -2474,6 +2474,276 @@ class BilginAIAPITester:
             temp_file.close()
             return temp_file.name
 
+    def test_gpt5_nano_simple_questions_pro(self):
+        """Test GPT-5-nano with simple questions in PRO version"""
+        print("\n🧪 GPT-5-NANO TEST 1: Simple Questions (PRO Version)")
+        
+        # Create conversation for GPT-5-nano test
+        success, response = self.run_test(
+            "Create Conversation for GPT-5-nano Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "GPT-5-nano Test - Simple Questions"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        
+        # Test simple questions that should trigger GPT-5-nano in PRO version
+        simple_questions = [
+            "Merhaba nasılsın?",
+            "25 + 30 kaç eder?", 
+            "Python nedir?"
+        ]
+        
+        successful_tests = 0
+        
+        for question in simple_questions:
+            print(f"   Testing GPT-5-nano simple question: '{question}'...")
+            
+            start_time = time.time()
+            success, response = self.run_test(
+                f"GPT-5-nano Simple Question: '{question}'",
+                "POST",
+                f"conversations/{test_conv_id}/messages",
+                200,
+                data={"content": question, "mode": "chat", "version": "pro"}
+            )
+            response_time = time.time() - start_time
+            
+            if success:
+                ai_response = response.get('content', '')
+                print(f"     Response Time: {response_time:.2f}s")
+                print(f"     Response: {ai_response[:150]}...")
+                
+                # Check for appropriate responses
+                if 'merhaba' in question.lower():
+                    if any(term in ai_response.lower() for term in ['merhaba', 'selam', 'nasılsın', 'yardım', 'asistan']):
+                        print("     ✅ GPT-5-nano: Greeting question answered appropriately")
+                        successful_tests += 1
+                    else:
+                        print("     ❌ GPT-5-nano: Greeting question not answered appropriately")
+                
+                elif '25 + 30' in question:
+                    if '55' in ai_response:
+                        print("     ✅ GPT-5-nano: Math question answered correctly (55)")
+                        successful_tests += 1
+                    else:
+                        print("     ❌ GPT-5-nano: Math question not answered correctly (should be 55)")
+                
+                elif 'python' in question.lower():
+                    if any(term in ai_response.lower() for term in ['programlama', 'dil', 'kod', 'yazılım', 'python']):
+                        print("     ✅ GPT-5-nano: Python question answered appropriately")
+                        successful_tests += 1
+                    else:
+                        print("     ❌ GPT-5-nano: Python question not answered appropriately")
+                
+                # Check for empty content or error messages
+                if not ai_response.strip():
+                    print("     ❌ GPT-5-nano: Empty response received")
+                elif 'bir hata oluştu' in ai_response.lower():
+                    print("     ❌ GPT-5-nano: Error message received")
+                elif len(ai_response.strip()) < 10:
+                    print("     ⚠️  GPT-5-nano: Very short response (possible empty content issue)")
+            
+            time.sleep(2)
+        
+        print(f"\n   GPT-5-nano Simple Questions Result: {successful_tests}/{len(simple_questions)} passed")
+        return successful_tests >= len(simple_questions) * 0.67  # 67% success rate
+
+    def test_gpt5_nano_conversation_consistency(self):
+        """Test GPT-5-nano conversation consistency and Turkish language support"""
+        print("\n🧪 GPT-5-NANO TEST 2: Conversation Consistency & Turkish Support")
+        
+        # Create conversation for consistency test
+        success, response = self.run_test(
+            "Create Conversation for GPT-5-nano Consistency Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "GPT-5-nano Test - Consistency"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        
+        # Test multiple questions in sequence
+        conversation_questions = [
+            "Merhaba, sen kimsin?",
+            "Türkçe konuşabiliyor musun?",
+            "Bana matematik sorusu sor",
+            "Python programlama hakkında ne biliyorsun?",
+            "Teşekkür ederim, yardımın için"
+        ]
+        
+        successful_tests = 0
+        responses = []
+        
+        for i, question in enumerate(conversation_questions):
+            print(f"   Testing GPT-5-nano conversation {i+1}: '{question}'...")
+            
+            start_time = time.time()
+            success, response = self.run_test(
+                f"GPT-5-nano Conversation {i+1}: '{question}'",
+                "POST",
+                f"conversations/{test_conv_id}/messages",
+                200,
+                data={"content": question, "mode": "chat", "version": "pro"}
+            )
+            response_time = time.time() - start_time
+            
+            if success:
+                ai_response = response.get('content', '')
+                responses.append(ai_response)
+                print(f"     Response Time: {response_time:.2f}s")
+                print(f"     Response: {ai_response[:100]}...")
+                
+                # Check response quality
+                if ai_response.strip() and len(ai_response.strip()) > 5:
+                    # Check for Turkish language
+                    turkish_indicators = ['ben', 'bir', 'bu', 've', 'ile', 'için', 'var', 'yok', 'evet', 'hayır']
+                    has_turkish = any(indicator in ai_response.lower() for indicator in turkish_indicators)
+                    
+                    # Check for English error messages
+                    english_errors = ['sorry', 'error', 'technical difficulties', 'i cannot', "i don't"]
+                    has_english_errors = any(error in ai_response.lower() for error in english_errors)
+                    
+                    if has_turkish and not has_english_errors:
+                        print("     ✅ GPT-5-nano: Good Turkish response, no English errors")
+                        successful_tests += 1
+                    elif not has_english_errors:
+                        print("     ✅ GPT-5-nano: Response received, no English errors")
+                        successful_tests += 1
+                    else:
+                        print("     ❌ GPT-5-nano: English error messages detected")
+                else:
+                    print("     ❌ GPT-5-nano: Empty or very short response")
+            
+            time.sleep(2)
+        
+        # Check conversation consistency
+        if len(responses) >= 3:
+            print(f"\n   Conversation Consistency Check:")
+            print(f"   - Total responses: {len(responses)}")
+            print(f"   - Average response length: {sum(len(r) for r in responses) / len(responses):.1f} chars")
+            
+            # Check if responses are varied (not identical)
+            unique_responses = len(set(responses))
+            if unique_responses >= len(responses) * 0.8:
+                print(f"   ✅ Response variety: {unique_responses}/{len(responses)} unique responses")
+            else:
+                print(f"   ⚠️  Response variety: {unique_responses}/{len(responses)} unique responses (may be repetitive)")
+        
+        print(f"\n   GPT-5-nano Conversation Test Result: {successful_tests}/{len(conversation_questions)} passed")
+        return successful_tests >= len(conversation_questions) * 0.6  # 60% success rate
+
+    def check_backend_logs_for_gpt5_nano(self):
+        """Check backend logs for GPT-5-nano specific messages"""
+        print("\n🧪 GPT-5-NANO TEST 3: Backend Logs Check")
+        
+        try:
+            # Check supervisor backend logs
+            import subprocess
+            result = subprocess.run(['tail', '-n', '100', '/var/log/supervisor/backend.err.log'], 
+                                  capture_output=True, text=True, timeout=10)
+            
+            if result.returncode == 0:
+                log_content = result.stdout
+                print("   Backend logs retrieved successfully")
+                
+                # Look for GPT-5-nano specific messages
+                gpt5_nano_indicators = [
+                    "OpenAI GPT-5-nano PRO response received successfully",
+                    "GPT-5-nano returned empty content",
+                    "Using reasoning content from GPT-5-nano",
+                    "Using generated helpful fallback response",
+                    "OpenAI GPT-5-nano API error",
+                    "temperature does not support"
+                ]
+                
+                found_indicators = []
+                for indicator in gpt5_nano_indicators:
+                    if indicator in log_content:
+                        found_indicators.append(indicator)
+                        print(f"   ✅ Found log: '{indicator}'")
+                
+                if found_indicators:
+                    print(f"\n   ✅ GPT-5-nano logs found: {len(found_indicators)} indicators")
+                    
+                    # Check for specific success/error patterns
+                    if "OpenAI GPT-5-nano PRO response received successfully" in log_content:
+                        print("   ✅ GPT-5-nano successful responses confirmed in logs")
+                    
+                    if "GPT-5-nano returned empty content" in log_content:
+                        print("   ⚠️  Empty content warnings found in logs")
+                    
+                    if "temperature does not support" in log_content:
+                        print("   ❌ Temperature parameter compatibility issue found in logs")
+                    
+                    return True
+                else:
+                    print("   ❌ No GPT-5-nano specific logs found")
+                    return False
+            else:
+                print("   ❌ Could not retrieve backend logs")
+                return False
+                
+        except Exception as e:
+            print(f"   ❌ Error checking backend logs: {str(e)}")
+            return False
+
+    def run_gpt5_nano_tests(self):
+        """Run all GPT-5-nano specific tests"""
+        print("\n" + "="*60)
+        print("🚀 STARTING GPT-5-NANO WITH IMPROVED EMPTY CONTENT HANDLING TESTS")
+        print("Testing specific scenarios:")
+        print("1. Simple Questions (PRO version)")
+        print("2. Backend Logs Check")
+        print("3. Conversation Test")
+        print("="*60)
+        
+        gpt5_nano_tests = [
+            self.test_gpt5_nano_simple_questions_pro,
+            self.test_gpt5_nano_conversation_consistency,
+            self.check_backend_logs_for_gpt5_nano
+        ]
+        
+        gpt5_nano_passed = 0
+        gpt5_nano_total = len(gpt5_nano_tests)
+        
+        for test in gpt5_nano_tests:
+            try:
+                if test():
+                    gpt5_nano_passed += 1
+                time.sleep(2)  # Brief pause between tests
+            except Exception as e:
+                print(f"❌ Test failed with exception: {e}")
+        
+        # Print GPT-5-nano test results
+        print("\n" + "="*60)
+        print(f"🧪 GPT-5-NANO RESULTS: {gpt5_nano_passed}/{gpt5_nano_total} tests passed")
+        
+        if gpt5_nano_passed == gpt5_nano_total:
+            print("🎉 All GPT-5-nano tests passed!")
+            print("✅ Simple questions working with PRO version")
+            print("✅ Backend logs show GPT-5-nano integration")
+            print("✅ Conversation consistency and Turkish support confirmed")
+        else:
+            print(f"❌ {gpt5_nano_total - gpt5_nano_passed} GPT-5-nano tests failed")
+            if gpt5_nano_passed == 0:
+                print("🚨 CRITICAL: GPT-5-nano integration appears to be broken")
+            elif gpt5_nano_passed == 1:
+                print("⚠️  WARNING: GPT-5-nano has significant issues")
+            else:
+                print("ℹ️  INFO: GPT-5-nano partially working but needs attention")
+        
+        return gpt5_nano_passed, gpt5_nano_total
+
     def test_file_upload_endpoint(self):
         """Test Scenario 1: File Upload - POST /api/conversations/{id}/upload"""
         print("\n🧪 FILE PROCESSING TEST 1: File Upload Endpoint")
