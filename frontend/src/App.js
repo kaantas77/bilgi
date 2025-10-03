@@ -234,10 +234,19 @@ function App() {
           timestamp: result.system_message.timestamp
         };
         
+        // Add to the appropriate message array based on active tab
         if (activeTab === 'normal') {
-          setCurrentMessages(prev => [...prev, systemMessage]);
+          if (currentNormalConversation) {
+            setNormalMessages(prev => [...prev, systemMessage]);
+          } else {
+            setCurrentMessages(prev => [...prev, systemMessage]);
+          }
         } else {
-          setCurrentMessages(prev => [...prev, systemMessage]);
+          if (currentModesConversation) {
+            setModesMessages(prev => [...prev, systemMessage]);
+          } else {
+            setCurrentMessages(prev => [...prev, systemMessage]);
+          }
         }
       }
 
