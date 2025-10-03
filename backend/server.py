@@ -689,6 +689,19 @@ async def process_with_openai_gpt5_nano(question: str, conversation_mode: str = 
             if response.status_code == 200:
                 data = response.json()
                 content = data["choices"][0]["message"]["content"]
+                
+                # GPT-5-nano sometimes returns empty content, check and handle
+                if not content or content.strip() == "":
+                    logging.warning("GPT-5-nano returned empty content, trying to get reasoning response")
+                    # If content is empty, try to use any reasoning content or provide fallback
+                    if data.get("choices") and len(data["choices"]) > 0:
+                        choice = data["choices"][0]
+                        # Check if there's reasoning or other content
+                        if choice.get("message", {}).get("reasoning"):
+                            content = choice["message"]["reasoning"]
+                        else:
+                            content = "Üzgünüm, yanıt üretilirken bir sorun oluştu. Lütfen sorunuzu farklı şekilde tekrar deneyin."
+                
                 logging.info("OpenAI GPT-5-nano PRO response received successfully")
                 return content
             else:
