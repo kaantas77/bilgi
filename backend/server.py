@@ -1234,13 +1234,13 @@ async def process_conversation_mode_with_openai(question: str, conversation_mode
             user_message = question
         
         payload = {
-            "model": "gpt-5-nano",
+            "model": "gpt-4o-mini",
             "messages": [
                 {"role": "system", "content": personality['system_message']},
                 {"role": "user", "content": user_message}
             ],
-            "max_completion_tokens": 1500,
-            "temperature": 1  # Higher temperature for more personality
+            "max_tokens": 1500,
+            "temperature": 0.7  # Moderate temperature for personality
         }
         
         async with httpx.AsyncClient() as client:
