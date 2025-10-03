@@ -58,6 +58,9 @@ SERPER_API_URL = "https://google.serper.dev/search"
 EMERGENT_LLM_KEY = os.environ.get("EMERGENT_LLM_KEY")
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 
+# Gemini API configuration for FREE version
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+
 # File upload configuration
 UPLOAD_DIR = Path("/tmp/bilgin_uploads")
 UPLOAD_DIR.mkdir(exist_ok=True)
