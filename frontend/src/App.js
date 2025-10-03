@@ -1312,6 +1312,13 @@ function App() {
                   onChange={handleFileUpload}
                   className="hidden"
                 />
+                <input
+                  ref={imageInputRef}
+                  type="file"
+                  accept=".jpg,.jpeg,.png,.gif,.webp"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                />
                 <div className="text-xs text-gray-500 text-center mt-2">
                   {activeTab === 'modes' 
                     ? `${conversationModes[selectedMode]?.name || 'Normal'} modunda. LaTeX matematik desteği aktif.`
@@ -1535,6 +1542,13 @@ function App() {
                   ref={fileInputRef}
                   type="file"
                   accept=".pdf,.xlsx,.xls,.docx,.txt,.jpg,.jpeg,.png,.gif,.bmp,.webp"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                />
+                <input
+                  ref={imageInputRef}
+                  type="file"
+                  accept=".jpg,.jpeg,.png,.gif,.webp"
                   onChange={handleFileUpload}
                   className="hidden"
                 />
