@@ -5047,8 +5047,27 @@ def main():
     
     tester = BilginAIAPITester()
     
-    # Check if we should run CORRECTED PRO VERSION tests specifically
+    # Check if we should run FINAL PRO VERSION tests specifically
     import sys
+    if len(sys.argv) > 1 and sys.argv[1] == "final_pro":
+        print("\n🎯 Running FINAL PRO VERSION RAG SYSTEM Tests ONLY...")
+        final_pro_success = tester.run_final_pro_rag_tests()
+        
+        # Print final results for FINAL PRO tests
+        print("\n" + "="*80)
+        print("📊 FINAL PRO VERSION RAG SYSTEM TEST RESULTS")
+        print("="*80)
+        print(f"🎯 FINAL PRO Version Tests: {tester.pro_version_tests_passed}/{tester.pro_version_tests_run}")
+        
+        if final_pro_success:
+            print("🎉 ALL FINAL PRO VERSION RAG SYSTEM TESTS PASSED!")
+            print("✅ FINAL PRO RAG system with 'NO_ANSWER\\nSources:' detection is working perfectly!")
+            return 0
+        else:
+            print(f"❌ {tester.pro_version_tests_run - tester.pro_version_tests_passed} FINAL PRO tests failed.")
+            return 1
+    
+    # Check if we should run CORRECTED PRO VERSION tests specifically
     if len(sys.argv) > 1 and sys.argv[1] == "corrected_pro":
         print("\n🎯 Running CORRECTED PRO VERSION RAG SYSTEM Tests ONLY...")
         corrected_pro_success = tester.run_corrected_pro_rag_tests()
