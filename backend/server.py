@@ -666,7 +666,7 @@ async def process_with_openai_gpt5_nano(question: str, conversation_mode: str = 
                 {"role": "system", "content": system_message},
                 {"role": "user", "content": user_message}
             ],
-            "max_tokens": 2000,
+            "max_completion_tokens": 2000,
             "temperature": 0.7
         }
         
@@ -1071,7 +1071,7 @@ async def process_image_with_chatgpt_vision(question: str, image_path: str, imag
                     ]
                 }
             ],
-            "max_tokens": 2000,
+            "max_completion_tokens": 2000,
             "temperature": 0.7
         }
         
@@ -1245,7 +1245,7 @@ async def process_with_direct_openai(question: str, file_content: str = None, fi
                 {"role": "system", "content": system_message},
                 {"role": "user", "content": user_message}
             ],
-            "max_tokens": 2000,
+            "max_completion_tokens": 2000,
             "temperature": 0.7
         }
         
