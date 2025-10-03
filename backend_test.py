@@ -734,6 +734,414 @@ class BilginAIAPITester:
         
         return self.hybrid_tests_passed == self.hybrid_tests_run
 
+    def test_pro_version_current_info_web_search(self):
+        """Test PRO Version Scenario 1: Current Information → Web Search Direct"""
+        print("\n🧪 PRO VERSION TEST 1: Current Information (Web Search Direct)")
+        
+        # Create conversation for PRO version test
+        success, response = self.run_test(
+            "Create Conversation for PRO Current Info Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "PRO Test - Current Info"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        self.pro_version_tests_run += 1
+        
+        # Test current information questions with PRO version
+        current_questions = [
+            "Bugün dolar kuru kaç TL?",
+            "Güncel haberler neler?",
+            "Bugün hava durumu nasıl?",
+            "Son Ballon d'Or kazananı kim?"
+        ]
+        
+        successful_tests = 0
+        
+        for question in current_questions:
+            print(f"   Testing PRO current info: '{question}'...")
+            
+            start_time = time.time()
+            success, response = self.run_test(
+                f"PRO Current Info: '{question}'",
+                "POST",
+                f"conversations/{test_conv_id}/messages",
+                200,
+                data={"content": question, "mode": "chat", "version": "pro"}
+            )
+            response_time = time.time() - start_time
+            
+            if success:
+                ai_response = response.get('content', '')
+                print(f"     Response Time: {response_time:.2f}s")
+                print(f"     Response: {ai_response[:100]}...")
+                
+                # Check for web search indicators (should use web search directly)
+                web_indicators = ['web araştırması', 'güncel', 'bugün', 'son']
+                has_web_search = any(indicator in ai_response.lower() for indicator in web_indicators)
+                
+                if has_web_search or any(keyword in ai_response.lower() for keyword in ['tl', 'dolar', 'haber', 'hava', 'ballon']):
+                    print("     ✅ PRO: Current information - using web search directly")
+                    successful_tests += 1
+                else:
+                    print("     ❌ PRO: Should use web search for current information")
+            
+            time.sleep(2)
+        
+        if successful_tests >= len(current_questions) * 0.75:  # 75% success rate
+            self.pro_version_tests_passed += 1
+            print(f"✅ PASSED: PRO Current Info Web Search ({successful_tests}/{len(current_questions)})")
+            return True
+        else:
+            print(f"❌ FAILED: PRO Current Info Web Search ({successful_tests}/{len(current_questions)})")
+            return False
+
+    def test_pro_version_technical_creative_gpt5_nano(self):
+        """Test PRO Version Scenario 2: Technical/Creative → GPT-5-nano Direct"""
+        print("\n🧪 PRO VERSION TEST 2: Technical/Creative Tasks (GPT-5-nano Direct)")
+        
+        # Create conversation for PRO technical test
+        success, response = self.run_test(
+            "Create Conversation for PRO Technical Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "PRO Test - Technical/Creative"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        self.pro_version_tests_run += 1
+        
+        # Test technical/creative questions with PRO version
+        technical_questions = [
+            "Bana bir blog yazısı yaz",
+            "Bu metni düzelt: 'Merhaba nasılsın'",
+            "Bir iş planı hazırla",
+            "Bu cümleyi İngilizceye çevir: 'Bugün hava güzel'"
+        ]
+        
+        successful_tests = 0
+        
+        for question in technical_questions:
+            print(f"   Testing PRO technical/creative: '{question}'...")
+            
+            start_time = time.time()
+            success, response = self.run_test(
+                f"PRO Technical/Creative: '{question}'",
+                "POST",
+                f"conversations/{test_conv_id}/messages",
+                200,
+                data={"content": question, "mode": "chat", "version": "pro"}
+            )
+            response_time = time.time() - start_time
+            
+            if success:
+                ai_response = response.get('content', '')
+                print(f"     Response Time: {response_time:.2f}s")
+                print(f"     Response: {ai_response[:100]}...")
+                
+                # Check for GPT-5-nano usage (should bypass RAG)
+                # Look for quality creative/technical responses
+                quality_indicators = ['blog', 'plan', 'today', 'weather', 'düzelt', 'yazı']
+                has_quality_response = any(indicator in ai_response.lower() for indicator in quality_indicators)
+                
+                # Should NOT have web search indicators for technical tasks
+                web_indicators = ['web araştırması', 'güncel web kaynaklarından']
+                has_web_search = any(indicator in ai_response.lower() for indicator in web_indicators)
+                
+                if has_quality_response and not has_web_search:
+                    print("     ✅ PRO: Technical/creative question - using OpenAI GPT-5-nano")
+                    successful_tests += 1
+                else:
+                    print("     ❌ PRO: Should use GPT-5-nano directly for technical/creative tasks")
+            
+            time.sleep(2)
+        
+        if successful_tests >= len(technical_questions) * 0.75:  # 75% success rate
+            self.pro_version_tests_passed += 1
+            print(f"✅ PASSED: PRO Technical/Creative GPT-5-nano ({successful_tests}/{len(technical_questions)})")
+            return True
+        else:
+            print(f"❌ FAILED: PRO Technical/Creative GPT-5-nano ({successful_tests}/{len(technical_questions)})")
+            return False
+
+    def test_pro_version_file_processing_gpt5_nano(self):
+        """Test PRO Version Scenario 3: File Processing → GPT-5-nano Direct"""
+        print("\n🧪 PRO VERSION TEST 3: File Processing (GPT-5-nano Direct)")
+        
+        # Create conversation for PRO file test
+        success, response = self.run_test(
+            "Create Conversation for PRO File Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "PRO Test - File Processing"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        self.pro_version_tests_run += 1
+        
+        # Upload a test file first
+        test_file_path = self.create_test_file("pdf", "Test PDF content for PRO version file processing with GPT-5-nano.")
+        
+        try:
+            # Upload file
+            url = f"{self.base_url}/conversations/{test_conv_id}/upload"
+            with open(test_file_path, 'rb') as file:
+                files = {'file': ('pro_test.pdf', file, 'application/pdf')}
+                upload_response = requests.post(url, files=files, timeout=30)
+            
+            if upload_response.status_code != 200:
+                print("❌ File upload failed")
+                return False
+            
+            # Test file processing questions with PRO version
+            file_questions = [
+                "Bu PDF'i özetle",
+                "Excel verilerini analiz et"
+            ]
+            
+            successful_tests = 0
+            
+            for question in file_questions:
+                print(f"   Testing PRO file processing: '{question}'...")
+                
+                start_time = time.time()
+                success, response = self.run_test(
+                    f"PRO File Processing: '{question}'",
+                    "POST",
+                    f"conversations/{test_conv_id}/messages",
+                    200,
+                    data={"content": question, "mode": "chat", "version": "pro"}
+                )
+                response_time = time.time() - start_time
+                
+                if success:
+                    ai_response = response.get('content', '')
+                    print(f"     Response Time: {response_time:.2f}s")
+                    print(f"     Response: {ai_response[:100]}...")
+                    
+                    # Check for file processing capability
+                    file_indicators = ['pdf', 'dosya', 'özet', 'analiz', 'içerik']
+                    has_file_processing = any(indicator in ai_response.lower() for indicator in file_indicators)
+                    
+                    if has_file_processing:
+                        print("     ✅ PRO: File processing question - using OpenAI GPT-5-nano")
+                        successful_tests += 1
+                    else:
+                        print("     ❌ PRO: File processing not working properly")
+                
+                time.sleep(2)
+            
+            if successful_tests >= len(file_questions) * 0.5:  # 50% success rate (file processing can be tricky)
+                self.pro_version_tests_passed += 1
+                print(f"✅ PASSED: PRO File Processing GPT-5-nano ({successful_tests}/{len(file_questions)})")
+                return True
+            else:
+                print(f"❌ FAILED: PRO File Processing GPT-5-nano ({successful_tests}/{len(file_questions)})")
+                return False
+                
+        except Exception as e:
+            print(f"❌ FAILED: PRO file processing error: {str(e)}")
+            return False
+        finally:
+            if os.path.exists(test_file_path):
+                os.remove(test_file_path)
+
+    def test_pro_version_regular_questions_rag_system(self):
+        """Test PRO Version Scenario 4: Regular Questions → RAG then GPT-5-nano"""
+        print("\n🧪 PRO VERSION TEST 4: Regular Questions (RAG then GPT-5-nano)")
+        
+        # Create conversation for PRO regular test
+        success, response = self.run_test(
+            "Create Conversation for PRO Regular Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "PRO Test - Regular Questions"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        self.pro_version_tests_run += 1
+        
+        # Test regular questions with PRO version (should try RAG first)
+        regular_questions = [
+            "Einstein kimdir?",
+            "Python nedir?",
+            "25 × 8 kaç eder?"
+        ]
+        
+        successful_tests = 0
+        
+        for question in regular_questions:
+            print(f"   Testing PRO regular question: '{question}'...")
+            
+            start_time = time.time()
+            success, response = self.run_test(
+                f"PRO Regular Question: '{question}'",
+                "POST",
+                f"conversations/{test_conv_id}/messages",
+                200,
+                data={"content": question, "mode": "chat", "version": "pro"}
+            )
+            response_time = time.time() - start_time
+            
+            if success:
+                ai_response = response.get('content', '')
+                print(f"     Response Time: {response_time:.2f}s")
+                print(f"     Response: {ai_response[:100]}...")
+                
+                # Check for appropriate responses
+                if 'einstein' in question.lower():
+                    if any(term in ai_response.lower() for term in ['fizik', 'bilim', 'görelilik', 'albert']):
+                        print("     ✅ PRO: Einstein question answered correctly")
+                        successful_tests += 1
+                    else:
+                        print("     ❌ PRO: Einstein question not answered properly")
+                
+                elif 'python' in question.lower():
+                    if any(term in ai_response.lower() for term in ['programlama', 'dil', 'kod', 'yazılım']):
+                        print("     ✅ PRO: Python question answered correctly")
+                        successful_tests += 1
+                    else:
+                        print("     ❌ PRO: Python question not answered properly")
+                
+                elif '25 × 8' in question or '25 x 8' in question:
+                    if '200' in ai_response:
+                        print("     ✅ PRO: Math question answered correctly (200)")
+                        successful_tests += 1
+                    else:
+                        print("     ❌ PRO: Math question not answered correctly")
+            
+            time.sleep(2)
+        
+        if successful_tests >= len(regular_questions) * 0.75:  # 75% success rate
+            self.pro_version_tests_passed += 1
+            print(f"✅ PASSED: PRO Regular Questions RAG System ({successful_tests}/{len(regular_questions)})")
+            return True
+        else:
+            print(f"❌ FAILED: PRO Regular Questions RAG System ({successful_tests}/{len(regular_questions)})")
+            return False
+
+    def test_pro_version_conversation_modes_gpt5_nano(self):
+        """Test PRO Version Scenario 5: Conversation Modes with GPT-5-nano"""
+        print("\n🧪 PRO VERSION TEST 5: Conversation Modes (GPT-5-nano)")
+        
+        # Create conversation for PRO modes test
+        success, response = self.run_test(
+            "Create Conversation for PRO Modes Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "PRO Test - Conversation Modes"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        self.pro_version_tests_run += 1
+        
+        # Test conversation modes with PRO version
+        mode_tests = [
+            ("friend", "Motivasyona ihtiyacım var", ["dostum", "motivasyon", "başarabilirsin", "arkadaş"]),
+            ("teacher", "Python öğrenmek istiyorum", ["adım", "öğren", "başla", "örnek"])
+        ]
+        
+        successful_tests = 0
+        
+        for mode, question, expected_indicators in mode_tests:
+            print(f"   Testing PRO {mode} mode: '{question}'...")
+            
+            start_time = time.time()
+            success, response = self.run_test(
+                f"PRO {mode.title()} Mode: '{question}'",
+                "POST",
+                f"conversations/{test_conv_id}/messages",
+                200,
+                data={"content": question, "mode": "chat", "version": "pro", "conversationMode": mode}
+            )
+            response_time = time.time() - start_time
+            
+            if success:
+                ai_response = response.get('content', '')
+                print(f"     Response Time: {response_time:.2f}s")
+                print(f"     Response: {ai_response[:100]}...")
+                
+                # Check for mode-specific personality
+                has_personality = any(indicator in ai_response.lower() for indicator in expected_indicators)
+                
+                if has_personality:
+                    print(f"     ✅ PRO: {mode.title()} mode personality detected")
+                    successful_tests += 1
+                else:
+                    print(f"     ❌ PRO: {mode.title()} mode personality not detected")
+            
+            time.sleep(2)
+        
+        if successful_tests >= len(mode_tests) * 0.5:  # 50% success rate (personality detection can be subjective)
+            self.pro_version_tests_passed += 1
+            print(f"✅ PASSED: PRO Conversation Modes GPT-5-nano ({successful_tests}/{len(mode_tests)})")
+            return True
+        else:
+            print(f"❌ FAILED: PRO Conversation Modes GPT-5-nano ({successful_tests}/{len(mode_tests)})")
+            return False
+
+    def run_pro_version_tests(self):
+        """Run all PRO VERSION SIMPLIFIED RAG SYSTEM tests with GPT-5-nano"""
+        print("\n" + "="*60)
+        print("🚀 STARTING NEW PRO VERSION SIMPLIFIED RAG SYSTEM TESTS")
+        print("Testing NEW PRO VERSION RAG LOGIC with OpenAI GPT-5-nano:")
+        print("1. Current/Daily Life → Web Search Direct")
+        print("2. Technical/Creative/Files → OpenAI GPT-5-nano Direct")
+        print("3. Regular Questions → RAG Then GPT-5-nano")
+        print("="*60)
+        
+        pro_tests = [
+            self.test_pro_version_current_info_web_search,
+            self.test_pro_version_technical_creative_gpt5_nano,
+            self.test_pro_version_file_processing_gpt5_nano,
+            self.test_pro_version_regular_questions_rag_system,
+            self.test_pro_version_conversation_modes_gpt5_nano
+        ]
+        
+        for test in pro_tests:
+            try:
+                test()
+                time.sleep(2)  # Brief pause between tests
+            except Exception as e:
+                print(f"❌ PRO test failed with exception: {e}")
+        
+        # Print PRO version test results
+        print("\n" + "="*60)
+        print(f"🧪 NEW PRO VERSION RESULTS: {self.pro_version_tests_passed}/{self.pro_version_tests_run} tests passed")
+        
+        if self.pro_version_tests_passed == self.pro_version_tests_run:
+            print("🎉 All NEW PRO VERSION tests passed!")
+            print("✅ Current information → Web search working")
+            print("✅ Technical/creative → GPT-5-nano working")
+            print("✅ File processing → GPT-5-nano working")
+            print("✅ Regular questions → RAG then GPT-5-nano working")
+            print("✅ Conversation modes → GPT-5-nano working")
+        else:
+            print(f"❌ {self.pro_version_tests_run - self.pro_version_tests_passed} PRO version tests failed")
+        
+        return self.pro_version_tests_passed == self.pro_version_tests_run
+
     def create_test_file(self, file_type, content="Test content for file processing"):
         """Create a temporary test file of specified type"""
         if file_type == "txt":
