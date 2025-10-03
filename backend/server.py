@@ -1282,13 +1282,13 @@ async def process_with_direct_openai(question: str, file_content: str = None, fi
         system_message = "Sen profesyonel bir yazım asistanı, editör ve içerik üreticisisin. Metin yazma, düzeltme, çeviri, özet çıkarma ve yaratıcı içerik üretme konularında uzmansın. Her zaman kaliteli, doğru ve kullanıcı dostu yanıtlar verirsin."
         
         payload = {
-            "model": "gpt-5-nano",
+            "model": "gpt-4o-mini",
             "messages": [
                 {"role": "system", "content": system_message},
                 {"role": "user", "content": user_message}
             ],
-            "max_completion_tokens": 2000,
-            "temperature": 1
+            "max_tokens": 2000,
+            "temperature": 0.7
         }
         
         async with httpx.AsyncClient() as client:
