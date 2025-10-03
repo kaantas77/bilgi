@@ -3260,7 +3260,10 @@ def main():
     print("\n" + "-" * 50)
     print(f"📊 Basic API Results: {tester.tests_passed}/{tester.tests_run} tests passed")
     
-    # Run NEW conversation mode tests (PRIORITY)
+    # Run NEW FREE/PRO VERSION SYSTEM tests (HIGHEST PRIORITY)
+    version_success = tester.run_free_pro_version_tests()
+    
+    # Run NEW conversation mode tests
     conversation_mode_success = tester.run_conversation_mode_tests()
     
     # Run NEW routing system tests
@@ -3273,8 +3276,8 @@ def main():
     file_success = tester.run_file_processing_tests()
     
     # Print final comprehensive results
-    total_tests = tester.tests_run + getattr(tester, 'conversation_mode_tests_run', 0) + tester.routing_tests_run + tester.hybrid_tests_run + tester.file_tests_run
-    total_passed = tester.tests_passed + getattr(tester, 'conversation_mode_tests_passed', 0) + tester.routing_tests_passed + tester.hybrid_tests_passed + tester.file_tests_passed
+    total_tests = tester.tests_run + getattr(tester, 'version_tests_run', 0) + getattr(tester, 'conversation_mode_tests_run', 0) + tester.routing_tests_run + tester.hybrid_tests_run + tester.file_tests_run
+    total_passed = tester.tests_passed + getattr(tester, 'version_tests_passed', 0) + getattr(tester, 'conversation_mode_tests_passed', 0) + tester.routing_tests_passed + tester.hybrid_tests_passed + tester.file_tests_passed
     
     print("\n" + "=" * 60)
     print("🏁 COMPREHENSIVE TEST RESULTS")
