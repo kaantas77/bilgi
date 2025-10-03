@@ -5109,7 +5109,10 @@ def main():
     print("\n" + "-" * 50)
     print(f"📊 Basic API Results: {tester.tests_passed}/{tester.tests_run} tests passed")
     
-    # Run CORRECTED PRO VERSION RAG SYSTEM tests (HIGHEST PRIORITY)
+    # Run FINAL PRO VERSION RAG SYSTEM tests (HIGHEST PRIORITY)
+    final_pro_success = tester.run_final_pro_rag_tests()
+    
+    # Run CORRECTED PRO VERSION RAG SYSTEM tests
     corrected_pro_success = tester.run_corrected_pro_rag_tests()
     
     # Run ENHANCED FREE VERSION tests with Serper + Gemini
