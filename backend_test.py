@@ -3260,7 +3260,10 @@ def main():
     print("\n" + "-" * 50)
     print(f"📊 Basic API Results: {tester.tests_passed}/{tester.tests_run} tests passed")
     
-    # Run NEW FREE/PRO VERSION SYSTEM tests (HIGHEST PRIORITY)
+    # Run ENHANCED FREE VERSION tests with Serper + Gemini (HIGHEST PRIORITY)
+    enhanced_free_passed, enhanced_free_run = tester.run_free_version_enhanced_tests()
+    
+    # Run NEW FREE/PRO VERSION SYSTEM tests
     version_success = tester.run_free_pro_version_tests()
     
     # Run NEW conversation mode tests
