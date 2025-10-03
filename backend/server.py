@@ -1249,7 +1249,7 @@ async def process_conversation_mode_with_openai(question: str, conversation_mode
         return f"OpenAI API'sine bağlanırken bir hata oluştu. Lütfen tekrar deneyin."
 
 async def process_with_direct_openai(question: str, file_content: str = None, file_name: str = None) -> str:
-    """Process question with direct OpenAI API for technical/creative tasks"""
+    """Process question with OpenAI GPT-5-nano for technical/creative tasks"""
     try:
         # Use direct OpenAI API with the provided key
         headers = {
