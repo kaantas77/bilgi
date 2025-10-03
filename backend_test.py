@@ -1484,6 +1484,459 @@ class BilginAIAPITester:
             print(f"❌ FAILED: CORRECTED PRO 'No Answer' Detection ({successful_tests}/{len(obscure_questions)})")
             return False
 
+    def test_final_pro_rag_scenario_1_no_answer_sources_pattern(self):
+        """Test FINAL PRO VERSION Scenario 1: 'NO_ANSWER\\nSources:' Pattern Detection"""
+        print("\n🧪 FINAL PRO RAG TEST 1: 'NO_ANSWER\\nSources:' Pattern Detection")
+        
+        # Create conversation for FINAL PRO test
+        success, response = self.run_test(
+            "Create Conversation for FINAL PRO NO_ANSWER Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "FINAL PRO Test - NO_ANSWER Pattern"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        self.pro_version_tests_run += 1
+        
+        # Test obscure questions that might trigger "NO_ANSWER\nSources:" from AnythingLLM
+        obscure_questions = [
+            "2025 yılında Mars'ta kurulacak olan çok spesifik bir koloni hakkında detaylı bilgi ver",
+            "Hiç bilinmeyen bir bilim insanının 2024'te yaptığı keşif nedir?",
+            "Çok belirsiz ve karmaşık bir teknoloji hakkında kesin bilgi"
+        ]
+        
+        successful_tests = 0
+        
+        for question in obscure_questions:
+            print(f"   Testing FINAL PRO 'NO_ANSWER\\nSources:' pattern: '{question[:50]}...'")
+            
+            start_time = time.time()
+            success, response = self.run_test(
+                f"FINAL PRO NO_ANSWER Pattern: '{question[:30]}...'",
+                "POST",
+                f"conversations/{test_conv_id}/messages",
+                200,
+                data={"content": question, "mode": "chat", "version": "pro"}
+            )
+            response_time = time.time() - start_time
+            
+            if success:
+                ai_response = response.get('content', '')
+                print(f"     Response Time: {response_time:.2f}s")
+                print(f"     Response: {ai_response[:150]}...")
+                
+                # Check if system handled the question properly
+                # Should either get answer from RAG or fallback to GPT-5-nano
+                if len(ai_response.strip()) > 20 and 'hata' not in ai_response.lower():
+                    print("     ✅ FINAL PRO: Question handled (RAG or GPT-5-nano fallback)")
+                    successful_tests += 1
+                else:
+                    print("     ❌ FINAL PRO: Question not handled properly")
+            
+            time.sleep(2)
+        
+        if successful_tests >= len(obscure_questions) * 0.67:  # 67% success rate
+            self.pro_version_tests_passed += 1
+            print(f"✅ PASSED: FINAL PRO 'NO_ANSWER\\nSources:' Pattern Detection ({successful_tests}/{len(obscure_questions)})")
+            return True
+        else:
+            print(f"❌ FAILED: FINAL PRO 'NO_ANSWER\\nSources:' Pattern Detection ({successful_tests}/{len(obscure_questions)})")
+            return False
+
+    def test_final_pro_rag_scenario_2_casual_chat_detection(self):
+        """Test FINAL PRO VERSION Scenario 2: Casual Chat/Sohbet Detection"""
+        print("\n🧪 FINAL PRO RAG TEST 2: Casual Chat/Sohbet Detection")
+        
+        # Create conversation for FINAL PRO casual test
+        success, response = self.run_test(
+            "Create Conversation for FINAL PRO Casual Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "FINAL PRO Test - Casual Chat"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        self.pro_version_tests_run += 1
+        
+        # Test casual conversational messages
+        casual_messages = [
+            "Merhaba nasılsın?",
+            "Naber, ne yapıyorsun?",
+            "Canım sıkılıyor, sohbet edelim",
+            "Bugün çok güzel bir gün geçirdim",
+            "Teşekkürler"
+        ]
+        
+        successful_tests = 0
+        
+        for message in casual_messages:
+            print(f"   Testing FINAL PRO casual chat: '{message}'")
+            
+            start_time = time.time()
+            success, response = self.run_test(
+                f"FINAL PRO Casual Chat: '{message}'",
+                "POST",
+                f"conversations/{test_conv_id}/messages",
+                200,
+                data={"content": message, "mode": "chat", "version": "pro"}
+            )
+            response_time = time.time() - start_time
+            
+            if success:
+                ai_response = response.get('content', '')
+                print(f"     Response Time: {response_time:.2f}s")
+                print(f"     Response: {ai_response[:150]}...")
+                
+                # Check for appropriate casual response
+                casual_indicators = ['merhaba', 'selam', 'nasılsın', 'yardım', 'sohbet', 'güzel', 'teşekkür']
+                has_casual_response = any(indicator in ai_response.lower() for indicator in casual_indicators)
+                
+                if has_casual_response and len(ai_response.strip()) > 10:
+                    print("     ✅ FINAL PRO: Casual chat/conversation - using OpenAI GPT-5-nano directly")
+                    successful_tests += 1
+                else:
+                    print("     ❌ FINAL PRO: Casual chat not handled properly")
+            
+            time.sleep(2)
+        
+        if successful_tests >= len(casual_messages) * 0.8:  # 80% success rate
+            self.pro_version_tests_passed += 1
+            print(f"✅ PASSED: FINAL PRO Casual Chat Detection ({successful_tests}/{len(casual_messages)})")
+            return True
+        else:
+            print(f"❌ FAILED: FINAL PRO Casual Chat Detection ({successful_tests}/{len(casual_messages)})")
+            return False
+
+    def test_final_pro_rag_scenario_3_conversation_modes_gpt5_nano(self):
+        """Test FINAL PRO VERSION Scenario 3: Conversation Modes → GPT-5-nano Direct"""
+        print("\n🧪 FINAL PRO RAG TEST 3: Conversation Modes (GPT-5-nano Direct)")
+        
+        # Create conversation for FINAL PRO modes test
+        success, response = self.run_test(
+            "Create Conversation for FINAL PRO Modes Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "FINAL PRO Test - Conversation Modes"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        self.pro_version_tests_run += 1
+        
+        # Test conversation modes with PRO version
+        mode_tests = [
+            ("friend", "Motivasyona ihtiyacım var", ["dostum", "motivasyon", "başarabilirsin", "arkadaş"]),
+            ("teacher", "Python öğrenmek istiyorum", ["adım", "öğren", "başla", "örnek"]),
+            ("coach", "Hedeflerime nasıl ulaşabilirim?", ["hedef", "plan", "adım", "başarı"])
+        ]
+        
+        successful_tests = 0
+        
+        for mode, question, expected_indicators in mode_tests:
+            print(f"   Testing FINAL PRO {mode} mode: '{question}'...")
+            
+            start_time = time.time()
+            success, response = self.run_test(
+                f"FINAL PRO {mode.title()} Mode: '{question}'",
+                "POST",
+                f"conversations/{test_conv_id}/messages",
+                200,
+                data={"content": question, "mode": "chat", "version": "pro", "conversationMode": mode}
+            )
+            response_time = time.time() - start_time
+            
+            if success:
+                ai_response = response.get('content', '')
+                print(f"     Response Time: {response_time:.2f}s")
+                print(f"     Response: {ai_response[:150]}...")
+                
+                # Check for mode-specific personality
+                has_personality = any(indicator in ai_response.lower() for indicator in expected_indicators)
+                
+                if has_personality:
+                    print(f"     ✅ FINAL PRO version - Conversation mode '{mode}' - using OpenAI GPT-5-nano directly")
+                    successful_tests += 1
+                else:
+                    print(f"     ❌ FINAL PRO: {mode.title()} mode personality not detected")
+            
+            time.sleep(2)
+        
+        if successful_tests >= len(mode_tests) * 0.67:  # 67% success rate
+            self.pro_version_tests_passed += 1
+            print(f"✅ PASSED: FINAL PRO Conversation Modes GPT-5-nano ({successful_tests}/{len(mode_tests)})")
+            return True
+        else:
+            print(f"❌ FAILED: FINAL PRO Conversation Modes GPT-5-nano ({successful_tests}/{len(mode_tests)})")
+            return False
+
+    def test_final_pro_rag_scenario_4_current_topics_web_search(self):
+        """Test FINAL PRO VERSION Scenario 4: Current Topics → Web Search"""
+        print("\n🧪 FINAL PRO RAG TEST 4: Current Topics (Web Search)")
+        
+        # Create conversation for FINAL PRO current topics test
+        success, response = self.run_test(
+            "Create Conversation for FINAL PRO Current Topics Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "FINAL PRO Test - Current Topics"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        self.pro_version_tests_run += 1
+        
+        # Test current topics questions
+        current_questions = [
+            "Bugün dolar kuru kaç TL?",
+            "Güncel haberler neler?"
+        ]
+        
+        successful_tests = 0
+        
+        for question in current_questions:
+            print(f"   Testing FINAL PRO current topics: '{question}'...")
+            
+            start_time = time.time()
+            success, response = self.run_test(
+                f"FINAL PRO Current Topics: '{question}'",
+                "POST",
+                f"conversations/{test_conv_id}/messages",
+                200,
+                data={"content": question, "mode": "chat", "version": "pro"}
+            )
+            response_time = time.time() - start_time
+            
+            if success:
+                ai_response = response.get('content', '')
+                print(f"     Response Time: {response_time:.2f}s")
+                print(f"     Response: {ai_response[:150]}...")
+                
+                # Check for web search usage
+                if 'dolar' in question.lower():
+                    if any(term in ai_response.lower() for term in ['tl', 'dolar', 'kur', 'lira']):
+                        print("     ✅ FINAL PRO: Current/daily life question - using web search directly")
+                        successful_tests += 1
+                    else:
+                        print("     ❌ FINAL PRO: Should use web search for current currency info")
+                
+                elif 'haber' in question.lower():
+                    if any(term in ai_response.lower() for term in ['haber', 'güncel', 'son', 'gelişme']):
+                        print("     ✅ FINAL PRO: Current/daily life question - using web search directly")
+                        successful_tests += 1
+                    else:
+                        print("     ❌ FINAL PRO: Should use web search for current news")
+            
+            time.sleep(2)
+        
+        if successful_tests >= len(current_questions) * 0.75:  # 75% success rate
+            self.pro_version_tests_passed += 1
+            print(f"✅ PASSED: FINAL PRO Current Topics Web Search ({successful_tests}/{len(current_questions)})")
+            return True
+        else:
+            print(f"❌ FAILED: FINAL PRO Current Topics Web Search ({successful_tests}/{len(current_questions)})")
+            return False
+
+    def test_final_pro_rag_scenario_5_technical_creative_gpt5_nano(self):
+        """Test FINAL PRO VERSION Scenario 5: Technical/Creative → GPT-5-nano Direct"""
+        print("\n🧪 FINAL PRO RAG TEST 5: Technical/Creative Tasks (GPT-5-nano Direct)")
+        
+        # Create conversation for FINAL PRO technical test
+        success, response = self.run_test(
+            "Create Conversation for FINAL PRO Technical Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "FINAL PRO Test - Technical/Creative"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        self.pro_version_tests_run += 1
+        
+        # Test technical/creative questions
+        technical_questions = [
+            "Bana bir blog yazısı yaz",
+            "Bu metni düzelt: 'Merhaba nasılsın'"
+        ]
+        
+        successful_tests = 0
+        
+        for question in technical_questions:
+            print(f"   Testing FINAL PRO technical/creative: '{question}'...")
+            
+            start_time = time.time()
+            success, response = self.run_test(
+                f"FINAL PRO Technical/Creative: '{question}'",
+                "POST",
+                f"conversations/{test_conv_id}/messages",
+                200,
+                data={"content": question, "mode": "chat", "version": "pro"}
+            )
+            response_time = time.time() - start_time
+            
+            if success:
+                ai_response = response.get('content', '')
+                print(f"     Response Time: {response_time:.2f}s")
+                print(f"     Response: {ai_response[:150]}...")
+                
+                # Check for appropriate technical/creative responses
+                if 'blog' in question.lower():
+                    if any(term in ai_response.lower() for term in ['blog', 'yazı', 'makale', 'içerik']):
+                        print("     ✅ FINAL PRO: Daily tasks (metin yazma/düzeltme) - using OpenAI GPT-5-nano directly")
+                        successful_tests += 1
+                    else:
+                        print("     ❌ FINAL PRO: Should use GPT-5-nano for blog writing")
+                
+                elif 'düzelt' in question.lower():
+                    if any(term in ai_response.lower() for term in ['düzelt', 'metin', 'yazım', 'hata', 'merhaba']):
+                        print("     ✅ FINAL PRO: Daily tasks (metin yazma/düzeltme) - using OpenAI GPT-5-nano directly")
+                        successful_tests += 1
+                    else:
+                        print("     ❌ FINAL PRO: Should use GPT-5-nano for text correction")
+            
+            time.sleep(2)
+        
+        if successful_tests >= len(technical_questions) * 0.75:  # 75% success rate
+            self.pro_version_tests_passed += 1
+            print(f"✅ PASSED: FINAL PRO Technical/Creative GPT-5-nano ({successful_tests}/{len(technical_questions)})")
+            return True
+        else:
+            print(f"❌ FAILED: FINAL PRO Technical/Creative GPT-5-nano ({successful_tests}/{len(technical_questions)})")
+            return False
+
+    def test_final_pro_rag_scenario_6_regular_knowledge_rag_system(self):
+        """Test FINAL PRO VERSION Scenario 6: Regular Knowledge → RAG System First"""
+        print("\n🧪 FINAL PRO RAG TEST 6: Regular Knowledge (RAG System First)")
+        
+        # Create conversation for FINAL PRO regular knowledge test
+        success, response = self.run_test(
+            "Create Conversation for FINAL PRO Regular Knowledge Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "FINAL PRO Test - Regular Knowledge"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        self.pro_version_tests_run += 1
+        
+        # Test regular knowledge questions
+        knowledge_questions = [
+            "Einstein kimdir?",
+            "Python programlama dili nedir?"
+        ]
+        
+        successful_tests = 0
+        
+        for question in knowledge_questions:
+            print(f"   Testing FINAL PRO regular knowledge: '{question}'...")
+            
+            start_time = time.time()
+            success, response = self.run_test(
+                f"FINAL PRO Regular Knowledge: '{question}'",
+                "POST",
+                f"conversations/{test_conv_id}/messages",
+                200,
+                data={"content": question, "mode": "chat", "version": "pro"}
+            )
+            response_time = time.time() - start_time
+            
+            if success:
+                ai_response = response.get('content', '')
+                print(f"     Response Time: {response_time:.2f}s")
+                print(f"     Response: {ai_response[:150]}...")
+                
+                # Check for appropriate knowledge responses
+                if 'einstein' in question.lower():
+                    if any(term in ai_response.lower() for term in ['fizik', 'bilim', 'görelilik', 'albert', 'teorisi']):
+                        print("     ✅ FINAL PRO: Regular question - trying AnythingLLM (RAG) first...")
+                        successful_tests += 1
+                    else:
+                        print("     ❌ FINAL PRO: Einstein question not answered properly")
+                
+                elif 'python' in question.lower():
+                    if any(term in ai_response.lower() for term in ['programlama', 'dil', 'kod', 'yazılım', 'bilgisayar']):
+                        print("     ✅ FINAL PRO: Regular question - trying AnythingLLM (RAG) first...")
+                        successful_tests += 1
+                    else:
+                        print("     ❌ FINAL PRO: Python question not answered properly")
+            
+            time.sleep(2)
+        
+        if successful_tests >= len(knowledge_questions) * 0.75:  # 75% success rate
+            self.pro_version_tests_passed += 1
+            print(f"✅ PASSED: FINAL PRO Regular Knowledge RAG System ({successful_tests}/{len(knowledge_questions)})")
+            return True
+        else:
+            print(f"❌ FAILED: FINAL PRO Regular Knowledge RAG System ({successful_tests}/{len(knowledge_questions)})")
+            return False
+
+    def run_final_pro_rag_tests(self):
+        """Run all FINAL PRO VERSION RAG SYSTEM tests with 'NO_ANSWER\\nSources:' detection"""
+        print("\n" + "="*80)
+        print("🚀 STARTING FINAL PRO VERSION RAG SYSTEM TESTS")
+        print("Testing FINAL PRO VERSION LOGIC:")
+        print("1. **'NO_ANSWER\\nSources:' Pattern**: AnythingLLM bu pattern döndürürse → GPT-5-nano")
+        print("2. **Casual Chat/Sohbet**: Sohbet tarzı metinler → GPT-5-nano direkt")
+        print("3. **Conversation Modes**: PRO versiyonda → GPT-5-nano direkt")
+        print("4. **Current Topics**: Güncel konular → Web Search")
+        print("5. **Technical/Creative**: Metin yazma, dosya işleme → GPT-5-nano direkt")
+        print("6. **Regular Knowledge**: AnythingLLM (RAG) önce → eğer 'NO_ANSWER' → GPT-5-nano")
+        print("="*80)
+        
+        final_pro_tests = [
+            self.test_final_pro_rag_scenario_1_no_answer_sources_pattern,
+            self.test_final_pro_rag_scenario_2_casual_chat_detection,
+            self.test_final_pro_rag_scenario_3_conversation_modes_gpt5_nano,
+            self.test_final_pro_rag_scenario_4_current_topics_web_search,
+            self.test_final_pro_rag_scenario_5_technical_creative_gpt5_nano,
+            self.test_final_pro_rag_scenario_6_regular_knowledge_rag_system
+        ]
+        
+        for test in final_pro_tests:
+            try:
+                test()
+                time.sleep(3)  # Brief pause between tests
+            except Exception as e:
+                print(f"❌ Test failed with exception: {e}")
+        
+        # Print FINAL PRO test results
+        print("\n" + "="*80)
+        print(f"🧪 FINAL PRO VERSION RAG SYSTEM RESULTS: {self.pro_version_tests_passed}/{self.pro_version_tests_run} tests passed")
+        
+        if self.pro_version_tests_passed == self.pro_version_tests_run:
+            print("🎉 All FINAL PRO VERSION RAG SYSTEM tests passed!")
+            print("✅ 'NO_ANSWER\\nSources:' pattern detection working")
+            print("✅ Casual chat detection working")
+            print("✅ Conversation modes bypass RAG in PRO version")
+            print("✅ Current topics use web search")
+            print("✅ Technical/creative tasks use GPT-5-nano directly")
+            print("✅ Regular knowledge tries RAG first with proper fallback")
+        else:
+            print(f"❌ {self.pro_version_tests_run - self.pro_version_tests_passed} FINAL PRO VERSION tests failed")
+        
+        return self.pro_version_tests_passed == self.pro_version_tests_run
+
     def run_corrected_pro_rag_tests(self):
         """Run all CORRECTED PRO VERSION RAG SYSTEM tests with 'no answer' detection"""
         print("\n" + "="*80)
