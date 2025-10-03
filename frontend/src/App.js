@@ -64,6 +64,10 @@ function App() {
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef(null);
   
+  // Version selection states
+  const [selectedVersion, setSelectedVersion] = useState('pro'); // 'pro' or 'free'
+  const [isVersionDropdownOpen, setIsVersionDropdownOpen] = useState(false);
+  
   const { toast } = useToast();
 
   // Scroll to bottom when new messages arrive
