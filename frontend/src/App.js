@@ -1270,8 +1270,19 @@ function App() {
                     variant="ghost"
                     size="sm"
                     className="text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg"
+                    title="Dosya ekle (PDF, Word, Excel, TXT)"
                   >
                     <Paperclip className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    onClick={handleImageSelect}
+                    disabled={isUploading}
+                    variant="ghost"
+                    size="sm"
+                    className="text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg"
+                    title="Görsel ekle (JPG, PNG, GIF, WebP)"
+                  >
+                    <Image className="w-4 h-4" />
                   </Button>
                   <Input
                     value={inputMessage}
@@ -1485,8 +1496,19 @@ function App() {
                     variant="ghost"
                     size="sm"
                     className="text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg"
+                    title="Dosya ekle (PDF, Word, Excel, TXT)"
                   >
                     <Paperclip className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    onClick={handleImageSelect}
+                    disabled={isUploading}
+                    variant="ghost"
+                    size="sm"
+                    className="text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg"
+                    title="Görsel ekle (JPG, PNG, GIF, WebP)"
+                  >
+                    <Image className="w-4 h-4" />
                   </Button>
                   <Input
                     value={inputMessage}
