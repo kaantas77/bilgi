@@ -723,19 +723,24 @@ async def process_with_openai_gpt5_nano(question: str, conversation_mode: str = 
         return "OpenAI API'sine bağlanırken bir hata oluştu. Lütfen tekrar deneyin."
 
 async def simple_pro_system(question: str, conversation_mode: str = 'normal', file_content: str = None, file_name: str = None) -> str:
-    """Simple PRO system: Check current topics first, then AnythingLLM, then ChatGPT GPT-5-nano fallback"""
+    """Simple PRO system: Use Ollama for conversation modes, web search for current topics, AnythingLLM for others"""
     
     logging.info(f"PRO version - Simple system for: {question}")
     
-    # Step 1: Check if question is about current/güncel topics (hava durumu, son Ballon d'Or kazananı gibi)
+    # Step 1: Check if conversation mode is active - use Ollama for all conversation modes
+    if conversation_mode and conversation_mode != 'normal':
+        logging.info(f"PRO: Conversation mode {conversation_mode} detected - using Ollama AnythingLLM")
+        return await process_with_ollama_free(question, conversation_mode, file_content, file_name)
+    
+    # Step 2: Check if question is about current/güncel topics (hava durumu, son Ballon d'Or kazananı gibi)
     category = get_question_category(question)
     if category == 'current':
         logging.info("PRO: Current topic detected (hava durumu, son haberler, etc.) - using web search")
         web_search_response = await handle_web_search_question(question)
         return await clean_web_search_with_anythingllm(web_search_response, question)
     
-    # Step 2: Try AnythingLLM first for all other questions
-    logging.info("PRO: Not current topic - trying AnythingLLM first...")
+    # Step 3: Try AnythingLLM first for all other normal mode questions
+    logging.info("PRO: Normal mode, not current topic - trying AnythingLLM first...")
     try:
         anythingllm_response = await get_anythingllm_response(question, conversation_mode)
         
