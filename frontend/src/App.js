@@ -1284,13 +1284,23 @@ function App() {
                   >
                     <Image className="w-4 h-4" />
                   </Button>
-                  <Input
+                  <textarea
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
                     onKeyPress={handleKeyPress}
                     placeholder="Her şeyi sorabilirsin."
-                    className="flex-1 border-0 bg-transparent focus:ring-0 text-white placeholder-gray-500"
+                    className="flex-1 border-0 bg-transparent focus:ring-0 text-white placeholder-gray-500 resize-none min-h-[40px] max-h-[120px] overflow-y-auto"
                     disabled={isMessageLoading}
+                    rows={1}
+                    style={{
+                      height: 'auto',
+                      minHeight: '40px',
+                      maxHeight: '120px'
+                    }}
+                    onInput={(e) => {
+                      e.target.style.height = 'auto';
+                      e.target.style.height = e.target.scrollHeight + 'px';
+                    }}
                   />
                   <Button
                     onClick={sendMessage}
