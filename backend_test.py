@@ -8899,6 +8899,14 @@ def main():
         
         return gpt5_nano_tests_passed == gpt5_nano_tests_run
 
+if __name__ == "__main__":
+    # Check if we should run Layout and Vision tests specifically
+    import sys
+    if len(sys.argv) > 1 and sys.argv[1] == "layout_vision":
+        print("\n🎯 Running LAYOUT AND VISION API Tests ONLY...")
+        tester = BilginAIAPITester()
+        layout_vision_passed, layout_vision_run = tester.run_layout_and_vision_tests()
+        
         # Print final results for Layout and Vision tests
         print("\n" + "="*80)
         print("📊 LAYOUT AND VISION API TEST RESULTS")
