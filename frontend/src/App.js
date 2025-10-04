@@ -130,9 +130,9 @@ function App() {
     localStorage.setItem('bilgin-modes-conversations', JSON.stringify(modesConversations));
   }, [modesConversations]);
 
-  // Scroll to bottom when messages change
+  // Auto-scroll to bottom when messages change
   useEffect(() => {
-    scrollToBottom();
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [normalMessages, modesMessages]);
 
   // Close dropdown when clicking outside
