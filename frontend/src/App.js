@@ -753,6 +753,9 @@ function App() {
         setModesMessages(prev => [...(Array.isArray(prev) ? prev : []), botMessage]);
       }
       
+      // Clear uploaded files after successful message send
+      setUploadedFiles([]);
+      
     } catch (error) {
       console.error('Error sending message:', error);
       const errorMessage = {
