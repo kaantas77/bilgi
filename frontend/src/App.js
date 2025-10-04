@@ -387,7 +387,7 @@ function App() {
   };
 
   // Select conversation functions
-  const selectNormalConversation = (conversation) => {
+  const selectNormalConversation = async (conversation) => {
     try {
       console.log('Selecting normal conversation:', conversation);
       if (!conversation) {
@@ -400,15 +400,26 @@ function App() {
       // Clear uploaded files when switching conversations
       setUploadedFiles([]);
       
-      // Validate and clean messages
-      const messages = (conversation.messages || []).filter(msg => 
-        msg && msg.role && msg.content && msg.id && msg.timestamp
-      );
-      
-      console.log(`Loading ${messages.length} valid messages out of ${conversation.messages?.length || 0}`);
-      setNormalMessages(messages);
+      // Load messages from backend
+      const response = await fetch(`${BACKEND_URL}/api/conversations/${conversation.id}/messages`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const messages = await response.json();
+        console.log(`Loaded ${messages.length} messages from backend`);
+        setNormalMessages(messages || []);
+      } else {
+        console.error('Failed to load messages from backend');
+        setNormalMessages([]);
+      }
     } catch (error) {
       console.error('Error selecting normal conversation:', error);
+      setNormalMessages([]);
     }
   };
 
