@@ -2136,6 +2136,54 @@ async def get_all_users(admin: dict = Depends(require_admin)):
     users = await db.users.find().sort("created_at", -1).to_list(1000)
     return [UserResponse(**parse_from_mongo(user)) for user in users]
 
+# Debug Routes
+@api_router.get("/debug/info")
+async def debug_info():
+    return {"status": "ok", "timestamp": datetime.now(timezone.utc).isoformat()}
+
+@api_router.post("/debug/test-vision")
+async def test_vision_api(image_data: dict):
+    """Test Vision API directly"""
+    try:
+        # This is just a test - normally we'd get from uploaded file
+        test_question = image_data.get("question", "Bu resimde ne var?")
+        
+        # Try with a simple test
+        headers = {
+            "Authorization": f"Bearer {EMERGENT_LLM_KEY}",
+            "Content-Type": "application/json"
+        }
+        
+        payload = {
+            "model": "gpt-4o-mini", 
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": "Test message for Vision API"}
+                    ]
+                }
+            ],
+            "max_tokens": 100
+        }
+        
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                "https://api.openai.com/v1/chat/completions",
+                headers=headers,
+                json=payload,
+                timeout=30.0
+            )
+            
+            return {
+                "status_code": response.status_code,
+                "response_text": response.text[:500],
+                "headers": dict(response.headers),
+                "emergent_key_prefix": EMERGENT_LLM_KEY[:10] + "..." if EMERGENT_LLM_KEY else "None"
+            }
+    except Exception as e:
+        return {"error": str(e), "type": str(type(e))}
+
 # Chat Routes (Protected)
 # Anonymous user - no auth required
 ANONYMOUS_USER_ID = "anonymous"
