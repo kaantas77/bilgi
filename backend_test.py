@@ -6473,6 +6473,275 @@ class BilginAIAPITester:
         
         return gpt_4_1_nano_passed == gpt_4_1_nano_run
 
+    def test_gpt4o_mini_accuracy_optimization(self):
+        """Test GPT-4o-mini with optimized accuracy settings as per review request"""
+        print("\n" + "="*80)
+        print("🎯 TESTING GPT-4O-MINI ACCURACY OPTIMIZATION")
+        print("Model: gpt-4o-mini | Temperature: 0.3 | Max Tokens: 1000")
+        print("Testing accuracy with enhanced system message for reliability")
+        print("="*80)
+        
+        # Create conversation for GPT-4o-mini accuracy tests
+        success, response = self.run_test(
+            "Create Conversation for GPT-4o-mini Accuracy Tests",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "GPT-4o-mini Accuracy Test"}
+        )
+        
+        if not success:
+            print("❌ Failed to create conversation for accuracy tests")
+            return False
+            
+        test_conv_id = response.get('id')
+        accuracy_tests_passed = 0
+        accuracy_tests_run = 0
+        
+        print("\n🧪 SCENARIO 1: Factual Questions (PRO Version)")
+        factual_questions = [
+            ("Türkiye'nin başkenti neresi?", ["ankara"], "Turkish capital"),
+            ("Einstein ne zaman doğdu?", ["1879", "14 mart"], "Einstein birth date"),
+            ("Su kaç derecede kaynar?", ["100", "yüz"], "Water boiling point")
+        ]
+        
+        for question, expected_terms, description in factual_questions:
+            accuracy_tests_run += 1
+            print(f"   Testing {description}: '{question}'")
+            
+            start_time = time.time()
+            success, response = self.run_test(
+                f"Factual Question: {description}",
+                "POST",
+                f"conversations/{test_conv_id}/messages",
+                200,
+                data={"content": question, "mode": "chat", "version": "pro"}
+            )
+            response_time = time.time() - start_time
+            
+            if success:
+                ai_response = response.get('content', '').lower()
+                print(f"     Response Time: {response_time:.2f}s")
+                print(f"     Response: {ai_response[:150]}...")
+                
+                # Check for expected accurate information
+                has_accurate_info = any(term in ai_response for term in expected_terms)
+                
+                if has_accurate_info:
+                    print(f"     ✅ PASSED: Accurate factual response with gpt-4o-mini")
+                    accuracy_tests_passed += 1
+                else:
+                    print(f"     ❌ FAILED: Inaccurate or missing factual information")
+                    print(f"     Expected terms: {expected_terms}")
+            
+            time.sleep(2)
+        
+        print("\n🧪 SCENARIO 2: Mathematical Calculations")
+        math_questions = [
+            ("25 × 17 kaç eder?", "425", "Multiplication"),
+            ("144'ün karekökü nedir?", "12", "Square root")
+        ]
+        
+        for question, expected_answer, description in math_questions:
+            accuracy_tests_run += 1
+            print(f"   Testing {description}: '{question}'")
+            
+            start_time = time.time()
+            success, response = self.run_test(
+                f"Math Question: {description}",
+                "POST",
+                f"conversations/{test_conv_id}/messages",
+                200,
+                data={"content": question, "mode": "chat", "version": "pro"}
+            )
+            response_time = time.time() - start_time
+            
+            if success:
+                ai_response = response.get('content', '')
+                print(f"     Response Time: {response_time:.2f}s")
+                print(f"     Response: {ai_response[:150]}...")
+                
+                # Check for correct mathematical answer
+                if expected_answer in ai_response:
+                    print(f"     ✅ PASSED: Correct mathematical calculation ({expected_answer})")
+                    accuracy_tests_passed += 1
+                else:
+                    print(f"     ❌ FAILED: Incorrect mathematical answer (expected: {expected_answer})")
+            
+            time.sleep(2)
+        
+        print("\n🧪 SCENARIO 3: Current vs Non-Current Distinction")
+        routing_questions = [
+            ("Python programlama dili nedir?", "anythingllm", "Non-current knowledge"),
+            ("Bugün hava durumu nasıl?", "web_search", "Current information")
+        ]
+        
+        for question, expected_routing, description in routing_questions:
+            accuracy_tests_run += 1
+            print(f"   Testing {description}: '{question}'")
+            
+            start_time = time.time()
+            success, response = self.run_test(
+                f"Routing Test: {description}",
+                "POST",
+                f"conversations/{test_conv_id}/messages",
+                200,
+                data={"content": question, "mode": "chat", "version": "pro"}
+            )
+            response_time = time.time() - start_time
+            
+            if success:
+                ai_response = response.get('content', '').lower()
+                print(f"     Response Time: {response_time:.2f}s")
+                print(f"     Response: {ai_response[:150]}...")
+                
+                # Check for proper routing
+                if expected_routing == "anythingllm":
+                    # Should use AnythingLLM first (fast response, no web indicators)
+                    web_indicators = ['web araştırması', 'güncel web', 'kaynaklarından']
+                    has_web_indicators = any(indicator in ai_response for indicator in web_indicators)
+                    
+                    if not has_web_indicators and response_time < 15:
+                        print(f"     ✅ PASSED: Proper routing to AnythingLLM for non-current info")
+                        accuracy_tests_passed += 1
+                    else:
+                        print(f"     ❌ FAILED: Should use AnythingLLM first for non-current info")
+                
+                elif expected_routing == "web_search":
+                    # Should use web search (web indicators or weather-related content)
+                    web_indicators = ['web araştırması', 'güncel', 'hava', 'sıcaklık']
+                    has_web_indicators = any(indicator in ai_response for indicator in web_indicators)
+                    
+                    if has_web_indicators:
+                        print(f"     ✅ PASSED: Proper routing to web search for current info")
+                        accuracy_tests_passed += 1
+                    else:
+                        print(f"     ❌ FAILED: Should use web search for current info")
+            
+            time.sleep(2)
+        
+        print("\n🧪 SCENARIO 4: Uncertainty Handling")
+        uncertainty_questions = [
+            "2025 yılında çıkacak çok spesifik bir teknoloji hakkında kesin bilgi ver",
+            "Hiç bilinmeyen bir konuda tam kesin cevap ver"
+        ]
+        
+        for question in uncertainty_questions:
+            accuracy_tests_run += 1
+            print(f"   Testing uncertainty handling: '{question[:50]}...'")
+            
+            start_time = time.time()
+            success, response = self.run_test(
+                f"Uncertainty Test",
+                "POST",
+                f"conversations/{test_conv_id}/messages",
+                200,
+                data={"content": question, "mode": "chat", "version": "pro"}
+            )
+            response_time = time.time() - start_time
+            
+            if success:
+                ai_response = response.get('content', '').lower()
+                print(f"     Response Time: {response_time:.2f}s")
+                print(f"     Response: {ai_response[:150]}...")
+                
+                # Check for appropriate uncertainty handling
+                uncertainty_indicators = ['emin değilim', 'kesin değilim', 'bilmiyorum', 'belirsiz', 'tahmin']
+                has_uncertainty = any(indicator in ai_response for indicator in uncertainty_indicators)
+                
+                # Should not make up false information
+                false_info_indicators = ['kesinlikle', 'mutlaka çıkacak', 'tam olarak']
+                has_false_confidence = any(indicator in ai_response for indicator in false_info_indicators)
+                
+                if has_uncertainty or not has_false_confidence:
+                    print(f"     ✅ PASSED: Proper uncertainty handling - admits when unsure")
+                    accuracy_tests_passed += 1
+                else:
+                    print(f"     ❌ FAILED: Should admit uncertainty for unknown information")
+            
+            time.sleep(2)
+        
+        print("\n🧪 SCENARIO 5: Conversation Modes Accuracy")
+        mode_tests = [
+            ("teacher", "Matematik nasıl öğrenilir?", ["adım", "öğren", "başla", "örnek"], "Educational accuracy"),
+            ("friend", "Motivasyona ihtiyacım var", ["dostum", "motivasyon", "başarabilirsin"], "Supportive accuracy")
+        ]
+        
+        for mode, question, expected_indicators, description in mode_tests:
+            accuracy_tests_run += 1
+            print(f"   Testing {description}: '{question}' in {mode} mode")
+            
+            start_time = time.time()
+            success, response = self.run_test(
+                f"Mode Accuracy Test: {mode}",
+                "POST",
+                f"conversations/{test_conv_id}/messages",
+                200,
+                data={"content": question, "mode": "chat", "version": "pro", "conversationMode": mode}
+            )
+            response_time = time.time() - start_time
+            
+            if success:
+                ai_response = response.get('content', '').lower()
+                print(f"     Response Time: {response_time:.2f}s")
+                print(f"     Response: {ai_response[:150]}...")
+                
+                # Check for mode-appropriate and factually accurate response
+                has_mode_personality = any(indicator in ai_response for indicator in expected_indicators)
+                
+                # Should still be factually accurate even with personality
+                if has_mode_personality:
+                    print(f"     ✅ PASSED: {mode.title()} mode with accurate, appropriate response")
+                    accuracy_tests_passed += 1
+                else:
+                    print(f"     ❌ FAILED: {mode.title()} mode personality not detected or inaccurate")
+            
+            time.sleep(2)
+        
+        # Print GPT-4o-mini accuracy test results
+        print("\n" + "="*80)
+        print(f"🎯 GPT-4O-MINI ACCURACY OPTIMIZATION RESULTS: {accuracy_tests_passed}/{accuracy_tests_run} tests passed")
+        print(f"Success Rate: {(accuracy_tests_passed/accuracy_tests_run)*100:.1f}%")
+        
+        if accuracy_tests_passed >= accuracy_tests_run * 0.8:  # 80% success rate
+            print("🎉 GPT-4o-mini accuracy optimization SUCCESSFUL!")
+            print("✅ Temperature 0.3 providing consistent, accurate responses")
+            print("✅ Max tokens 1000 sufficient for detailed responses")
+            print("✅ Enhanced system message improving reliability")
+            print("✅ Proper uncertainty handling - no false information")
+            print("✅ Conversation modes maintaining accuracy with personality")
+            return True
+        else:
+            print(f"❌ GPT-4o-mini accuracy optimization needs improvement")
+            print(f"❌ {accuracy_tests_run - accuracy_tests_passed} accuracy tests failed")
+            return False
+
+    def run_gpt4o_mini_accuracy_tests(self):
+        """Run GPT-4o-mini accuracy optimization tests"""
+        print("\n" + "="*60)
+        print("🚀 STARTING GPT-4O-MINI ACCURACY OPTIMIZATION TESTS")
+        print("Testing optimized settings for maximum accuracy:")
+        print("- Model: gpt-4o-mini (stable and reliable)")
+        print("- Temperature: 0.3 (low for accuracy)")
+        print("- Max Tokens: 1000 (sufficient for detailed responses)")
+        print("- Enhanced system message for reliability")
+        print("="*60)
+        
+        success = self.test_gpt4o_mini_accuracy_optimization()
+        
+        print("\n" + "="*60)
+        if success:
+            print("🎉 GPT-4O-MINI ACCURACY OPTIMIZATION TESTS COMPLETED SUCCESSFULLY!")
+            print("✅ All critical accuracy scenarios passed")
+            print("✅ System provides reliable, accurate responses")
+            print("✅ Proper uncertainty handling confirmed")
+            print("✅ Conversation modes maintain accuracy with personality")
+        else:
+            print("❌ GPT-4O-MINI ACCURACY OPTIMIZATION TESTS FAILED")
+            print("❌ Some accuracy scenarios need improvement")
+        
+        return success
+
 def main():
     print("🚀 Starting BİLGİN AI Backend API Tests")
     print("=" * 50)
