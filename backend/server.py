@@ -2082,6 +2082,10 @@ async def send_message(conversation_id: str, input: MessageCreate):
     if not conversation:
         raise HTTPException(status_code=404, detail="Conversation not found")
     
+    # Check if this is the first message BEFORE saving it
+    existing_message_count = await db.messages.count_documents({"conversation_id": conversation_id})
+    is_first_message = existing_message_count == 0
+    
     # Save user message
     user_message = Message(
         conversation_id=conversation_id,
@@ -2091,11 +2095,11 @@ async def send_message(conversation_id: str, input: MessageCreate):
     user_message_dict = prepare_for_mongo(user_message.dict())
     await db.messages.insert_one(user_message_dict)
     
-    # Check if this is the first message and update conversation title
-    message_count = await db.messages.count_documents({"conversation_id": conversation_id})
-    if message_count == 1:  # This is the first message
+    # Update conversation title if this is the first message
+    if is_first_message:
         # Generate meaningful title using the new function
         new_title = generate_conversation_title(input.content)
+        logging.info(f"Generated new title for conversation {conversation_id}: {new_title}")
             
         # Update conversation title
         await db.conversations.update_one(
