@@ -652,9 +652,9 @@ def are_responses_similar(response1: str, response2: str) -> bool:
 async def process_with_openai_gpt5_nano(question: str, conversation_mode: str = 'normal', file_content: str = None, file_name: str = None) -> str:
     """Process question with OpenAI GPT-5-nano for PRO version fallback"""
     try:
-        # Use direct OpenAI API with GPT-5-nano
+        # Use Emergent LLM key for GPT-4o-mini
         headers = {
-            "Authorization": f"Bearer {OPENAI_API_KEY}",
+            "Authorization": f"Bearer {EMERGENT_LLM_KEY}",
             "Content-Type": "application/json"
         }
         
