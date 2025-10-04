@@ -1022,7 +1022,7 @@ function App() {
                         <div
                           key={conversation.id}
                           onClick={() => selectModesConversation(conversation)}
-                          className={`flex items-center justify-between p-3 rounded-lg cursor-pointer group transition-colors ${
+                          className={`flex items-center justify-between p-2 rounded-md cursor-pointer group transition-colors ${
                             currentModesConversation?.id === conversation.id
                               ? 'bg-purple-600 text-white'
                               : 'hover:bg-gray-800 text-gray-300 hover:text-white'
