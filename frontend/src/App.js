@@ -68,6 +68,9 @@ function App() {
   
   // Version selection states
   const [selectedVersion, setSelectedVersion] = useState('pro'); // 'pro' or 'free'
+  
+  // Auto-scroll ref
+  const messagesEndRef = useRef(null);
   const [isVersionDropdownOpen, setIsVersionDropdownOpen] = useState(false);
   
   const { toast } = useToast();
