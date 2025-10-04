@@ -68,7 +68,7 @@ SERPER_API_URL = "https://google.serper.dev/search"
 # OpenAI configuration via EMERGENT_LLM_KEY and direct OpenAI API
 EMERGENT_LLM_KEY = os.environ.get("EMERGENT_LLM_KEY")
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
-EMERGENT_LLM_KEY = "sk-emergent-42dF7720bCaB9378cD"
+EMERGENT_LLM_KEY = os.environ.get("EMERGENT_LLM_KEY", "sk-emergent-42dF7720bCaB9378cD")
 OPENAI_API_URL = "https://api.openai.com/v1/chat/completions"
 
 # Gemini API configuration for FREE version
