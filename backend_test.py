@@ -8920,10 +8920,10 @@ if __name__ == "__main__":
             print("✅ EMERGENT_LLM_KEY configuration working!")
             print("✅ ChatGPT-4o-mini Vision API integration functional!")
             print("✅ Base64 image encoding working correctly!")
-            return 0
+            sys.exit(0)
         else:
             print(f"❌ {layout_vision_run - layout_vision_passed} Layout/Vision tests failed.")
             print("🚨 ISSUES DETECTED - Please check implementation")
-            return 1
+            sys.exit(1)
     
     sys.exit(main())
