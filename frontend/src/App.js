@@ -1240,7 +1240,7 @@ function App() {
                             )}
                           </Avatar>
                           <div className={`flex-1 ${message.role === 'user' ? 'text-right' : ''}`}>
-                            <div className={`inline-block max-w-3xl p-4 rounded-2xl ${
+                            <div className={`inline-block w-full max-w-full p-4 rounded-2xl ${
                               message.role === 'user' 
                                 ? 'bg-gray-800 text-white' 
                                 : 'bg-gray-900 text-white border border-gray-900'
