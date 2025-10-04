@@ -1215,7 +1215,7 @@ function App() {
                                 ? 'bg-gray-800 text-white' 
                                 : 'bg-gray-900 text-white border border-gray-900'
                             }`}>
-                              <div className="text-xs leading-relaxed chat-message">
+                              <div className="text-sm leading-relaxed chat-message">
                                 <MathRenderer content={message.content || ''} />
                               </div>
                             </div>
@@ -1448,7 +1448,7 @@ function App() {
                                 ? 'bg-blue-600 text-white' 
                                 : 'bg-gray-800 text-white border border-gray-900'
                             }`}>
-                              <div className="text-xs leading-relaxed chat-message">
+                              <div className="text-sm leading-relaxed chat-message">
                                 <MathRenderer content={message.content || ''} />
                               </div>
                             </div>
