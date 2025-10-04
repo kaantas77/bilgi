@@ -297,11 +297,14 @@ backend:
     file: "/app/backend/server.py"
     stuck_count: 1
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
         - working: false
         - agent: "testing"
         - comment: "❌ CRITICAL OLLAMA ANYTHINGLLM FREE VERSION INTEGRATION ISSUE: Comprehensive testing reveals the NEW FREE VERSION with Ollama AnythingLLM integration is not working due to workspace configuration issue. DETAILED FINDINGS: ✅ BACKEND ROUTING WORKING: System correctly detects FREE version and routes to Ollama AnythingLLM - backend logs show 'FREE version selected - using Ollama AnythingLLM' ✅ API CONFIGURATION: Ollama AnythingLLM API key (0PSWXGR-22AMZJP-JEEAQ1P-1EQS5DA) and endpoint (https://2jr84ymm.rcsrv.com/api/v1/workspace/bilgin/chat) are properly configured ✅ RESPONSE TRANSFER: Error responses are returned exactly as received without modification (birebir aktarma working) ❌ WORKSPACE ISSUE: All API calls return 400 error: 'Workspace bilgin is not a valid workspace.' Backend logs show consistent error pattern across all test scenarios. ROOT CAUSE: The hardcoded workspace name 'bilgin' in the Ollama AnythingLLM endpoint URL does not exist on the target server (https://2jr84ymm.rcsrv.com). URGENT ACTION REQUIRED: Main agent must either: 1) Create 'bilgin' workspace on Ollama AnythingLLM server, or 2) Update backend code to use correct workspace name, or 3) Configure workspace name as environment variable. TEST RESULTS: 2/5 tests passed (Response Transfer and Error Handling passed due to proper error message handling), 3/5 failed due to workspace issue. The integration framework is correctly implemented but blocked by workspace configuration."
+        - working: false
+        - agent: "main"
+        - comment: "🔧 WORKSPACE CONFIGURATION FIX IMPLEMENTED: Updated workspace name from 'bilgin' to 'testtt' in server.py line 1007 based on user-provided API documentation. Also cleaned up environment variable configuration - moved OLLAMA_API_KEY to .env file and updated server.py to read from environment. Backend restarted successfully."
 
   - task: "ENHANCED FREE VERSION with Serper API + Gemini Cleaning System"
     implemented: true
