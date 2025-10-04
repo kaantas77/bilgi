@@ -674,7 +674,7 @@ async def process_with_openai_gpt5_nano(question: str, conversation_mode: str = 
                 {"role": "system", "content": system_message},
                 {"role": "user", "content": user_message}
             ],
-            "max_completion_tokens": 2000,
+            "max_output_tokens": 200,
             "temperature": 1.0
         }
         
