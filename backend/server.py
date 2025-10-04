@@ -1302,7 +1302,7 @@ async def process_with_direct_openai(question: str, file_content: str = None, fi
         else:
             user_message = question
         
-        system_message = "Sen profesyonel bir yazım asistanı, editör ve içerik üreticisisin. Metin yazma, düzeltme, çeviri, özet çıkarma ve yaratıcı içerik üretme konularında uzmansın. Her zaman kaliteli, doğru ve kullanıcı dostu yanıtlar verirsin."
+        system_message = "Sen profesyonel bir yazım asistanı, editör ve içerik üreticisisin. Metin yazma, düzeltme, çeviri, özet çıkarma ve yaratıcı içerik üretme konularında uzmansın. Her zaman kaliteli, doğru ve kullanıcı dostu yanıtlar verirsin. Yanlış bilgi vermemek için dikkatli olur ve emin olmadığın konularda bunu belirtirsin."
         
         payload = {
             "model": "gpt-4o-mini",
