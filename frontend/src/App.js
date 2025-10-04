@@ -820,38 +820,38 @@ function App() {
             </Button>
           </div>
           
-          {/* Vertical Tab Buttons - Beautiful Design */}
-          <div className="space-y-3">
+          {/* Vertical Tab Buttons - Compact Design */}
+          <div className="space-y-2">
             <button
               onClick={() => setActiveTab('normal')}
-              className={`w-full p-4 rounded-xl text-left transition-all duration-300 ${
+              className={`w-full p-3 rounded-lg text-left transition-all duration-300 ${
                 activeTab === 'normal' 
-                  ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg transform scale-105' 
+                  ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg' 
                   : 'bg-gray-900 hover:bg-gray-800 text-gray-300 hover:text-white border border-gray-700 hover:border-gray-600'
               }`}
             >
-              <div className="flex items-center space-x-3">
-                <div className={`w-4 h-4 rounded-full ${activeTab === 'normal' ? 'bg-white' : 'bg-blue-500'}`}></div>
+              <div className="flex items-center space-x-2">
+                <div className={`w-3 h-3 rounded-full ${activeTab === 'normal' ? 'bg-white' : 'bg-blue-500'}`}></div>
                 <div>
-                  <div className="font-semibold text-sm">Normal Sohbet</div>
-                  <div className="text-xs opacity-75">Standart BİLGİN sohbeti</div>
+                  <div className="font-medium text-xs">Normal Sohbet</div>
+                  <div className="text-xs opacity-75">Standart sohbet</div>
                 </div>
               </div>
             </button>
             
             <button
               onClick={() => setActiveTab('modes')}
-              className={`w-full p-4 rounded-xl text-left transition-all duration-300 ${
+              className={`w-full p-3 rounded-lg text-left transition-all duration-300 ${
                 activeTab === 'modes' 
-                  ? 'bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-lg transform scale-105' 
+                  ? 'bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-lg' 
                   : 'bg-gray-900 hover:bg-gray-800 text-gray-300 hover:text-white border border-gray-700 hover:border-gray-600'
               }`}
             >
-              <div className="flex items-center space-x-3">
-                <div className={`w-4 h-4 rounded-full ${activeTab === 'modes' ? 'bg-white' : 'bg-purple-500'}`}></div>
+              <div className="flex items-center space-x-2">
+                <div className={`w-3 h-3 rounded-full ${activeTab === 'modes' ? 'bg-white' : 'bg-purple-500'}`}></div>
                 <div>
-                  <div className="font-semibold text-sm">Konuşma Modları</div>
-                  <div className="text-xs opacity-75">6 farklı konuşma tarzı</div>
+                  <div className="font-medium text-xs">Konuşma Modları</div>
+                  <div className="text-xs opacity-75">6 farklı tarzı</div>
                 </div>
               </div>
             </button>
