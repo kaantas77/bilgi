@@ -8900,24 +8900,6 @@ def main():
         return gpt5_nano_tests_passed == gpt5_nano_tests_run
 
 if __name__ == "__main__":
-            200,
-            data={"title": "Layout Test - Complex Math"}
-        )
-        
-        if not success:
-            return False
-            
-        test_conv_id = response.get('id')
-        
-        # Send the complex mathematical question as requested
-        complex_math_question = "Mutlak basınç hesabı problemini çözüyorum: Manometre 8 mmHg gösteriyor, atmosfer basıncı 720 mmHg, sistem basıncı 1 bar. Adım adım formüllerle hesaplama yap ve detaylı matematik göster."
-        
-        print(f"   Testing layout with complex math question...")
-        print(f"   Question: {complex_math_question[:100]}...")
-        
-        start_time = time.time()
-        success, response = self.run_test(
-            "Send Complex Math Question (Layout Test)",
             "POST",
             f"conversations/{test_conv_id}/messages",
             200,
