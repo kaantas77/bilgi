@@ -2113,13 +2113,12 @@ async def send_message(conversation_id: str, input: MessageCreate):
         file_path = None
         file_type = None
         
-        # Only use file content if the question is specifically about uploaded files
-        if is_question_about_uploaded_file(input.content):
-            # Get the most recent uploaded file for this conversation
-            recent_file = await db.file_uploads.find_one(
-                {"conversation_id": conversation_id},
-                sort=[("uploaded_at", -1)]
-            )
+        # Always check for uploaded files in the conversation
+        # Get the most recent uploaded file for this conversation
+        recent_file = await db.file_uploads.find_one(
+            {"conversation_id": conversation_id},
+            sort=[("uploaded_at", -1)]
+        )
             
             if recent_file and os.path.exists(recent_file["file_path"]):
                 file_path = recent_file["file_path"]
