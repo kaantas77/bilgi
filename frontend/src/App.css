@@ -40,7 +40,8 @@ body {
 }
 
 .chat-message .fraction {
-  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 400;
   display: inline-block;
   text-align: center;
   vertical-align: middle;
