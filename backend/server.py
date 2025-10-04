@@ -1004,7 +1004,7 @@ async def process_with_ollama_free(question: str, conversation_mode: str = 'norm
         
         async with httpx.AsyncClient() as client:
             response = await client.post(
-                f"{OLLAMA_ANYTHINGLLM_BASE_URL}/workspace/bilgin/chat",
+                f"{OLLAMA_ANYTHINGLLM_BASE_URL}/workspace/testtt/chat",
                 headers=headers,
                 json=payload,
                 timeout=30.0
