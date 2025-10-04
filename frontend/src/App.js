@@ -230,32 +230,17 @@ function App() {
 
       const result = await response.json();
       
-      // Add system message to current messages
-      if (result.system_message) {
-        const systemMessage = {
-          id: result.system_message.id,
-          role: 'assistant',
-          content: result.system_message.content,
-          timestamp: result.system_message.timestamp
-        };
-        
-        // Add to the appropriate message array based on active tab
-        if (activeTab === 'normal') {
-          if (currentNormalConversation) {
-            setNormalMessages(prev => [...prev, systemMessage]);
-          } else {
-            setCurrentMessages(prev => [...prev, systemMessage]);
-          }
-        } else {
-          if (currentModesConversation) {
-            setModesMessages(prev => [...prev, systemMessage]);
-          } else {
-            setCurrentMessages(prev => [...prev, systemMessage]);
-          }
-        }
-      }
-
-      // Dosya listesi güncellemesi kaldırıldı - sadece sistem mesajı yeterli
+      // Add uploaded file to state for display in chat
+      const uploadedFile = {
+        id: result.file_id || Date.now().toString(),
+        name: file.name,
+        type: fileExtension,
+        size: file.size,
+        url: result.file_url || URL.createObjectURL(file),
+        uploadedAt: new Date().toISOString()
+      };
+      
+      setUploadedFiles(prev => [...prev, uploadedFile]);
 
       toast({
         title: "Dosya yüklendi!",
