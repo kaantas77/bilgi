@@ -11,10 +11,11 @@
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', monospace, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow: hidden;
+  font-feature-settings: "liga" on, "calt" on;
 }
 
 .App {
