@@ -985,6 +985,19 @@ Lütfen bu bilgileri temizleyip düzenli bir Türkçe cevap ver. Kaynakları bel
         logging.error(f"Gemini cleaning error: {e}")
         return web_results  # Fallback to original web results
 
+def clean_response_formatting(text: str) -> str:
+    """Clean markdown formatting from AI responses"""
+    if not text:
+        return text
+    
+    # Remove bold formatting (**text**)
+    text = re.sub(r'\*\*([^*]+)\*\*', r'\1', text)
+    
+    # Remove italic formatting (*text*)
+    text = re.sub(r'\*([^*]+)\*', r'\1', text)
+    
+    return text
+
 async def process_with_ollama_free(question: str, conversation_mode: str = 'normal', file_content: str = None, file_name: str = None) -> str:
     """Process question with Ollama AnythingLLM for FREE/PRO version - returns exact response without modification"""
     try:
