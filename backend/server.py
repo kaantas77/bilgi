@@ -799,23 +799,20 @@ async def simple_pro_system(question: str, conversation_mode: str = 'normal', fi
         return await process_with_openai_gpt5_nano(question, conversation_mode, file_content, file_name)
     else:
         logging.info("PRO: Standard question - trying AnythingLLM first")
-    
-    # Step 3: Try AnythingLLM first for all other normal mode questions
-    logging.info("PRO: Normal mode, not current topic - trying AnythingLLM first...")
-    try:
-        anythingllm_response = await get_anythingllm_response(question, conversation_mode)
-        
-        # Check if AnythingLLM gave "no answer" or error
-        if can_anythingllm_answer(anythingllm_response):
-            logging.info("PRO: AnythingLLM provided good answer - using it")
-            return anythingllm_response
-        else:
-            logging.info("PRO: AnythingLLM returned 'no answer' or error - falling back to ChatGPT GPT-5-nano")
-            return await process_with_openai_gpt5_nano(question, conversation_mode, file_content, file_name)
+        try:
+            anythingllm_response = await get_anythingllm_response(question, conversation_mode)
             
-    except Exception as e:
-        logging.error(f"PRO: AnythingLLM error: {e} - falling back to ChatGPT GPT-5-nano")
-        return await process_with_openai_gpt5_nano(question, conversation_mode, file_content, file_name)
+            # Check if AnythingLLM gave "no answer" or error
+            if can_anythingllm_answer(anythingllm_response):
+                logging.info("PRO: AnythingLLM provided good answer - using it")
+                return anythingllm_response
+            else:
+                logging.info("PRO: AnythingLLM returned 'no answer' or error - falling back to ChatGPT")
+                return await process_with_openai_gpt5_nano(question, conversation_mode, file_content, file_name)
+                
+        except Exception as e:
+            logging.error(f"PRO: AnythingLLM error: {e} - falling back to ChatGPT")
+            return await process_with_openai_gpt5_nano(question, conversation_mode, file_content, file_name)
 
 def optimize_search_query(question: str) -> str:
     """Optimize question for better web search results"""
