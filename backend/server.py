@@ -654,14 +654,8 @@ def are_responses_similar(response1: str, response2: str) -> bool:
     return similarity >= 0.6
 
 async def process_with_openai_gpt5_nano(question: str, conversation_mode: str = 'normal', file_content: str = None, file_name: str = None) -> str:
-    """Process question with OpenAI GPT-5-nano for PRO version fallback"""
+    """Process question with ChatGPT-4o-mini using Emergent integrations"""
     try:
-        # Use Emergent LLM key for GPT-4o-mini
-        headers = {
-            "Authorization": f"Bearer {EMERGENT_LLM_KEY}",
-            "Content-Type": "application/json"
-        }
-        
         # Prepare personality prompt if conversation mode is active
         if conversation_mode and conversation_mode != 'normal':
             mode_personalities = {
@@ -676,58 +670,32 @@ async def process_with_openai_gpt5_nano(question: str, conversation_mode: str = 
         else:
             system_message = "Sen Türkçe konuşan yardımcı bir asistansın. Kullanıcının sorularına sadece doğru, güvenilir ve kanıta dayalı cevaplar verirsin. Emin olmadığın konularda 'emin değilim' dersin ve yanlış bilgi vermezsin."
         
+        # Initialize chat with Emergent LLM
+        chat = LlmChat(
+            api_key=EMERGENT_LLM_KEY,
+            session_id=f"pro-{uuid.uuid4()}",
+            system_message=system_message
+        ).with_model("openai", "gpt-4o-mini")
+        
         # Prepare the message
         if file_content:
-            user_message = f"Dosya adı: {file_name}\n\nDosya içeriği:\n{file_content}\n\nKullanıcı sorusu: {question}\n\nLütfen bu dosya hakkındaki soruyu yanıtla."
+            user_text = f"Dosya adı: {file_name}\n\nDosya içeriği:\n{file_content}\n\nKullanıcı sorusu: {question}\n\nLütfen bu dosya hakkındaki soruyu yanıtla."
         else:
-            user_message = question
+            user_text = question
         
-        payload = {
-            "model": "gpt-4o-mini",
-            "messages": [
-                {"role": "system", "content": system_message},
-                {"role": "user", "content": user_message}
-            ],
-            "max_tokens": 1000,
-            "temperature": 0.3
-        }
+        user_message = UserMessage(text=user_text)
         
-        async with httpx.AsyncClient() as client:
-            response = await client.post(
-                "https://api.openai.com/v1/chat/completions",
-                headers=headers,
-                json=payload,
-                timeout=30.0
-            )
-            
-            if response.status_code == 200:
-                data = response.json()
-                content = data["choices"][0]["message"]["content"]
-                
-                # GPT-5-nano sometimes returns empty content, check and handle
-                if not content or content.strip() == "":
-                    logging.warning("GPT-5-nano returned empty content, checking for alternative response")
-                    # If content is empty, try to get reasoning or provide meaningful fallback
-                    if data.get("choices") and len(data["choices"]) > 0:
-                        choice = data["choices"][0]
-                        # Check if there's reasoning content
-                        if choice.get("message", {}) and choice["message"].get("reasoning"):
-                            content = choice["message"]["reasoning"]
-                            logging.info("Using reasoning content from GPT-5-nano")
-                        else:
-                            # Generate a helpful response based on the original question
-                            content = f"Bu konuda size yardımcı olmaya çalışıyorum. Sorunuz: '{user_message[:50]}...' hakkında daha spesifik bilgi verebilir misiniz? Bu şekilde size daha iyi yardımcı olabilirim."
-                            logging.info("Using generated helpful fallback response")
-                
-                logging.info("OpenAI GPT-5-nano PRO response received successfully")
-                return content
-            else:
-                logging.error(f"OpenAI GPT-5-nano API error: {response.status_code} - {response.text}")
-                return "OpenAI API'sinde bir hata oluştu. Lütfen tekrar deneyin."
+        # Send message and get response
+        response = await chat.send_message(user_message)
+        
+        # Clean markdown formatting from response
+        cleaned_response = clean_response_formatting(response)
+        logging.info("ChatGPT-4o-mini response received successfully via Emergent integrations")
+        return cleaned_response
                 
     except Exception as e:
-        logging.error(f"OpenAI GPT-5-nano request error: {e}")
-        return "OpenAI API'sine bağlanırken bir hata oluştu. Lütfen tekrar deneyin."
+        logging.error(f"ChatGPT-4o-mini request error via Emergent integrations: {e}")
+        return "ChatGPT API'sine bağlanırken bir hata oluştu. Lütfen tekrar deneyin."
 
 def is_formula_based_question(question: str) -> bool:
     """Check if question requires formula calculations or specialized technical knowledge"""
