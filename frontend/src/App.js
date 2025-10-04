@@ -1316,10 +1316,7 @@ function App() {
                   className="hidden"
                 />
                 <div className="text-xs text-gray-500 text-center mt-2">
-                  {activeTab === 'modes' 
-                    ? `${conversationModes[selectedMode]?.name || 'Normal'} modunda. LaTeX matematik desteği aktif.`
-                    : 'BİLGİN AI - Standart matematik yardımcısı. LaTeX matematik desteği aktif.'
-                  }
+                  BİLGİN AI öneriler üretir. Lütfen verilen bilgileri bağımsız kaynaklardan kontrol etmeyi unutmayın.
                 </div>
               </div>
             </div>
@@ -1545,10 +1542,7 @@ function App() {
                   className="hidden"
                 />
                 <div className="text-xs text-gray-500 text-center mt-2">
-                  {activeTab === 'modes' 
-                    ? `${conversationModes[selectedMode]?.name || 'Normal'} modunda. LaTeX matematik desteği aktif.`
-                    : 'BİLGİN AI - Standart matematik yardımcısı. LaTeX matematik desteği aktif.'
-                  }
+                  BİLGİN AI öneriler üretir. Lütfen verilen bilgileri bağımsız kaynaklardan kontrol etmeyi unutmayın.
                 </div>
               </div>
             </div>
