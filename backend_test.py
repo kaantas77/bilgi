@@ -8900,14 +8900,6 @@ def main():
         return gpt5_nano_tests_passed == gpt5_nano_tests_run
 
 if __name__ == "__main__":
-        """Test Layout Issue: Send complex mathematical question with long formulas"""
-        print("\n🧪 LAYOUT TEST: Complex Mathematical Question with Long Formulas")
-        
-        # Create conversation for layout test
-        success, response = self.run_test(
-            "Create Conversation for Layout Test",
-            "POST",
-            "conversations",
             200,
             data={"title": "Layout Test - Complex Math"}
         )
