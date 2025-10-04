@@ -1211,10 +1211,16 @@ async def process_image_with_chatgpt_vision(question: str, image_path: str, imag
             logging.error(f"Image file not found: {image_path}")
             return "Resim dosyası bulunamadı. Lütfen tekrar yükleyiniz."
         
-        # Encode image to base64
-        base64_image = encode_image_to_base64(image_path)
-        if not base64_image:
-            return "Resim kodlama hatası. Lütfen tekrar deneyin."
+        # Encode image to base64 with error handling
+        try:
+            base64_image = encode_image_to_base64(image_path)
+            if not base64_image:
+                logging.error("Base64 encoding returned empty string")
+                return "Resim kodlama hatası. Lütfen tekrar deneyin."
+            logging.info(f"Successfully encoded image to base64: {len(base64_image)} characters")
+        except Exception as encode_error:
+            logging.error(f"Base64 encoding error: {encode_error}")
+            return f"Resim kodlama hatası: {str(encode_error)}"
         
         # Use direct OpenAI API with base64 encoding
         headers = {
