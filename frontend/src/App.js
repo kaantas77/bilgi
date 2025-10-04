@@ -709,13 +709,18 @@ function App() {
 
       console.log('Calling backend API with payload:', payload);
 
+      // Create AbortController for cancelling request
+      const controller = new AbortController();
+      setAbortController(controller);
+
       const response = await fetch(`${BACKEND_URL}/api/conversations/${conversationId}/messages`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
+        signal: controller.signal
       });
 
       console.log('Backend API response status:', response.status);
