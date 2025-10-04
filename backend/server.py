@@ -980,6 +980,54 @@ Lütfen bu bilgileri temizleyip düzenli bir Türkçe cevap ver. Kaynakları bel
         logging.error(f"Gemini cleaning error: {e}")
         return web_results  # Fallback to original web results
 
+async def process_with_ollama_free(question: str, conversation_mode: str = 'normal', file_content: str = None, file_name: str = None) -> str:
+    """Process question with Ollama AnythingLLM for FREE version - returns exact response without modification"""
+    try:
+        # Use Ollama AnythingLLM API
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {OLLAMA_ANYTHINGLLM_API_KEY}"
+        }
+        
+        # Prepare the message - include file content if available
+        if file_content:
+            user_message = f"Dosya adı: {file_name}\nDosya içeriği: {file_content}\n\nKullanıcı sorusu: {question}"
+        else:
+            user_message = question
+        
+        payload = {
+            "message": user_message,
+            "mode": "chat",  # Use chat mode for general knowledge with custom embeddings
+            "sessionId": f"free-session-{hash(question)}",
+            "reset": False
+        }
+        
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                f"{OLLAMA_ANYTHINGLLM_BASE_URL}/workspace/bilgin/chat",
+                headers=headers,
+                json=payload,
+                timeout=30.0
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                # Return the exact response without any modification
+                if data.get('textResponse'):
+                    content = data['textResponse']
+                    logging.info("Ollama AnythingLLM FREE response received successfully")
+                    return content
+                else:
+                    logging.error(f"Ollama AnythingLLM unexpected response format: {data}")
+                    return "Yanıt alınamadı. Lütfen tekrar deneyin."
+            else:
+                logging.error(f"Ollama AnythingLLM API error: {response.status_code} - {response.text}")
+                return "AnythingLLM sisteminde bir hata oluştu. Lütfen tekrar deneyin."
+                
+    except Exception as e:
+        logging.error(f"Ollama AnythingLLM request error: {e}")
+        return "AnythingLLM sistemine bağlanırken bir hata oluştu. Lütfen tekrar deneyin."
+
 async def process_with_gemini_free(question: str, conversation_mode: str = 'normal', file_content: str = None, file_name: str = None) -> str:
     """Process question with free Gemini API for FREE version - includes web search for current topics"""
     try:
