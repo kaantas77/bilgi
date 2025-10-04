@@ -1188,9 +1188,29 @@ async def process_with_gemini_free(question: str, conversation_mode: str = 'norm
         logging.error(f"Gemini FREE system error: {e}")
         return "Gemini FREE sisteminde bir hata oluştu. Lütfen tekrar deneyin."
 
+def get_image_mime_type(file_path: str) -> str:
+    """Detect image mime type from file extension"""
+    extension = file_path.lower().split('.')[-1]
+    mime_mapping = {
+        'jpg': 'image/jpeg',
+        'jpeg': 'image/jpeg',
+        'png': 'image/png',
+        'gif': 'image/gif',
+        'bmp': 'image/bmp',
+        'webp': 'image/webp'
+    }
+    return mime_mapping.get(extension, 'image/jpeg')
+
 async def process_image_with_chatgpt_vision(question: str, image_path: str, image_name: str) -> str:
     """Process image questions with ChatGPT-4o-mini Vision using Emergent integrations"""
     try:
+        logging.info(f"Processing image with ChatGPT Vision: {image_path}")
+        
+        # Check if file exists
+        if not os.path.exists(image_path):
+            logging.error(f"Image file not found: {image_path}")
+            return "Resim dosyası bulunamadı. Lütfen tekrar yükleyiniz."
+        
         # Initialize chat with Emergent LLM for vision
         chat = LlmChat(
             api_key=EMERGENT_LLM_KEY,
@@ -1198,10 +1218,14 @@ async def process_image_with_chatgpt_vision(question: str, image_path: str, imag
             system_message="Sen görsel analiz konusunda uzman bir asistansın. Resimleri detaylı şekilde analiz eder ve soruları Türkçe yanıtlarsın."
         ).with_model("openai", "gpt-4o-mini")
         
+        # Detect proper mime type
+        mime_type = get_image_mime_type(image_path)
+        logging.info(f"Detected mime type: {mime_type} for file: {image_path}")
+        
         # Create image file content
         image_file = FileContentWithMimeType(
             file_path=image_path,
-            mime_type="image/jpeg"  # Default to jpeg, could be enhanced to detect actual type
+            mime_type=mime_type
         )
         
         # Create user message with image
