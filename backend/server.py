@@ -458,7 +458,9 @@ async def get_anythingllm_response(question: str, conversation_mode: str = 'norm
                 elif response_lower.startswith("sorry"):
                     return "Üzgünüm, o konuda yardımcı olamıyorum."
                 
-                return raw_response
+                # Clean markdown formatting from response
+                cleaned_response = clean_response_formatting(raw_response)
+                return cleaned_response
             else:
                 logging.error(f"AnythingLLM error: {response.status_code}")
                 return "AnythingLLM'e şu anda erişilemedi. Lütfen tekrar deneyin."
