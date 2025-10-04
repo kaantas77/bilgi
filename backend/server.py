@@ -1167,9 +1167,9 @@ async def process_image_with_chatgpt_vision(question: str, image_path: str, imag
         # Encode image to base64
         base64_image = encode_image_to_base64(image_path)
         
-        # Use direct OpenAI API with Vision
+        # Use Emergent LLM key for vision API
         headers = {
-            "Authorization": f"Bearer {OPENAI_API_KEY}",
+            "Authorization": f"Bearer {EMERGENT_LLM_KEY}",
             "Content-Type": "application/json"
         }
         
