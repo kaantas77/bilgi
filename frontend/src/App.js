@@ -58,8 +58,6 @@ function App() {
     minimalist: { name: "Minimalist", description: "Kısa, madde işaretli", color: "bg-gray-500" }
   };
   
-  const messagesEndRef = useRef(null);
-  
   // File upload states
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
