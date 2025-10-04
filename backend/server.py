@@ -51,7 +51,7 @@ ANYTHINGLLM_API_KEY = os.environ.get("ANYTHINGLLM_API_KEY")
 ANYTHINGLLM_BASE_URL = "https://pilj1jbx.rcsrv.com/api/v1"
 
 # Ollama AnythingLLM API configuration (FREE version)
-OLLAMA_ANYTHINGLLM_API_KEY = "0PSWXGR-22AMZJP-JEEAQ1P-1EQS5DA"
+OLLAMA_ANYTHINGLLM_API_KEY = os.getenv('OLLAMA_API_KEY', '0PSWXGR-22AMZJP-JEEAQ1P-1EQS5DA')
 OLLAMA_ANYTHINGLLM_BASE_URL = "https://2jr84ymm.rcsrv.com/api/v1"
 
 # Keep the original API URL for backward compatibility
