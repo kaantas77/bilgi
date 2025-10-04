@@ -2210,8 +2210,8 @@ async def send_message(conversation_id: str, input: MessageCreate):
         if not processed:
             # Check version and route accordingly
             if input.version == "free":
-                logging.info("FREE version selected - using Gemini API")
-                ai_content = await process_with_gemini_free(input.content, input.conversationMode, file_content, file_name)
+                logging.info("FREE version selected - using Ollama AnythingLLM")
+                ai_content = await process_with_ollama_free(input.content, input.conversationMode, file_content, file_name)
             else:
                 # PRO version - use simple system: Current topics → Web Search, Others → AnythingLLM → GPT-5-nano
                 logging.info("PRO version selected - using simple system")
