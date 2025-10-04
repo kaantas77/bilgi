@@ -28,6 +28,33 @@ body {
 .math-content {
   color: inherit;
   line-height: 1.6;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-feature-settings: "liga" on, "calt" on;
+}
+
+/* Chat message styling with modern fonts */
+.chat-message {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-feature-settings: "liga" on, "calt" on;
+  line-height: 1.7;
+  letter-spacing: 0.025em;
+}
+
+.chat-message .fraction {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  display: inline-block;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.chat-message .number {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" on;
+}
+
+.chat-message .emoji {
+  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
+  font-size: 1.2em;
 }
 
 .math-content .MathJax {
