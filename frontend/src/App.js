@@ -65,6 +65,8 @@ function App() {
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef(null);
   const imageInputRef = useRef(null);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [showImageModal, setShowImageModal] = useState(false);
   
   // Version selection states
   const [selectedVersion, setSelectedVersion] = useState('pro'); // 'pro' or 'free'
