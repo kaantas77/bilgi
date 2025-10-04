@@ -46,9 +46,16 @@ app = FastAPI()
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
-# AnythingLLM configuration
-ANYTHINGLLM_API_URL = os.environ.get("ANYTHINGLLM_API_URL", "https://pilj1jbx.rcsrv.com/api/v1/workspace/bilgin/chat")
+# AnythingLLM API configuration (PRO version)
 ANYTHINGLLM_API_KEY = os.environ.get("ANYTHINGLLM_API_KEY")
+ANYTHINGLLM_BASE_URL = "https://pilj1jbx.rcsrv.com/api/v1"
+
+# Ollama AnythingLLM API configuration (FREE version)
+OLLAMA_ANYTHINGLLM_API_KEY = "0PSWXGR-22AMZJP-JEEAQ1P-1EQS5DA"
+OLLAMA_ANYTHINGLLM_BASE_URL = "https://2jr84ymm.rcsrv.com/api/v1"
+
+# Keep the original API URL for backward compatibility
+ANYTHINGLLM_API_URL = os.environ.get("ANYTHINGLLM_API_URL", "https://pilj1jbx.rcsrv.com/api/v1/workspace/bilgin/chat")
 
 # Serper API configuration  
 SERPER_API_KEY = os.environ.get("SERPER_API_KEY")
