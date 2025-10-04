@@ -740,8 +740,12 @@ function App() {
       // Add bot message directly to appropriate state
       if (activeTab === 'normal') {
         setNormalMessages(prev => [...(Array.isArray(prev) ? prev : []), botMessage]);
+        // Refresh conversation list to update titles
+        loadNormalConversations();
       } else {
         setModesMessages(prev => [...(Array.isArray(prev) ? prev : []), botMessage]);
+        // Refresh conversation list to update titles  
+        loadModesConversations();
       }
       
     } catch (error) {
