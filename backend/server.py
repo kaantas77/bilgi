@@ -981,7 +981,7 @@ Lütfen bu bilgileri temizleyip düzenli bir Türkçe cevap ver. Kaynakları bel
         return web_results  # Fallback to original web results
 
 async def process_with_ollama_free(question: str, conversation_mode: str = 'normal', file_content: str = None, file_name: str = None) -> str:
-    """Process question with Ollama AnythingLLM for FREE version - returns exact response without modification"""
+    """Process question with Ollama AnythingLLM for FREE/PRO version - returns exact response without modification"""
     try:
         # Use Ollama AnythingLLM API
         headers = {
@@ -989,11 +989,29 @@ async def process_with_ollama_free(question: str, conversation_mode: str = 'norm
             "Authorization": f"Bearer {OLLAMA_ANYTHINGLLM_API_KEY}"
         }
         
-        # Prepare the message - include file content if available
-        if file_content:
-            user_message = f"Dosya adı: {file_name}\nDosya içeriği: {file_content}\n\nKullanıcı sorusu: {question}"
+        # Add conversation mode personalities
+        mode_personalities = {
+            'friend': "Sen samimi, motive edici ve esprili bir arkadaşsın. Her zaman pozitif yaklaşırsın ve kullanıcıyı motive edersin.",
+            'realistic': "Sen eleştirel düşünen, kanıt odaklı ve gerçekçi bir asistansın. Her konuyu objektif şekilde değerlendirirsin.",
+            'coach': "Sen bir yaşam koçu ve mentorsun. Kullanıcının kendi cevaplarını bulmasına yardım edersin.",
+            'lawyer': "Sen analitik düşünen bir hukukçu gibi yaklaşırsın. Her durumu farklı açılardan değerlendirirsin.",
+            'teacher': "Sen sabırlı, bilgili ve pedagojik yaklaşımlı bir öğretmensin. Karmaşık konuları basit şekilde açıklarsın.",
+            'minimalist': "Sen kısa, öz, net ve etkili cevaplar veren minimalist bir asistansın. Gereksiz detaylardan kaçınır, madde madde veya tek cümle ile yanıtlarsın."
+        }
+        
+        # Prepare the message with personality if conversation mode is active
+        if conversation_mode and conversation_mode != 'normal':
+            personality = mode_personalities.get(conversation_mode, "Sen yardımcı bir asistansın.")
+            if file_content:
+                user_message = f"Sistem mesajı: {personality}\n\nDosya adı: {file_name}\nDosya içeriği: {file_content}\n\nKullanıcı sorusu: {question}"
+            else:
+                user_message = f"Sistem mesajı: {personality}\n\nKullanıcı sorusu: {question}"
         else:
-            user_message = question
+            # Normal mode
+            if file_content:
+                user_message = f"Dosya adı: {file_name}\nDosya içeriği: {file_content}\n\nKullanıcı sorusu: {question}"
+            else:
+                user_message = question
         
         payload = {
             "message": user_message,
