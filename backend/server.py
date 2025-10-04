@@ -1051,6 +1051,8 @@ async def process_with_ollama_free(question: str, conversation_mode: str = 'norm
                 # Return the exact response without any modification
                 if data.get('textResponse'):
                     content = data['textResponse']
+                    # Clean markdown formatting from response
+                    content = clean_response_formatting(content)
                     logging.info("Ollama AnythingLLM FREE response received successfully")
                     return content
                 else:
