@@ -1086,7 +1086,7 @@ function App() {
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-medium text-white truncate">BİLGİN AI</div>
                   <div className="text-xs text-gray-500">
-                    Matematik Desteği Aktif
+                    AI Asistan
                   </div>
                 </div>
                 <div className="w-2 h-2 bg-green-400 rounded-full"></div>
