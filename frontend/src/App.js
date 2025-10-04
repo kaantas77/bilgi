@@ -1288,11 +1288,7 @@ function App() {
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
                     onKeyPress={handleKeyPress}
-                    placeholder={
-                      activeTab === 'modes' 
-                        ? `${conversationModes[selectedMode]?.name || 'Normal'} modda BİLGİN'e yazın... Matematik desteği: $x^2 + y^2 = r^2$`
-                        : "BİLGİN'e matematik sorunuzu yazın... Örnek: $x^2 + y^2 = r^2$"
-                    }
+                    placeholder="Her şeyi sorabilirsin."
                     className="flex-1 border-0 bg-transparent focus:ring-0 text-white placeholder-gray-500"
                     disabled={isMessageLoading}
                   />
