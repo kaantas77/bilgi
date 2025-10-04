@@ -1739,13 +1739,13 @@ async def require_admin(request: Request, session_token: Optional[str] = Cookie(
     return user
 
 def generate_conversation_title(message_content: str) -> str:
-    """Generate a professional conversation title based on the first message content"""
-    message = message_content.lower().strip()
+    """Generate a short and meaningful conversation title based on the first message content"""
+    message = message_content.strip()
     
-    # Simple conversational messages should be labeled as "Sohbet Mesajı"
+    # Simple conversational messages should be labeled as "Sohbet"
     casual_greetings = ["merhaba", "selam", "naber", "nasılsın", "hey", "hi", "hello", "iyi misin", "sa", "selamlar"]
-    if any(greeting in message for greeting in casual_greetings) and len(message.split()) <= 3:
-        return "Sohbet Mesajı"
+    if any(greeting in message.lower() for greeting in casual_greetings) and len(message.split()) <= 3:
+        return "Sohbet"
     
     # Professional patterns for title generation
     title_patterns = {
