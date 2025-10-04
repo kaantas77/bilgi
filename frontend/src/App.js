@@ -34,6 +34,7 @@ function App() {
   
   const [inputMessage, setInputMessage] = useState('');
   const [isMessageLoading, setIsMessageLoading] = useState(false);
+  const [abortController, setAbortController] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   
   // Settings states
