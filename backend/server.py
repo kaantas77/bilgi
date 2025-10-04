@@ -1747,117 +1747,35 @@ def generate_conversation_title(message_content: str) -> str:
     if any(greeting in message.lower() for greeting in casual_greetings) and len(message.split()) <= 3:
         return "Sohbet"
     
-    # Professional patterns for title generation
-    title_patterns = {
-        # Questions and Information Requests
-        "nasıl": "Nasıl Yapılır Rehberi",
-        "nedir": "Kavram Açıklaması",
-        "ne demek": "Terim Tanımı",
-        "açıkla": "Detaylı Açıklama",
-        "anlat": "Bilgi Talebi",
-        "öğrenmek istiyorum": "Öğrenme Planı",
-        "öğretir misin": "Eğitim Talebi",
-        "yardım": "Destek Talebi",
-        "destek": "Teknik Destek",
-        
-        # Design and Creative Work
-        "logo": "Logo Tasarımı",
-        "tasarla": "Tasarım Projesi", 
-        "çiz": "Görsel Tasarım",
-        "resim": "Görsel İçerik",
-        "design": "Kreatif Tasarım",
-        "grafik": "Grafik Tasarımı",
-        
-        # Programming and Technology
-        "kod": "Kod Geliştirme",
-        "program": "Yazılım Geliştirme",
-        "python": "Python Programlama",
-        "javascript": "JavaScript Geliştirme",
-        "web sitesi": "Web Projesi",
-        "uygulama": "Mobil Uygulama",
-        "yazılım": "Yazılım Projesi",
-        "database": "Veritabanı Yönetimi",
-        "api": "API Entegrasyonu",
-        
-        # Content Creation
-        "yaz": "İçerik Yazımı",
-        "makale": "Makale Hazırlama",
-        "mektup": "Resmi Yazışma",
-        "içerik": "İçerik Stratejisi",
-        "metin": "Metin Düzenleme",
-        "çevir": "Çeviri Hizmeti",
-        
-        # Analysis and Research
-        "analiz": "Veri Analizi",
-        "karşılaştır": "Karşılaştırmalı Analiz",
-        "araştır": "Araştırma Projesi",
-        "incele": "Detaylı İnceleme",
-        "değerlendir": "Performans Değerlendirmesi",
-        
-        # Problem Solving
-        "çöz": "Problem Çözümü",
-        "hata": "Hata Giderme", 
-        "sorun": "Teknik Sorun",
-        "düzelt": "Sistem Onarımı",
-        "optimize": "Performans Optimizasyonu",
-        
-        # Learning and Education
-        "öğren": "Eğitim Planı",
-        "ders": "Ders Materyali",
-        "kurs": "Kurs Bilgileri",
-        "kitap": "Kaynak Önerileri",
-        "sınav": "Sınav Hazırlığı",
-        
-        # Business and Strategy
-        "plan": "Strateji Planı",
-        "iş": "İş Geliştirme",
-        "proje": "Proje Yönetimi",
-        "pazarlama": "Pazarlama Stratejisi",
-        "satış": "Satış Stratejisi",
-        "budget": "Bütçe Planlaması",
-        
-        # General Services
-        "öneri": "Öneri Listesi",
-        "tavsiye": "Uzman Tavsiyesi",
-        "fikir": "Fikir Geliştirme",
-        "görüş": "Uzman Görüşü",
-        "konsept": "Konsept Geliştirme"
-    }
+    # Kısa ve anlamlı başlık oluşturma
+    words = message.split()
     
-    # Check for specific patterns and generate professional titles
-    for keyword, title_type in title_patterns.items():
-        if keyword in message:
-            words = message_content.split()
-            
-            # Handle specific professional cases
-            if "logo" in message:
-                return "Logo Tasarım Projesi"
-            elif "web sitesi" in message or "website" in message:
-                return "Web Geliştirme Projesi"
-            elif any(lang in message for lang in ["python", "javascript", "java", "c++", "php", "react", "vue", "angular"]):
-                lang_found = next(lang for lang in ["python", "javascript", "java", "c++", "php", "react", "vue", "angular"] if lang in message)
-                return f"{lang_found.title()} Geliştirme"
-            elif "nasıl" in message:
-                # Extract main topic for "how to" questions
-                main_words = [w for w in words if len(w) > 3 and w.lower() not in ["nasıl", "yapılır", "yaparım", "için", "olan", "kullanılır", "öğrenirim"]]
-                if main_words:
-                    subject = main_words[0].title()
-                    return f"{subject} Nasıl Yapılır"
-            elif any(q in message for q in ["nedir", "ne demek"]):
-                # Extract main topic for definition questions
-                main_words = [w for w in words if len(w) > 3 and w.lower() not in ["nedir", "demek", "olan", "için"]]
-                if main_words:
-                    subject = main_words[0].title()
-                    return f"{subject} Nedir"
-            
-            # For other patterns, try to extract subject
-            if len(words) >= 2:
-                meaningful_words = [w for w in words[:4] if len(w) > 2 and w.lower() not in ["bir", "için", "ile", "olan", "gibi", "kadar", "hakkında"]]
-                if meaningful_words and len(meaningful_words) >= 2:
-                    subject = " ".join(meaningful_words[:2]).title()
-                    return f"{subject} Projesi"
-            
-            return title_type
+    # Soruları tespit et ve konu çıkar
+    if "karşılaştır" in message.lower():
+        # "Yalova mı büyük avcılar mı" -> "Yalova Avcılar karşılaştırması"
+        meaningful_words = [w for w in words if len(w) > 2 and w.lower() not in ["mı", "mi", "mu", "mü", "büyük", "küçük", "iyi", "kötü", "nasıl", "nerede", "ne", "kim"]]
+        if len(meaningful_words) >= 2:
+            return f"{meaningful_words[0]} {meaningful_words[1]} karşılaştırması"
+    
+    if any(q in message.lower() for q in ["nedir", "ne demek", "açıkla"]):
+        # "Python nedir" -> "Python"
+        meaningful_words = [w for w in words if len(w) > 2 and w.lower() not in ["nedir", "ne", "demek", "açıkla", "olan", "için", "hakkında"]]
+        if meaningful_words:
+            return meaningful_words[0]
+    
+    if "nasıl" in message.lower():
+        # "Python nasıl öğrenilir" -> "Python öğrenme"
+        meaningful_words = [w for w in words if len(w) > 2 and w.lower() not in ["nasıl", "yapılır", "yaparım", "öğrenilir", "için", "olan"]]
+        if len(meaningful_words) >= 1:
+            return f"{meaningful_words[0]} öğrenme" if len(meaningful_words) == 1 else f"{meaningful_words[0]} {meaningful_words[1]}"
+    
+    # Genel durumlar için ilk anlamlı kelimeleri al
+    meaningful_words = [w for w in words if len(w) > 2 and w.lower() not in ["bir", "bu", "şu", "o", "ile", "için", "olan", "gibi", "kadar", "hakkında", "ve", "veya"]]
+    
+    if len(meaningful_words) >= 2:
+        return f"{meaningful_words[0]} {meaningful_words[1]}"
+    elif len(meaningful_words) == 1:
+        return meaningful_words[0]
     
     # Advanced fallback with better categorization
     words = message_content.split()
