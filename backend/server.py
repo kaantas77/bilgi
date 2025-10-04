@@ -1310,7 +1310,7 @@ async def process_with_direct_openai(question: str, file_content: str = None, fi
                 {"role": "system", "content": system_message},
                 {"role": "user", "content": user_message}
             ],
-            "max_completion_tokens": 2000,
+            "max_output_tokens": 200,
             "temperature": 1.0
         }
         
