@@ -70,6 +70,16 @@ body {
   word-break: break-word;
   max-width: 100%;
   overflow-x: auto;
+  overflow-y: visible;
+  white-space: pre-wrap;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Force container to respect width limits */
+.chat-message * {
+  max-width: 100% !important;
+  box-sizing: border-box !important;
 }
 
 .chat-message .fraction {
