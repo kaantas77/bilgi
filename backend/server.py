@@ -1777,33 +1777,8 @@ def generate_conversation_title(message_content: str) -> str:
     elif len(meaningful_words) == 1:
         return meaningful_words[0]
     
-    # Advanced fallback with better categorization
-    words = message_content.split()
-    meaningful_words = [w for w in words if len(w) > 2 and w.lower() not in ["bir", "için", "ile", "olan", "gibi", "kadar", "hakkında", "şey", "böyle"]]
-    
-    # If it's a question
-    if message.endswith('?') or any(q in message for q in ["mi", "mı", "mu", "mü"]):
-        if meaningful_words:
-            if len(meaningful_words) >= 2:
-                return f"{' '.join(meaningful_words[:2]).title()} Sorusu"
-            else:
-                return f"{meaningful_words[0].title()} Hakkında"
-    
-    # If it contains technical terms
-    tech_terms = ["sistem", "network", "server", "data", "algoritma", "machine learning", "ai", "yapay zeka"]
-    if any(term in message for term in tech_terms):
-        if meaningful_words:
-            return f"{meaningful_words[0].title()} Teknoloji"
-    
-    # General meaningful title
-    if len(meaningful_words) >= 3:
-        return " ".join(meaningful_words[:3]).title()
-    elif len(meaningful_words) >= 2:
-        return f"{' '.join(meaningful_words[:2]).title()} Projesi"
-    elif meaningful_words:
-        return f"{meaningful_words[0].title()} Hakkında"
-    else:
-        return "Sohbet Mesajı"
+    # Fallback: Genel sohbet mesajı
+    return "Sohbet"
 
 # Initialize admin user
 async def init_admin():
