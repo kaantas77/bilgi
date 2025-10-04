@@ -1342,7 +1342,6 @@ function App() {
                   </Button>
                   <textarea
                     value={inputMessage}
-                    onChange={(e) => setInputMessage(e.target.value)}
                     onKeyPress={handleKeyPress}
                     placeholder="Her şeyi sorabilirsin."
                     className="flex-1 border-0 bg-transparent focus:ring-0 text-white placeholder-gray-500 resize-none min-h-[40px] max-h-[120px] overflow-y-auto capitalize"
@@ -1627,7 +1626,6 @@ function App() {
                   </Button>
                   <textarea
                     value={inputMessage}
-                    onChange={(e) => setInputMessage(e.target.value)}
                     onKeyPress={handleKeyPress}
                     placeholder="Her şeyi sorabilirsin."
                     className="flex-1 border-0 bg-transparent focus:ring-0 text-white placeholder-gray-500 resize-none min-h-[40px] max-h-[120px] overflow-y-auto capitalize"
