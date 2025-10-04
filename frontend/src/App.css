@@ -27,8 +27,8 @@ body {
 .math-content {
   color: inherit;
   line-height: 1.6;
-  font-family: 'JetBrains Mono', 'Fira Code', monospace;
-  font-feature-settings: "liga" on, "calt" on;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 400;
 }
 
 /* Chat message styling with Roboto */
