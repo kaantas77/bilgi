@@ -1289,7 +1289,7 @@ function App() {
                     onChange={(e) => setInputMessage(e.target.value)}
                     onKeyPress={handleKeyPress}
                     placeholder="Her şeyi sorabilirsin."
-                    className="flex-1 border-0 bg-transparent focus:ring-0 text-white placeholder-gray-500 resize-none min-h-[40px] max-h-[120px] overflow-y-auto"
+                    className="flex-1 border-0 bg-transparent focus:ring-0 text-white placeholder-gray-500 resize-none min-h-[40px] max-h-[120px] overflow-y-auto capitalize"
                     disabled={isMessageLoading}
                     rows={1}
                     style={{
@@ -1522,7 +1522,7 @@ function App() {
                     onChange={(e) => setInputMessage(e.target.value)}
                     onKeyPress={handleKeyPress}
                     placeholder="Her şeyi sorabilirsin."
-                    className="flex-1 border-0 bg-transparent focus:ring-0 text-white placeholder-gray-500 resize-none min-h-[40px] max-h-[120px] overflow-y-auto"
+                    className="flex-1 border-0 bg-transparent focus:ring-0 text-white placeholder-gray-500 resize-none min-h-[40px] max-h-[120px] overflow-y-auto capitalize"
                     disabled={isMessageLoading}
                     rows={1}
                     style={{
