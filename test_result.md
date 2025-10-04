@@ -477,14 +477,18 @@ metadata:
 
 test_plan:
   current_focus: 
-    - "Improved AnythingLLM Evaluation System"
-    - "Image Upload Support (JPG, PNG, GIF, BMP, WEBP)"
-    - "ChatGPT Vision API Integration"
-    - "File Visibility in Chat Interface"
-  stuck_tasks: []
+    - "Layout Handling with Complex Mathematical Formulas"
+    - "Vision API Debug Endpoint Testing"
+    - "EMERGENT_LLM_KEY Configuration for Vision API"
+    - "Base64 Image Encoding Functionality"
+    - "Vision API Image Upload and Processing"
+  stuck_tasks: 
+    - "EMERGENT_LLM_KEY Configuration for Vision API"
+    - "Vision API Image Upload and Processing"
   test_all: false
   test_priority: "high_first"
-  critical_issues: []
+  critical_issues: 
+    - "EMERGENT_LLM_KEY invalid - Vision API authentication failing with 401 errors"
 
   - task: "FIXED ChatGPT API Integration with gpt-4o-mini model"
     implemented: true
