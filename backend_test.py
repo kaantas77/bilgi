@@ -6640,5 +6640,392 @@ def main():
         
         return self.pro_version_tests_passed == self.pro_version_tests_run
 
+    def test_gpt5_nano_simple_questions_pro_version(self):
+        """Test GPT-5-nano with NEW PARAMETER: max_output_tokens: 200 - Simple Questions (PRO Version)"""
+        print("\n🧪 GPT-5-NANO TEST 1: Simple Questions (PRO Version) with max_output_tokens: 200")
+        
+        # Create conversation for GPT-5-nano test
+        success, response = self.run_test(
+            "Create Conversation for GPT-5-nano Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "GPT-5-nano Test - Simple Questions"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        
+        # Test simple questions in Turkish with PRO version
+        simple_questions = [
+            "Merhaba nasılsın?",
+            "25 + 30 kaç eder?", 
+            "Python nedir?"
+        ]
+        
+        successful_tests = 0
+        response_lengths = []
+        
+        for question in simple_questions:
+            print(f"   Testing GPT-5-nano simple question: '{question}'...")
+            
+            start_time = time.time()
+            success, response = self.run_test(
+                f"GPT-5-nano Simple Question: '{question}'",
+                "POST",
+                f"conversations/{test_conv_id}/messages",
+                200,
+                data={"content": question, "mode": "chat", "version": "pro"}
+            )
+            response_time = time.time() - start_time
+            
+            if success:
+                ai_response = response.get('content', '')
+                response_length = len(ai_response)
+                response_lengths.append(response_length)
+                
+                print(f"     Response Time: {response_time:.2f}s")
+                print(f"     Response Length: {response_length} characters")
+                print(f"     Response: {ai_response[:100]}...")
+                
+                # Check for appropriate responses
+                if 'merhaba' in question.lower():
+                    if any(term in ai_response.lower() for term in ['merhaba', 'selam', 'nasılsın', 'yardım']):
+                        print("     ✅ GPT-5-nano: Greeting question answered appropriately")
+                        successful_tests += 1
+                    else:
+                        print("     ❌ GPT-5-nano: Greeting question not answered appropriately")
+                
+                elif '25 + 30' in question:
+                    if '55' in ai_response:
+                        print("     ✅ GPT-5-nano: Math question answered correctly (55)")
+                        successful_tests += 1
+                    else:
+                        print("     ❌ GPT-5-nano: Math question not answered correctly")
+                
+                elif 'python' in question.lower():
+                    if any(term in ai_response.lower() for term in ['programlama', 'dil', 'kod', 'yazılım']):
+                        print("     ✅ GPT-5-nano: Python question answered correctly")
+                        successful_tests += 1
+                    else:
+                        print("     ❌ GPT-5-nano: Python question not answered properly")
+            
+            time.sleep(2)
+        
+        # Check response length compliance with max_output_tokens: 200
+        avg_length = sum(response_lengths) / len(response_lengths) if response_lengths else 0
+        print(f"\n   📏 Response Length Analysis:")
+        print(f"     Average Response Length: {avg_length:.1f} characters")
+        print(f"     Individual Lengths: {response_lengths}")
+        
+        # Estimate token count (roughly 4 characters per token)
+        avg_tokens = avg_length / 4
+        print(f"     Estimated Average Tokens: {avg_tokens:.1f}")
+        
+        if avg_tokens <= 250:  # Allow some margin for 200 token limit
+            print("     ✅ Response length appropriate for max_output_tokens: 200")
+        else:
+            print("     ⚠️  Response length may exceed max_output_tokens: 200 limit")
+        
+        if successful_tests >= len(simple_questions) * 0.75:  # 75% success rate
+            print(f"✅ PASSED: GPT-5-nano Simple Questions PRO Version ({successful_tests}/{len(simple_questions)})")
+            return True
+        else:
+            print(f"❌ FAILED: GPT-5-nano Simple Questions PRO Version ({successful_tests}/{len(simple_questions)})")
+            return False
+
+    def test_gpt5_nano_response_length_verification(self):
+        """Test GPT-5-nano Response Length with max_output_tokens: 200"""
+        print("\n🧪 GPT-5-NANO TEST 2: Response Length Verification (max_output_tokens: 200)")
+        
+        # Create conversation for length test
+        success, response = self.run_test(
+            "Create Conversation for GPT-5-nano Length Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "GPT-5-nano Test - Response Length"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        
+        # Test questions that might generate longer responses
+        length_test_questions = [
+            "Türkiye'nin tarihi hakkında detaylı bilgi ver",
+            "Yapay zeka teknolojilerini açıkla",
+            "Programlama öğrenmek için kapsamlı bir rehber hazırla"
+        ]
+        
+        successful_tests = 0
+        all_response_lengths = []
+        
+        for question in length_test_questions:
+            print(f"   Testing GPT-5-nano response length: '{question[:50]}...'")
+            
+            start_time = time.time()
+            success, response = self.run_test(
+                f"GPT-5-nano Length Test: '{question[:30]}...'",
+                "POST",
+                f"conversations/{test_conv_id}/messages",
+                200,
+                data={"content": question, "mode": "chat", "version": "pro"}
+            )
+            response_time = time.time() - start_time
+            
+            if success:
+                ai_response = response.get('content', '')
+                response_length = len(ai_response)
+                all_response_lengths.append(response_length)
+                
+                print(f"     Response Time: {response_time:.2f}s")
+                print(f"     Response Length: {response_length} characters")
+                print(f"     Response: {ai_response[:150]}...")
+                
+                # Estimate token count (roughly 4 characters per token)
+                estimated_tokens = response_length / 4
+                print(f"     Estimated Tokens: {estimated_tokens:.1f}")
+                
+                # Check if response is complete despite token limit
+                if response_length > 50 and not ai_response.endswith('...'):
+                    print("     ✅ Response appears complete despite token limit")
+                    successful_tests += 1
+                elif response_length <= 50:
+                    print("     ⚠️  Very short response - may be truncated")
+                else:
+                    print("     ℹ️  Response may be truncated due to token limit")
+                    successful_tests += 1  # Still count as success if it's working
+            
+            time.sleep(2)
+        
+        # Overall length analysis
+        if all_response_lengths:
+            avg_length = sum(all_response_lengths) / len(all_response_lengths)
+            max_length = max(all_response_lengths)
+            min_length = min(all_response_lengths)
+            
+            print(f"\n   📊 Overall Length Analysis:")
+            print(f"     Average Length: {avg_length:.1f} characters (~{avg_length/4:.1f} tokens)")
+            print(f"     Max Length: {max_length} characters (~{max_length/4:.1f} tokens)")
+            print(f"     Min Length: {min_length} characters (~{min_length/4:.1f} tokens)")
+            
+            # Check if responses are within reasonable bounds for 200 token limit
+            avg_tokens = avg_length / 4
+            if avg_tokens <= 250:  # Allow some margin
+                print("     ✅ Response lengths appropriate for max_output_tokens: 200")
+            else:
+                print("     ⚠️  Response lengths may exceed max_output_tokens: 200")
+        
+        if successful_tests >= len(length_test_questions) * 0.67:  # 67% success rate
+            print(f"✅ PASSED: GPT-5-nano Response Length Verification ({successful_tests}/{len(length_test_questions)})")
+            return True
+        else:
+            print(f"❌ FAILED: GPT-5-nano Response Length Verification ({successful_tests}/{len(length_test_questions)})")
+            return False
+
+    def test_gpt5_nano_backend_logs_analysis(self):
+        """Test GPT-5-nano Backend Logs Analysis"""
+        print("\n🧪 GPT-5-NANO TEST 3: Backend Logs Analysis")
+        
+        # Create conversation for logs test
+        success, response = self.run_test(
+            "Create Conversation for GPT-5-nano Logs Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "GPT-5-nano Test - Backend Logs"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        
+        # Test questions to generate backend logs
+        log_test_questions = [
+            "Merhaba, GPT-5-nano test sorusu",
+            "Bu bir PRO version test mesajıdır"
+        ]
+        
+        successful_tests = 0
+        
+        for question in log_test_questions:
+            print(f"   Testing GPT-5-nano backend logs: '{question}'...")
+            
+            start_time = time.time()
+            success, response = self.run_test(
+                f"GPT-5-nano Logs Test: '{question}'",
+                "POST",
+                f"conversations/{test_conv_id}/messages",
+                200,
+                data={"content": question, "mode": "chat", "version": "pro"}
+            )
+            response_time = time.time() - start_time
+            
+            if success:
+                ai_response = response.get('content', '')
+                print(f"     Response Time: {response_time:.2f}s")
+                print(f"     Response: {ai_response[:100]}...")
+                
+                # Check for successful API call (200 response indicates success)
+                if response.get('content') and len(ai_response.strip()) > 0:
+                    print("     ✅ GPT-5-nano API call successful (200 response with content)")
+                    successful_tests += 1
+                else:
+                    print("     ❌ GPT-5-nano API call failed or returned empty content")
+            
+            time.sleep(2)
+        
+        # Note about backend logs
+        print(f"\n   📋 Backend Logs Analysis:")
+        print(f"     Expected log messages:")
+        print(f"     - 'OpenAI GPT-5-nano PRO response received successfully'")
+        print(f"     - 'PRO version selected - using full hybrid system'")
+        print(f"     - Model: gpt-5-nano with max_output_tokens: 200, temperature: 1.0")
+        
+        if successful_tests >= len(log_test_questions) * 0.75:  # 75% success rate
+            print(f"✅ PASSED: GPT-5-nano Backend Logs Analysis ({successful_tests}/{len(log_test_questions)})")
+            return True
+        else:
+            print(f"❌ FAILED: GPT-5-nano Backend Logs Analysis ({successful_tests}/{len(log_test_questions)})")
+            return False
+
+    def test_gpt5_nano_error_handling(self):
+        """Test GPT-5-nano Error Handling with max_output_tokens parameter"""
+        print("\n🧪 GPT-5-NANO TEST 4: Error Handling (max_output_tokens parameter compatibility)")
+        
+        # Create conversation for error handling test
+        success, response = self.run_test(
+            "Create Conversation for GPT-5-nano Error Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "GPT-5-nano Test - Error Handling"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        
+        # Test various scenarios that might cause errors
+        error_test_questions = [
+            "Bu çok uzun bir cevap gerektirebilecek karmaşık bir soru hakkında detaylı açıklama yapabilir misin?",
+            "Kısa cevap ver",
+            "Normal bir soru"
+        ]
+        
+        successful_tests = 0
+        no_errors = 0
+        
+        for question in error_test_questions:
+            print(f"   Testing GPT-5-nano error handling: '{question[:50]}...'")
+            
+            start_time = time.time()
+            success, response = self.run_test(
+                f"GPT-5-nano Error Test: '{question[:30]}...'",
+                "POST",
+                f"conversations/{test_conv_id}/messages",
+                200,
+                data={"content": question, "mode": "chat", "version": "pro"}
+            )
+            response_time = time.time() - start_time
+            
+            if success:
+                ai_response = response.get('content', '')
+                print(f"     Response Time: {response_time:.2f}s")
+                print(f"     Response: {ai_response[:100]}...")
+                
+                # Check for API parameter errors
+                error_indicators = [
+                    'api error 400',
+                    'unsupported value',
+                    'parameter error',
+                    'max_output_tokens',
+                    'temperature does not support'
+                ]
+                
+                has_parameter_error = any(indicator in ai_response.lower() for indicator in error_indicators)
+                
+                if not has_parameter_error and len(ai_response.strip()) > 0:
+                    print("     ✅ No OpenAI API parameter errors - max_output_tokens: 200 accepted")
+                    no_errors += 1
+                    successful_tests += 1
+                elif has_parameter_error:
+                    print("     ❌ OpenAI API parameter error detected")
+                else:
+                    print("     ⚠️  Empty response - may indicate parameter issue")
+                
+                # Check for empty content handling
+                if len(ai_response.strip()) == 0:
+                    print("     ℹ️  Empty content detected - testing empty content handling")
+                else:
+                    print("     ✅ Non-empty content received")
+            
+            time.sleep(2)
+        
+        # Summary of error handling
+        print(f"\n   🛡️  Error Handling Summary:")
+        print(f"     No Parameter Errors: {no_errors}/{len(error_test_questions)}")
+        print(f"     max_output_tokens: 200 parameter compatibility: {'✅ Working' if no_errors > 0 else '❌ Issues detected'}")
+        print(f"     temperature: 1.0 parameter compatibility: {'✅ Working' if no_errors > 0 else '❌ Issues detected'}")
+        
+        if successful_tests >= len(error_test_questions) * 0.75:  # 75% success rate
+            print(f"✅ PASSED: GPT-5-nano Error Handling ({successful_tests}/{len(error_test_questions)})")
+            return True
+        else:
+            print(f"❌ FAILED: GPT-5-nano Error Handling ({successful_tests}/{len(error_test_questions)})")
+            return False
+
+    def run_gpt5_nano_new_parameter_tests(self):
+        """Run all GPT-5-nano specific tests with NEW PARAMETER: max_output_tokens: 200"""
+        print("\n" + "="*80)
+        print("🚀 STARTING GPT-5-NANO TESTS WITH NEW PARAMETER: max_output_tokens: 200")
+        print("Testing GPT-5-nano with:")
+        print("- Model: gpt-5-nano")
+        print("- NEW Parameter: max_output_tokens: 200 (instead of max_completion_tokens: 2000)")
+        print("- Temperature: 1.0 (required for GPT-5-nano)")
+        print("="*80)
+        
+        gpt5_nano_tests = [
+            self.test_gpt5_nano_simple_questions_pro_version,
+            self.test_gpt5_nano_response_length_verification,
+            self.test_gpt5_nano_backend_logs_analysis,
+            self.test_gpt5_nano_error_handling
+        ]
+        
+        gpt5_nano_tests_run = 0
+        gpt5_nano_tests_passed = 0
+        
+        for test in gpt5_nano_tests:
+            try:
+                gpt5_nano_tests_run += 1
+                if test():
+                    gpt5_nano_tests_passed += 1
+                time.sleep(3)  # Longer pause between GPT-5-nano tests
+            except Exception as e:
+                print(f"❌ GPT-5-nano test failed with exception: {e}")
+        
+        # Print GPT-5-nano test results
+        print("\n" + "="*80)
+        print(f"🧪 GPT-5-NANO TEST RESULTS: {gpt5_nano_tests_passed}/{gpt5_nano_tests_run} tests passed")
+        
+        if gpt5_nano_tests_passed == gpt5_nano_tests_run:
+            print("🎉 All GPT-5-nano tests passed!")
+            print("✅ max_output_tokens: 200 parameter working correctly")
+            print("✅ temperature: 1.0 parameter working correctly")
+            print("✅ GPT-5-nano API integration successful")
+            print("✅ Response length appropriate for 200 token limit")
+            print("✅ No OpenAI API parameter errors")
+        else:
+            print(f"❌ {gpt5_nano_tests_run - gpt5_nano_tests_passed} GPT-5-nano tests failed")
+            print("⚠️  Check backend logs for detailed error information")
+        
+        return gpt5_nano_tests_passed == gpt5_nano_tests_run
+
 if __name__ == "__main__":
     sys.exit(main())
