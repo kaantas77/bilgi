@@ -23,7 +23,7 @@ from io import BytesIO
 import jieba
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-from multipart import parse_options_header
+# from multipart import parse_options_header  # Not used
 
 # File processing imports
 import PyPDF2
