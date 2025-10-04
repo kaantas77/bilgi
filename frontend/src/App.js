@@ -1523,6 +1523,51 @@ function App() {
               </div>
             </div>
 
+            {/* Uploaded Files Display */}
+            {uploadedFiles.length > 0 && (
+              <div className="bg-black border-t border-gray-900 px-4 py-2">
+                <div className="max-w-4xl mx-auto">
+                  <div className="flex flex-wrap gap-2">
+                    {uploadedFiles.map((file) => (
+                      <div key={file.id} className="flex items-center space-x-2 bg-gray-800 rounded-lg px-3 py-2 border border-gray-700">
+                        {file.type && ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(file.type) ? (
+                          <div className="flex items-center space-x-2">
+                            <img 
+                              src={file.url} 
+                              alt={file.name}
+                              className="w-12 h-12 object-cover rounded"
+                            />
+                            <div>
+                              <p className="text-xs font-medium text-white truncate max-w-24">{file.name}</p>
+                              <p className="text-xs text-gray-400">{(file.size / 1024 / 1024).toFixed(1)} MB</p>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex items-center space-x-2">
+                            <div className="w-8 h-8 bg-red-600 rounded flex items-center justify-center">
+                              <span className="text-white text-xs font-bold">📄</span>
+                            </div>
+                            <div>
+                              <p className="text-xs font-medium text-white truncate max-w-24">{file.name}</p>
+                              <p className="text-xs text-gray-400">{file.type?.toUpperCase()}</p>
+                            </div>
+                          </div>
+                        )}
+                        <Button
+                          onClick={() => setUploadedFiles(prev => prev.filter(f => f.id !== file.id))}
+                          variant="ghost"
+                          size="sm"
+                          className="w-6 h-6 text-gray-400 hover:text-white p-0"
+                        >
+                          ×
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Input Area */}
             <div className="bg-black border-t border-gray-900 p-4">
               <div className="max-w-4xl mx-auto">
