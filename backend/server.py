@@ -674,8 +674,8 @@ async def process_with_openai_gpt5_nano(question: str, conversation_mode: str = 
                 {"role": "system", "content": system_message},
                 {"role": "user", "content": user_message}
             ],
-            "max_completion_tokens": 200,
-            "temperature": 1.0
+            "max_tokens": 1000,
+            "temperature": 0.3
         }
         
         async with httpx.AsyncClient() as client:
@@ -1256,8 +1256,8 @@ async def process_conversation_mode_with_openai(question: str, conversation_mode
                 {"role": "system", "content": personality['system_message']},
                 {"role": "user", "content": user_message}
             ],
-            "max_completion_tokens": 200,
-            "temperature": 1.0  # Moderate temperature for personality
+            "max_tokens": 1000,
+            "temperature": 0.3  # Moderate temperature for personality
         }
         
         async with httpx.AsyncClient() as client:
@@ -1310,8 +1310,8 @@ async def process_with_direct_openai(question: str, file_content: str = None, fi
                 {"role": "system", "content": system_message},
                 {"role": "user", "content": user_message}
             ],
-            "max_completion_tokens": 200,
-            "temperature": 1.0
+            "max_tokens": 1000,
+            "temperature": 0.3
         }
         
         async with httpx.AsyncClient() as client:
