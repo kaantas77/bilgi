@@ -6322,6 +6322,33 @@ def main():
             print("⚠️  Check backend logs for detailed error information")
             return 1
 
+    # Check if we should run GPT-4.1-nano tests specifically
+    if len(sys.argv) > 1 and sys.argv[1] == "gpt_4_1_nano":
+        print("\n🧪 Running GPT-4.1-NANO MODEL Tests ONLY...")
+        gpt_4_1_nano_success = tester.run_gpt_4_1_nano_tests()
+        
+        # Print final results for GPT-4.1-nano tests
+        print("\n" + "="*80)
+        print("📊 GPT-4.1-NANO MODEL TEST RESULTS")
+        print("="*80)
+        
+        if gpt_4_1_nano_success:
+            print("🎉 ALL GPT-4.1-NANO MODEL TESTS PASSED!")
+            print("✅ GPT-4.1-nano model is available and working correctly!")
+            print("✅ Simple questions processed successfully!")
+            print("✅ Conversation modes working with GPT-4.1-nano!")
+            print("✅ No model-related API errors detected!")
+            print("✅ Backend logs show GPT-4.1-nano integration!")
+            return 0
+        else:
+            print("❌ Some GPT-4.1-nano model tests failed.")
+            print("🚨 CRITICAL: GPT-4.1-nano model may not be available or working")
+            print("   Possible issues:")
+            print("   - Model name 'gpt-4.1-nano' may not exist in OpenAI API")
+            print("   - API key may not have access to this model")
+            print("   - Model parameters may be incompatible")
+            return 1
+
     # Run basic API tests first
     print("\n📋 BASIC API TESTS")
     print("-" * 30)
