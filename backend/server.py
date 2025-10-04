@@ -669,7 +669,7 @@ async def process_with_openai_gpt5_nano(question: str, conversation_mode: str = 
             user_message = question
         
         payload = {
-            "model": "gpt-4.1-nano",
+            "model": "gpt-4o-mini",
             "messages": [
                 {"role": "system", "content": system_message},
                 {"role": "user", "content": user_message}
@@ -1073,7 +1073,7 @@ async def process_image_with_chatgpt_vision(question: str, image_path: str, imag
         }
         
         payload = {
-            "model": "gpt-4.1-nano",
+            "model": "gpt-4o-mini",
             "messages": [
                 {
                     "role": "user",
@@ -1251,7 +1251,7 @@ async def process_conversation_mode_with_openai(question: str, conversation_mode
             user_message = question
         
         payload = {
-            "model": "gpt-4.1-nano",
+            "model": "gpt-4o-mini",
             "messages": [
                 {"role": "system", "content": personality['system_message']},
                 {"role": "user", "content": user_message}
@@ -1305,7 +1305,7 @@ async def process_with_direct_openai(question: str, file_content: str = None, fi
         system_message = "Sen profesyonel bir yazım asistanı, editör ve içerik üreticisisin. Metin yazma, düzeltme, çeviri, özet çıkarma ve yaratıcı içerik üretme konularında uzmansın. Her zaman kaliteli, doğru ve kullanıcı dostu yanıtlar verirsin."
         
         payload = {
-            "model": "gpt-4.1-nano",
+            "model": "gpt-4o-mini",
             "messages": [
                 {"role": "system", "content": system_message},
                 {"role": "user", "content": user_message}
