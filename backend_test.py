@@ -6299,6 +6299,29 @@ def main():
                 print("ℹ️  INFO: GPT-5-nano partially working but needs attention")
             return 1
 
+    # Check if we should run GPT-5-nano NEW PARAMETER tests specifically
+    if len(sys.argv) > 1 and sys.argv[1] == "gpt5_nano_new":
+        print("\n🧪 Running GPT-5-NANO NEW PARAMETER Tests ONLY...")
+        gpt5_nano_new_success = tester.run_gpt5_nano_new_parameter_tests()
+        
+        # Print final results for GPT-5-nano NEW PARAMETER tests
+        print("\n" + "="*80)
+        print("📊 GPT-5-NANO NEW PARAMETER TEST RESULTS")
+        print("="*80)
+        
+        if gpt5_nano_new_success:
+            print("🎉 ALL GPT-5-NANO NEW PARAMETER TESTS PASSED!")
+            print("✅ max_output_tokens: 200 parameter working correctly!")
+            print("✅ temperature: 1.0 parameter working correctly!")
+            print("✅ GPT-5-nano API integration successful!")
+            print("✅ Response length appropriate for 200 token limit!")
+            print("✅ No OpenAI API parameter errors!")
+            return 0
+        else:
+            print("❌ Some GPT-5-nano NEW PARAMETER tests failed.")
+            print("⚠️  Check backend logs for detailed error information")
+            return 1
+
     # Run basic API tests first
     print("\n📋 BASIC API TESTS")
     print("-" * 30)
