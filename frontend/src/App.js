@@ -1406,9 +1406,6 @@ function App() {
                         : `${conversationModes[selectedMode]?.name} modunda matematik sorularınızı yanıtlıyorum.`
                       }
                     </p>
-                    <p className="text-sm text-gray-400">
-                      LaTeX matematik desteği: $x^2 + y^2 = r^2$
-                    </p>
                   </div>
                 )}
 
