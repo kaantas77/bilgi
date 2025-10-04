@@ -1355,7 +1355,14 @@ function App() {
                     }}
                     onInput={(e) => {
                       e.target.style.height = 'auto';
-                      e.target.style.height = e.target.scrollHeight + 'px';
+                      e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
+                    }}
+                    onChange={(e) => {
+                      setInputMessage(e.target.value);
+                      // Reset height if content is deleted
+                      if (e.target.value === '') {
+                        e.target.style.height = '40px';
+                      }
                     }}
                   />
                   <Button
@@ -1633,7 +1640,14 @@ function App() {
                     }}
                     onInput={(e) => {
                       e.target.style.height = 'auto';
-                      e.target.style.height = e.target.scrollHeight + 'px';
+                      e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
+                    }}
+                    onChange={(e) => {
+                      setInputMessage(e.target.value);
+                      // Reset height if content is deleted
+                      if (e.target.value === '') {
+                        e.target.style.height = '40px';
+                      }
                     }}
                   />
                   <Button
