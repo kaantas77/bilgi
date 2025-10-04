@@ -29,6 +29,34 @@ body {
   line-height: 1.6;
   font-family: 'Roboto', sans-serif;
   font-weight: 400;
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+/* KaTeX overflow fixes */
+.katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
+  margin: 1em 0;
+}
+
+.katex {
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
+}
+
+/* Prevent math formulas from breaking layout */
+.katex-display .katex {
+  white-space: nowrap;
+}
+
+/* Handle long equations */
+.katex-display > .katex > .katex-html {
+  white-space: nowrap;
+  overflow-x: auto;
+  max-width: 100%;
 }
 
 /* Chat message styling with Roboto */
