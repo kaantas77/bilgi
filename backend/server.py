@@ -1189,60 +1189,38 @@ async def process_with_gemini_free(question: str, conversation_mode: str = 'norm
         return "Gemini FREE sisteminde bir hata oluştu. Lütfen tekrar deneyin."
 
 async def process_image_with_chatgpt_vision(question: str, image_path: str, image_name: str) -> str:
-    """Process image questions with ChatGPT Vision API"""
+    """Process image questions with ChatGPT-4o-mini Vision using Emergent integrations"""
     try:
-        # Encode image to base64
-        base64_image = encode_image_to_base64(image_path)
+        # Initialize chat with Emergent LLM for vision
+        chat = LlmChat(
+            api_key=EMERGENT_LLM_KEY,
+            session_id=f"vision-{uuid.uuid4()}",
+            system_message="Sen görsel analiz konusunda uzman bir asistansın. Resimleri detaylı şekilde analiz eder ve soruları Türkçe yanıtlarsın."
+        ).with_model("openai", "gpt-4o-mini")
         
-        # Use Emergent LLM key for vision API
-        headers = {
-            "Authorization": f"Bearer {EMERGENT_LLM_KEY}",
-            "Content-Type": "application/json"
-        }
+        # Create image file content
+        image_file = FileContentWithMimeType(
+            file_path=image_path,
+            mime_type="image/jpeg"  # Default to jpeg, could be enhanced to detect actual type
+        )
         
-        payload = {
-            "model": "gpt-4o-mini",
-            "messages": [
-                {
-                    "role": "user",
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": f"Görsel adı: {image_name}\n\nKullanıcı sorusu: {question}\n\nLütfen bu görsel hakkındaki soruyu yanıtla. Eğer görselde metin varsa oku ve analiz et."
-                        },
-                        {
-                            "type": "image_url",
-                            "image_url": {
-                                "url": f"data:image/jpeg;base64,{base64_image}"
-                            }
-                        }
-                    ]
-                }
-            ],
-            "max_tokens": 2000,
-            "temperature": 1.0
-        }
+        # Create user message with image
+        user_message = UserMessage(
+            text=f"Bu resim hakkındaki soru: {question}\n\nLütfen soruyu Türkçe yanıtla. Resimde gördüklerinizi açıkla ve soruyu cevaplayacak bilgiyi sağla.",
+            file_contents=[image_file]
+        )
         
-        async with httpx.AsyncClient() as client:
-            response = await client.post(
-                "https://api.openai.com/v1/chat/completions",
-                headers=headers,
-                json=payload,
-                timeout=30.0
-            )
-            
-            if response.status_code == 200:
-                data = response.json()
-                content = data["choices"][0]["message"]["content"]
-                logging.info("ChatGPT Vision API response received successfully")
-                return content
-            else:
-                logging.error(f"ChatGPT Vision API error: {response.status_code} - {response.text}")
-                return "Görsel analizi sırasında bir hata oluştu. Lütfen tekrar deneyin."
+        # Send message and get response
+        response = await chat.send_message(user_message)
+        
+        # Clean markdown formatting from response
+        cleaned_response = clean_response_formatting(response)
+        logging.info("ChatGPT-4o-mini Vision response received successfully via Emergent integrations")
+        return cleaned_response
                 
     except Exception as e:
-        logging.error(f"ChatGPT Vision API request error: {e}")
-        return "Görsel işleme sırasında bir hata oluştu. Lütfen tekrar deneyin."
+        logging.error(f"ChatGPT-4o-mini Vision request error via Emergent integrations: {e}")
+        return "ChatGPT Vision API'sine bağlanırken bir hata oluştu. Lütfen tekrar deneyin."
 
 def is_file_processing_question(question: str) -> bool:
     """Check if question requires file processing capabilities"""
