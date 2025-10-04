@@ -291,6 +291,18 @@ backend:
         - agent: "testing"
         - comment: "🎉 NEW FREE/PRO VERSION SYSTEM WITH GEMINI API INTEGRATION FULLY OPERATIONAL! Comprehensive testing confirms all 7 critical scenarios working perfectly: ✅ PRO VERSION (DEFAULT): Uses existing hybrid system correctly - backend logs show 'PRO version selected - using full hybrid system'. Casual greetings (2.7s), math questions (7.8s) handled by AnythingLLM/web search as expected. ✅ FREE VERSION (GEMINI API): Uses Google Gemini API (gemini-2.0-flash model) successfully - backend logs show 'Gemini FREE API response received successfully'. Fast response times (0.6-0.8s), coherent Turkish responses, no hybrid system indicators. ✅ FREE VERSION CONVERSATION MODES: Friend mode shows motivational personality ('Dostum! Motivasyona ihtiyacın olduğunu duymak...'), Teacher mode shows educational approach with structured content. Gemini applies personality prompts correctly. ✅ FREE VERSION FILE PROCESSING: Handles file processing questions through Gemini without hybrid system. ✅ GEMINI API ENDPOINT: API key (AIzaSyB32TodK6P6lCTaBNIQXzf2nCLOAaIYjMo) configured correctly, gemini-2.0-flash model working with generateContent endpoint. ✅ VERSION PARAMETER ROUTING: Backend correctly processes version parameter, MessageCreate model accepts 'version' field, routing logic differentiates PRO vs FREE successfully. ✅ PERFORMANCE COMPARISON: FREE version faster (0.6-11s) vs PRO version (2.7-15s), both provide quality Turkish responses. NEW FREE/PRO VERSION SYSTEM IS PRODUCTION-READY!"
 
+  - task: "NEW OLLAMA ANYTHINGLLM FREE VERSION Integration"
+    implemented: true
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: false
+        - agent: "testing"
+        - comment: "❌ CRITICAL OLLAMA ANYTHINGLLM FREE VERSION INTEGRATION ISSUE: Comprehensive testing reveals the NEW FREE VERSION with Ollama AnythingLLM integration is not working due to workspace configuration issue. DETAILED FINDINGS: ✅ BACKEND ROUTING WORKING: System correctly detects FREE version and routes to Ollama AnythingLLM - backend logs show 'FREE version selected - using Ollama AnythingLLM' ✅ API CONFIGURATION: Ollama AnythingLLM API key (0PSWXGR-22AMZJP-JEEAQ1P-1EQS5DA) and endpoint (https://2jr84ymm.rcsrv.com/api/v1/workspace/bilgin/chat) are properly configured ✅ RESPONSE TRANSFER: Error responses are returned exactly as received without modification (birebir aktarma working) ❌ WORKSPACE ISSUE: All API calls return 400 error: 'Workspace bilgin is not a valid workspace.' Backend logs show consistent error pattern across all test scenarios. ROOT CAUSE: The hardcoded workspace name 'bilgin' in the Ollama AnythingLLM endpoint URL does not exist on the target server (https://2jr84ymm.rcsrv.com). URGENT ACTION REQUIRED: Main agent must either: 1) Create 'bilgin' workspace on Ollama AnythingLLM server, or 2) Update backend code to use correct workspace name, or 3) Configure workspace name as environment variable. TEST RESULTS: 2/5 tests passed (Response Transfer and Error Handling passed due to proper error message handling), 3/5 failed due to workspace issue. The integration framework is correctly implemented but blocked by workspace configuration."
+
   - task: "ENHANCED FREE VERSION with Serper API + Gemini Cleaning System"
     implemented: true
     working: true
