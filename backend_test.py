@@ -7853,9 +7853,12 @@ def main():
     # Run file processing system tests
     file_success = tester.run_file_processing_tests()
     
+    # Run Layout and Vision API tests (CRITICAL REVIEW REQUEST)
+    layout_vision_passed, layout_vision_run = tester.run_layout_and_vision_tests()
+    
     # Print final comprehensive results
-    total_tests = tester.tests_run + tester.pro_version_tests_run + enhanced_free_run + getattr(tester, 'version_tests_run', 0) + getattr(tester, 'conversation_mode_tests_run', 0) + tester.routing_tests_run + tester.hybrid_tests_run + tester.file_tests_run
-    total_passed = tester.tests_passed + tester.pro_version_tests_passed + enhanced_free_passed + getattr(tester, 'version_tests_passed', 0) + getattr(tester, 'conversation_mode_tests_passed', 0) + tester.routing_tests_passed + tester.hybrid_tests_passed + tester.file_tests_passed
+    total_tests = tester.tests_run + tester.pro_version_tests_run + enhanced_free_run + getattr(tester, 'version_tests_run', 0) + getattr(tester, 'conversation_mode_tests_run', 0) + tester.routing_tests_run + tester.hybrid_tests_run + tester.file_tests_run + layout_vision_run
+    total_passed = tester.tests_passed + tester.pro_version_tests_passed + enhanced_free_passed + getattr(tester, 'version_tests_passed', 0) + getattr(tester, 'conversation_mode_tests_passed', 0) + tester.routing_tests_passed + tester.hybrid_tests_passed + tester.file_tests_passed + layout_vision_passed
     
     print("\n" + "=" * 80)
     print("🏁 COMPREHENSIVE TEST RESULTS")
