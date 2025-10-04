@@ -57,6 +57,22 @@ body {
   font-size: 1.2em;
 }
 
+/* Textarea styling fixes */
+textarea {
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  resize: none !important;
+}
+
+textarea:focus {
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  ring: 0 !important;
+}
+
 .math-content .MathJax {
   color: inherit !important;
 }
