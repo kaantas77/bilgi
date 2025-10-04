@@ -775,10 +775,20 @@ function App() {
     }
   };
 
+  const stopMessage = () => {
+    if (abortController) {
+      abortController.abort();
+      setAbortController(null);
+      setIsMessageLoading(false);
+    }
+  };
+
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      sendMessage();
+      if (!isMessageLoading) {
+        sendMessage();
+      }
     }
   };
 
