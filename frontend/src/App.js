@@ -771,6 +771,7 @@ function App() {
       }
     } finally {
       setIsMessageLoading(false);
+      setAbortController(null);
     }
   };
 
