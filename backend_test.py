@@ -8899,7 +8899,7 @@ def main():
         
         return gpt5_nano_tests_passed == gpt5_nano_tests_run
 
-    def test_layout_handling_complex_math(self):
+if __name__ == "__main__":
         """Test Layout Issue: Send complex mathematical question with long formulas"""
         print("\n🧪 LAYOUT TEST: Complex Mathematical Question with Long Formulas")
         
