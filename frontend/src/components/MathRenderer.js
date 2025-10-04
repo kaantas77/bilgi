@@ -114,8 +114,10 @@ const MathRenderer = ({ content }) => {
   };
 
   return (
-    <div className="math-content">
-      {processContentWithMath(content)}
+    <div className="math-content overflow-x-auto max-w-full">
+      <div className="min-w-0 break-words">
+        {processContentWithMath(content)}
+      </div>
     </div>
   );
 };
