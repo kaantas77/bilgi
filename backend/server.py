@@ -1260,22 +1260,36 @@ async def process_image_with_chatgpt_vision(question: str, image_path: str, imag
             )
             
             logging.info(f"OpenAI Vision API response status: {response.status_code}")
+            response_text = response.text
+            logging.info(f"OpenAI Vision API raw response: {response_text[:500]}...")
             
             if response.status_code == 200:
-                data = response.json()
-                content = data.get('choices', [{}])[0].get('message', {}).get('content', '')
-                
-                if not content:
-                    logging.warning("Empty content from OpenAI Vision API")
-                    return "Resim analizi tamamlanamadı. Lütfen tekrar deneyin."
-                
-                # Clean markdown formatting from response
-                cleaned_response = clean_response_formatting(content)
-                logging.info(f"ChatGPT Vision response received successfully: {len(cleaned_response)} characters")
-                return cleaned_response
+                try:
+                    data = response.json()
+                    logging.info(f"Parsed JSON response: {str(data)[:300]}...")
+                    
+                    choices = data.get('choices', [])
+                    if not choices:
+                        logging.error("No choices in OpenAI response")
+                        return "API yanıtında veri bulunamadı. Lütfen tekrar deneyin."
+                    
+                    message = choices[0].get('message', {})
+                    content = message.get('content', '')
+                    
+                    if not content:
+                        logging.warning("Empty content from OpenAI Vision API")
+                        return "Resim analizi tamamlanamadı. Lütfen tekrar deneyin."
+                    
+                    # Clean markdown formatting from response
+                    cleaned_response = clean_response_formatting(content)
+                    logging.info(f"ChatGPT Vision response received successfully: {len(cleaned_response)} characters")
+                    return cleaned_response
+                except Exception as json_error:
+                    logging.error(f"JSON parsing error: {json_error}")
+                    return f"API yanıt formatı hatası: {str(json_error)}"
             else:
-                logging.error(f"OpenAI Vision API error: {response.status_code} - {response.text}")
-                return f"ChatGPT Vision API hatası: {response.status_code}. Lütfen tekrar deneyin."
+                logging.error(f"OpenAI Vision API error: {response.status_code} - {response_text}")
+                return f"ChatGPT Vision API hatası ({response.status_code}): {response_text[:200]}..."
                 
     except Exception as e:
         logging.error(f"ChatGPT Vision request error: {e}")
