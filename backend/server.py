@@ -1235,16 +1235,32 @@ async def process_image_with_chatgpt_vision(question: str, image_path: str, imag
         )
         
         # Send message and get response
+        logging.info(f"Sending image to ChatGPT Vision API...")
         response = await chat.send_message(user_message)
+        
+        # Check if response is valid
+        if not response or len(response.strip()) == 0:
+            logging.warning("Empty response from ChatGPT Vision API")
+            return "Resim analizi tamamlanamadı. Lütfen farklı bir resim deneyin."
         
         # Clean markdown formatting from response
         cleaned_response = clean_response_formatting(response)
-        logging.info("ChatGPT-4o-mini Vision response received successfully via Emergent integrations")
+        logging.info(f"ChatGPT-4o-mini Vision response received successfully: {len(cleaned_response)} characters")
         return cleaned_response
                 
     except Exception as e:
         logging.error(f"ChatGPT-4o-mini Vision request error via Emergent integrations: {e}")
-        return "ChatGPT Vision API'sine bağlanırken bir hata oluştu. Lütfen tekrar deneyin."
+        logging.error(f"Error type: {type(e).__name__}")
+        
+        # More specific error handling
+        if "FileNotFoundError" in str(type(e)):
+            return "Resim dosyası bulunamadı. Lütfen tekrar yükleyiniz."
+        elif "permission" in str(e).lower():
+            return "Resim dosyasına erişim izni yok. Lütfen tekrar deneyin."
+        elif "timeout" in str(e).lower():
+            return "Resim analizi zaman aşımına uğradı. Lütfen daha küçük bir resim deneyin."
+        else:
+            return f"Resim analizi sırasında bir hata oluştu: {str(e)[:100]}..."
 
 def is_file_processing_question(question: str) -> bool:
     """Check if question requires file processing capabilities"""
