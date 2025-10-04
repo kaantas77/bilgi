@@ -1821,6 +1821,35 @@ function App() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Image Modal */}
+      {showImageModal && selectedImage && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
+          onClick={() => {
+            setShowImageModal(false);
+            setSelectedImage(null);
+          }}
+        >
+          <div className="relative max-w-4xl max-h-full">
+            <img 
+              src={selectedImage}
+              alt="Büyütülen resim"
+              className="max-w-full max-h-full object-contain"
+              onClick={(e) => e.stopPropagation()}
+            />
+            <button
+              onClick={() => {
+                setShowImageModal(false);
+                setSelectedImage(null);
+              }}
+              className="absolute top-4 right-4 bg-black bg-opacity-50 text-white rounded-full w-10 h-10 flex items-center justify-center hover:bg-opacity-70 transition-opacity"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
