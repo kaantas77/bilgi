@@ -2146,7 +2146,7 @@ async def test_vision_api(image_data: dict):
     """Test Vision API directly"""
     try:
         # This is just a test - normally we'd get from uploaded file
-        test_question = image_data.get("question", "Bu resimde ne var?")
+        # test_question = image_data.get("question", "Bu resimde ne var?")
         
         # Try with a simple test
         headers = {
