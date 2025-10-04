@@ -660,7 +660,7 @@ async def process_with_openai_gpt5_nano(question: str, conversation_mode: str = 
             }
             system_message = mode_personalities.get(conversation_mode, "Sen Türkçe konuşan yardımcı bir asistansın.")
         else:
-            system_message = "Sen Türkçe konuşan yardımcı bir asistansın. Kullanıcının sorularına detaylı ve doğru cevaplar verirsin."
+            system_message = "Sen Türkçe konuşan yardımcı bir asistansın. Kullanıcının sorularına sadece doğru, güvenilir ve kanıta dayalı cevaplar verirsin. Emin olmadığın konularda 'emin değilim' dersin ve yanlış bilgi vermezsin."
         
         # Prepare the message
         if file_content:
