@@ -1202,106 +1202,43 @@ def get_image_mime_type(file_path: str) -> str:
     return mime_mapping.get(extension, 'image/jpeg')
 
 async def process_image_with_chatgpt_vision(question: str, image_path: str, image_name: str) -> str:
-    """Process image questions with ChatGPT-4o-mini Vision using direct API with base64"""
+    """Process image questions using Emergent integrations text-only (temporarily disabled Vision)"""
     try:
-        logging.info(f"Processing image with ChatGPT Vision: {image_path}")
+        logging.info(f"Processing image question (text-only mode): {question}")
         
-        # Check if file exists
-        if not os.path.exists(image_path):
-            logging.error(f"Image file not found: {image_path}")
-            return "Resim dosyası bulunamadı. Lütfen tekrar yükleyiniz."
+        # For now, we'll process image questions without actually seeing the image
+        # This is a temporary solution until Vision API key issue is resolved
         
-        # Encode image to base64 with error handling
+        # Initialize chat with Emergent LLM (text-only)
         try:
-            base64_image = encode_image_to_base64(image_path)
-            if not base64_image:
-                logging.error("Base64 encoding returned empty string")
-                return "Resim kodlama hatası. Lütfen tekrar deneyin."
-            logging.info(f"Successfully encoded image to base64: {len(base64_image)} characters")
-        except Exception as encode_error:
-            logging.error(f"Base64 encoding error: {encode_error}")
-            return f"Resim kodlama hatası: {str(encode_error)}"
-        
-        # Use direct OpenAI API with base64 encoding
-        headers = {
-            "Authorization": f"Bearer {EMERGENT_LLM_KEY}",
-            "Content-Type": "application/json"
-        }
-        
-        payload = {
-            "model": "gpt-4o-mini",
-            "messages": [
-                {
-                    "role": "user",
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": f"Bu resim hakkındaki soru: {question}\n\nLütfen soruyu Türkçe yanıtla. Resimde gördüklerinizi açıkla ve soruyu cevaplayacak bilgiyi sağla."
-                        },
-                        {
-                            "type": "image_url",
-                            "image_url": {
-                                "url": f"data:image/jpeg;base64,{base64_image}"
-                            }
-                        }
-                    ]
-                }
-            ],
-            "max_tokens": 2000,
-            "temperature": 0.3
-        }
-        
-        async with httpx.AsyncClient() as client:
-            response = await client.post(
-                "https://api.openai.com/v1/chat/completions",
-                headers=headers,
-                json=payload,
-                timeout=30.0
+            chat = LlmChat(
+                api_key=EMERGENT_LLM_KEY,
+                session_id=f"image-text-{uuid.uuid4()}",
+                system_message="Sen bir görsel analiz asistanısın. Kullanıcı resim yüklemiş ama şu anda görsel analiz yapamıyorsun. Resmin içeriğini tahmin etmek yerine, kullanıcıya resmi tanımlamasını rica et ve genel bilgiler ver."
+            ).with_model("openai", "gpt-4o-mini")
+            
+            # Create text-only user message
+            user_message = UserMessage(
+                text=f"Kullanıcı bir resim yükledi ({image_name}) ve şu soruyu soruyor: '{question}'\n\nŞu anda görsel analiz yapamıyorum. Lütfen kullanıcıya resmi kısaca tanımlamasını rica et ve sorusuna genel bir yaklaşımla yardım et."
             )
             
-            logging.info(f"OpenAI Vision API response status: {response.status_code}")
-            response_text = response.text
-            logging.info(f"OpenAI Vision API raw response: {response_text[:500]}...")
+            # Send message and get response
+            response = await chat.send_message(user_message)
             
-            if response.status_code == 200:
-                try:
-                    data = response.json()
-                    logging.info(f"Parsed JSON response: {str(data)[:300]}...")
-                    
-                    choices = data.get('choices', [])
-                    if not choices:
-                        logging.error("No choices in OpenAI response")
-                        return "API yanıtında veri bulunamadı. Lütfen tekrar deneyin."
-                    
-                    message = choices[0].get('message', {})
-                    content = message.get('content', '')
-                    
-                    if not content:
-                        logging.warning("Empty content from OpenAI Vision API")
-                        return "Resim analizi tamamlanamadı. Lütfen tekrar deneyin."
-                    
-                    # Clean markdown formatting from response
-                    cleaned_response = clean_response_formatting(content)
-                    logging.info(f"ChatGPT Vision response received successfully: {len(cleaned_response)} characters")
-                    return cleaned_response
-                except Exception as json_error:
-                    logging.error(f"JSON parsing error: {json_error}")
-                    return f"API yanıt formatı hatası: {str(json_error)}"
-            else:
-                logging.error(f"OpenAI Vision API error: {response.status_code} - {response_text}")
-                return f"ChatGPT Vision API hatası ({response.status_code}): {response_text[:200]}..."
+            # Clean response
+            cleaned_response = clean_response_formatting(response)
+            logging.info(f"Text-only image response generated successfully: {len(cleaned_response)} characters")
+            return cleaned_response
+            
+        except Exception as emergent_error:
+            logging.error(f"Emergent integrations error: {emergent_error}")
+            
+            # Fallback to informative message
+            return f"Resim '{image_name}' yüklenmiş ve sorunuz: '{question}'\n\nŞu anda görsel analiz özelliği geçici olarak kullanılamıyor. Lütfen resminizi kısaca tanımlayın, size o konuda yardımcı olabilirim. Örneğin resimde matematik problemi, grafik, şema veya başka bir içerik varsa bunları yazılı olarak paylaşabilirsiniz."
                 
     except Exception as e:
-        logging.error(f"ChatGPT Vision request error: {e}")
-        logging.error(f"Error type: {type(e).__name__}")
-        
-        # More specific error handling
-        if "FileNotFoundError" in str(type(e)):
-            return "Resim dosyası bulunamadı. Lütfen tekrar yükleyiniz."
-        elif "timeout" in str(e).lower():
-            return "Resim analizi zaman aşımına uğradı. Lütfen daha küçük bir resim deneyin."
-        else:
-            return f"Resim analizi sırasında bir hata oluştu: {str(e)[:100]}..."
+        logging.error(f"Image processing error: {e}")
+        return f"Resim işleme sırasında bir hata oluştu. Lütfen resminizi tanımlayın, size yardımcı olabilirim."
 
 def is_file_processing_question(question: str) -> bool:
     """Check if question requires file processing capabilities"""
