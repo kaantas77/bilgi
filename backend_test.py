@@ -7871,6 +7871,7 @@ def main():
     print(f"🔀 NEW Routing System Tests: {tester.routing_tests_passed}/{tester.routing_tests_run} passed")
     print(f"🧪 Hybrid System Tests: {tester.hybrid_tests_passed}/{tester.hybrid_tests_run} passed")
     print(f"📁 File Processing Tests: {tester.file_tests_passed}/{tester.file_tests_run} passed")
+    print(f"🎨 Layout & Vision API Tests: {layout_vision_passed}/{layout_vision_run} passed")
     print(f"📊 TOTAL: {total_passed}/{total_tests} tests passed")
     
     if total_passed == total_tests:
