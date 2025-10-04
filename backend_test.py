@@ -6787,6 +6787,25 @@ def main():
             print(f"❌ {tester.pro_version_tests_run - tester.pro_version_tests_passed} CORRECTED PRO tests failed.")
             return 1
     
+    # Check if we should run GPT-4o-mini accuracy tests specifically
+    if len(sys.argv) > 1 and sys.argv[1] == "gpt4o_mini_accuracy":
+        print("\n🎯 Running GPT-4O-MINI ACCURACY OPTIMIZATION Tests ONLY...")
+        accuracy_success = tester.run_gpt4o_mini_accuracy_tests()
+        
+        # Print final results for GPT-4o-mini accuracy tests
+        print("\n" + "="*80)
+        print("📊 GPT-4O-MINI ACCURACY OPTIMIZATION TEST RESULTS")
+        print("="*80)
+        
+        if accuracy_success:
+            print("🎉 ALL GPT-4O-MINI ACCURACY OPTIMIZATION TESTS PASSED!")
+            print("✅ GPT-4o-mini with optimized settings provides accurate, reliable responses!")
+            return 0
+        else:
+            print("❌ GPT-4O-MINI ACCURACY OPTIMIZATION TESTS FAILED!")
+            print("❌ Some accuracy scenarios need improvement.")
+            return 1
+    
     def test_chatgpt_api_fallback_pro_version(self):
         """Test ChatGPT API Fallback (PRO Version) - Scenario 1"""
         print("\n🧪 CHATGPT API TEST 1: ChatGPT API Fallback (PRO Version)")
