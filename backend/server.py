@@ -725,22 +725,80 @@ async def process_with_openai_gpt5_nano(question: str, conversation_mode: str = 
         logging.error(f"OpenAI GPT-5-nano request error: {e}")
         return "OpenAI API'sine bağlanırken bir hata oluştu. Lütfen tekrar deneyin."
 
-async def simple_pro_system(question: str, conversation_mode: str = 'normal', file_content: str = None, file_name: str = None) -> str:
-    """Simple PRO system: Use Ollama for conversation modes, web search for current topics, AnythingLLM for others"""
+def is_formula_based_question(question: str) -> bool:
+    """Check if question requires formula calculations or specialized technical knowledge"""
+    formula_keywords = [
+        # Matematik formülleri
+        'integral', 'türev', 'diferansiyel', 'eşitlik', 'denklem', 'formula', 'hesapla', 'çöz',
+        'sin', 'cos', 'tan', 'logaritma', 'üssel', 'kök', 'karekök', 'faktöriyel',
+        'matris', 'determinant', 'vektör', 'trigonometri',
+        # Fizik formülleri  
+        'newton', 'euler', 'maxwell', 'schrödinger', 'ohm', 'coulomb', 'bernoulli',
+        'termodinamik', 'kinetik', 'potansiyel', 'momentum', 'enerji korunumu',
+        # Mühendislik formülleri
+        'mukavemet', 'gerilme', 'burulma', 'moment', 'kiriş', 'yapı analizi',
+        'elektrik devre', 'impedans', 'frekans', 'filtre tasarımı',
+        # İstatistik formülleri
+        'standart sapma', 'varyans', 'korelasyon', 'regresyon', 'hipotez testi',
+        'normal dağılım', 'p-değeri', 'güven aralığı'
+    ]
     
-    logging.info(f"PRO version - Simple system for: {question}")
+    question_lower = question.lower()
+    return any(keyword in question_lower for keyword in formula_keywords)
+
+def is_general_knowledge_question(question: str) -> bool:
+    """Check if question is about general knowledge, culture, history, etc."""
+    general_keywords = [
+        # Genel kültür
+        'tarih', 'coğrafya', 'sanat', 'müzik', 'edebiyat', 'sinema', 'spor',
+        'ünlü kişi', 'ünlü', 'meşhur', 'kim', 'nerede', 'hangi yıl', 'ne zaman',
+        'başkent', 'ülke', 'şehir', 'dil', 'kültür', 'din', 'bayram', 'festival',
+        # Yaşam tarzı
+        'yemek', 'tarif', 'seyahat', 'gezi', 'tatil', 'hobi', 'eğlence',
+        'sağlık', 'beslenme', 'egzersiz', 'moda', 'stil', 'ev dekorasyonu',
+        # İnsan bilimi
+        'psikoloji', 'sosyoloji', 'felsefe', 'ahlak', 'etik', 'yaşam', 'mutluluk',
+        'başarı', 'kariyer', 'ilişki', 'aile', 'çocuk', 'eğitim'
+    ]
+    
+    question_lower = question.lower()
+    return any(keyword in question_lower for keyword in general_keywords)
+
+async def simple_pro_system(question: str, conversation_mode: str = 'normal', file_content: str = None, file_name: str = None) -> str:
+    """PRO system with smart routing: ChatGPT for general knowledge, AnythingLLM for formula-based questions"""
+    
+    logging.info(f"PRO version - Smart routing system for: {question}")
     
     # Step 1: Check if conversation mode is active - use Ollama for all conversation modes
     if conversation_mode and conversation_mode != 'normal':
         logging.info(f"PRO: Conversation mode {conversation_mode} detected - using Ollama AnythingLLM")
         return await process_with_ollama_free(question, conversation_mode, file_content, file_name)
     
-    # Step 2: Check if question is about current/güncel topics (hava durumu, son Ballon d'Or kazananı gibi)
+    # Step 2: Check if question is about current/güncel topics
     category = get_question_category(question)
     if category == 'current':
-        logging.info("PRO: Current topic detected (hava durumu, son haberler, etc.) - using web search")
+        logging.info("PRO: Current topic detected - using web search")
         web_search_response = await handle_web_search_question(question)
         return await clean_web_search_with_anythingllm(web_search_response, question)
+    
+    # Step 3: Smart routing for normal questions
+    if is_formula_based_question(question):
+        logging.info("PRO: Formula-based question detected - using AnythingLLM for specialized knowledge")
+        try:
+            anythingllm_response = await get_anythingllm_response(question, conversation_mode)
+            if can_anythingllm_answer(anythingllm_response):
+                return anythingllm_response
+            else:
+                logging.info("PRO: AnythingLLM couldn't answer formula question - falling back to ChatGPT")
+                return await process_with_openai_gpt5_nano(question, conversation_mode, file_content, file_name)
+        except Exception as e:
+            logging.error(f"PRO: AnythingLLM error for formula question: {e} - using ChatGPT")
+            return await process_with_openai_gpt5_nano(question, conversation_mode, file_content, file_name)
+    elif is_general_knowledge_question(question):
+        logging.info("PRO: General knowledge question detected - using ChatGPT directly")
+        return await process_with_openai_gpt5_nano(question, conversation_mode, file_content, file_name)
+    else:
+        logging.info("PRO: Standard question - trying AnythingLLM first")
     
     # Step 3: Try AnythingLLM first for all other normal mode questions
     logging.info("PRO: Normal mode, not current topic - trying AnythingLLM first...")
