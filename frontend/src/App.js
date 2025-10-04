@@ -1172,7 +1172,7 @@ function App() {
                         <Zap className="w-4 h-4 text-blue-400" />
                         <div className="text-left">
                           <div className="text-sm font-medium text-white">ATA V1 (FREE)</div>
-                          <div className="text-xs text-gray-400">Gemini AI ile</div>
+                          <div className="text-xs text-gray-400"></div>
                         </div>
                       </button>
                     </div>
@@ -1390,7 +1390,7 @@ function App() {
                         <Zap className="w-4 h-4 text-blue-400" />
                         <div className="text-left">
                           <div className="text-sm font-medium text-white">ATA V1 (FREE)</div>
-                          <div className="text-xs text-gray-400">Gemini AI ile</div>
+                          <div className="text-xs text-gray-400"></div>
                         </div>
                       </button>
                     </div>
