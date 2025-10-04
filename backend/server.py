@@ -2119,28 +2119,24 @@ async def send_message(conversation_id: str, input: MessageCreate):
             {"conversation_id": conversation_id},
             sort=[("uploaded_at", -1)]
         )
+        
+        if recent_file and os.path.exists(recent_file["file_path"]):
+            file_path = recent_file["file_path"]
+            file_name = recent_file["file_name"]
+            file_type = recent_file["file_type"]
             
-            if recent_file and os.path.exists(recent_file["file_path"]):
-                file_path = recent_file["file_path"]
-                file_name = recent_file["file_name"]
-                file_type = recent_file["file_type"]
-                
-                # For images, we'll handle them differently
-                if file_type in ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp']:
-                    logging.info(f"Question is about uploaded image, using ChatGPT Vision: {file_name}")
-                    ai_content = await process_image_with_chatgpt_vision(input.content, file_path, file_name)
-                    # Skip the normal hybrid system for images
-                    processed = True
-                else:
-                    # Extract text from non-image files
-                    file_content = await extract_text_from_file(file_path, file_type)
-                    logging.info(f"Question is about uploaded file, using file for context: {file_name}")
-                    processed = False
+            # For images, always use ChatGPT Vision when there's an uploaded image
+            if file_type in ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp']:
+                logging.info(f"Uploaded image detected, using ChatGPT Vision: {file_name}")
+                ai_content = await process_image_with_chatgpt_vision(input.content, file_path, file_name)
+                processed = True
             else:
-                logging.info("Question seems to be about a file, but no file found in conversation")
+                # Extract text from non-image files and include context
+                file_content = await extract_text_from_file(file_path, file_type)
+                logging.info(f"Uploaded file detected, using file for context: {file_name}")
                 processed = False
         else:
-            logging.info("Question is not about uploaded files, proceeding without file context")
+            logging.info("No uploaded file found in conversation")
             processed = False
         
         # Only process with hybrid system if not already processed (e.g., not an image)
