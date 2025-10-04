@@ -1382,12 +1382,16 @@ function App() {
                     }}
                   />
                   <Button
-                    onClick={sendMessage}
-                    disabled={!inputMessage.trim() || isMessageLoading}
-                    className="bg-gray-800 hover:bg-gray-700 text-white rounded-xl"
+                    onClick={isMessageLoading ? stopMessage : sendMessage}
+                    disabled={!isMessageLoading && !inputMessage.trim()}
+                    className={`${isMessageLoading ? 'bg-red-600 hover:bg-red-500' : 'bg-gray-800 hover:bg-gray-700'} text-white rounded-xl`}
                     size="sm"
                   >
-                    <Send className="w-4 h-4" />
+                    {isMessageLoading ? (
+                      <span className="text-xs font-medium">Durdur</span>
+                    ) : (
+                      <Send className="w-4 h-4" />
+                    )}
                   </Button>
                 </div>
                 <input
