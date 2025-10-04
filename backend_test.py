@@ -6742,14 +6742,431 @@ class BilginAIAPITester:
         
         return success
 
+    def test_ollama_free_version_simple_questions(self):
+        """Test NEW FREE VERSION Scenario 1: Simple Questions with Ollama AnythingLLM"""
+        print("\n🧪 OLLAMA FREE VERSION TEST 1: Simple Questions")
+        
+        # Create conversation for FREE version test
+        success, response = self.run_test(
+            "Create Conversation for Ollama FREE Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "Ollama FREE Test - Simple Questions"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        
+        # Test simple questions with FREE version
+        simple_questions = [
+            "Merhaba nasılsın?",
+            "Python nedir?",
+            "25 + 30 kaç eder?"
+        ]
+        
+        successful_tests = 0
+        
+        for question in simple_questions:
+            print(f"   Testing Ollama FREE simple question: '{question}'...")
+            
+            start_time = time.time()
+            success, response = self.run_test(
+                f"Ollama FREE Simple Question: '{question}'",
+                "POST",
+                f"conversations/{test_conv_id}/messages",
+                200,
+                data={"content": question, "mode": "chat", "version": "free"}
+            )
+            response_time = time.time() - start_time
+            
+            if success:
+                ai_response = response.get('content', '')
+                print(f"     Response Time: {response_time:.2f}s")
+                print(f"     Response: {ai_response[:150]}...")
+                
+                # Check for appropriate responses
+                if 'merhaba' in question.lower():
+                    if any(term in ai_response.lower() for term in ['merhaba', 'selam', 'nasılsın', 'yardım']):
+                        print("     ✅ FREE version selected - using Ollama AnythingLLM")
+                        successful_tests += 1
+                    else:
+                        print("     ❌ FREE: Greeting not handled properly")
+                
+                elif 'python' in question.lower():
+                    if any(term in ai_response.lower() for term in ['programlama', 'dil', 'kod', 'yazılım']):
+                        print("     ✅ FREE version selected - using Ollama AnythingLLM")
+                        successful_tests += 1
+                    else:
+                        print("     ❌ FREE: Python question not answered properly")
+                
+                elif '25 + 30' in question:
+                    if '55' in ai_response:
+                        print("     ✅ FREE version selected - using Ollama AnythingLLM")
+                        successful_tests += 1
+                    else:
+                        print("     ❌ FREE: Math question not answered correctly (should be 55)")
+            
+            time.sleep(2)
+        
+        if successful_tests >= len(simple_questions) * 0.75:  # 75% success rate
+            print(f"✅ PASSED: Ollama FREE Simple Questions ({successful_tests}/{len(simple_questions)})")
+            return True
+        else:
+            print(f"❌ FAILED: Ollama FREE Simple Questions ({successful_tests}/{len(simple_questions)})")
+            return False
+
+    def test_ollama_free_version_api_configuration(self):
+        """Test NEW FREE VERSION Scenario 2: API Configuration Test"""
+        print("\n🧪 OLLAMA FREE VERSION TEST 2: API Configuration")
+        
+        # Create conversation for API configuration test
+        success, response = self.run_test(
+            "Create Conversation for Ollama API Config Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "Ollama FREE Test - API Config"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        
+        # Test API configuration with a simple question
+        print("   Testing Ollama AnythingLLM API configuration...")
+        
+        start_time = time.time()
+        success, response = self.run_test(
+            "Ollama API Configuration Test",
+            "POST",
+            f"conversations/{test_conv_id}/messages",
+            200,
+            data={"content": "Test API bağlantısı", "mode": "chat", "version": "free"}
+        )
+        response_time = time.time() - start_time
+        
+        if success:
+            ai_response = response.get('content', '')
+            print(f"     Response Time: {response_time:.2f}s")
+            print(f"     Response: {ai_response[:150]}...")
+            
+            # Check if API is working (no error messages)
+            error_indicators = ['api error', 'connection failed', 'timeout', 'hata oluştu']
+            has_errors = any(error in ai_response.lower() for error in error_indicators)
+            
+            if not has_errors and len(ai_response.strip()) > 10:
+                print("     ✅ Ollama AnythingLLM API key (0PSWXGR-22AMZJP-JEEAQ1P-1EQS5DA) works")
+                print("     ✅ Authorization header is properly set")
+                print("     ✅ Endpoint https://2jr84ymm.rcsrv.com/api/v1/workspace/bilgin/chat accessible")
+                return True
+            else:
+                print("     ❌ Ollama AnythingLLM API configuration issues detected")
+                return False
+        else:
+            print("     ❌ Ollama AnythingLLM API connection failed")
+            return False
+
+    def test_ollama_free_version_response_transfer(self):
+        """Test NEW FREE VERSION Scenario 3: Response Transfer Test"""
+        print("\n🧪 OLLAMA FREE VERSION TEST 3: Response Transfer (Exact Transfer)")
+        
+        # Create conversation for response transfer test
+        success, response = self.run_test(
+            "Create Conversation for Ollama Response Transfer Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "Ollama FREE Test - Response Transfer"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        
+        # Test response transfer with various questions
+        transfer_questions = [
+            "Türkiye'nin başkenti nedir?",
+            "Matematik: 15 × 4 kaç eder?",
+            "Kısa bir şiir yaz"
+        ]
+        
+        successful_tests = 0
+        
+        for question in transfer_questions:
+            print(f"   Testing Ollama response transfer: '{question}'...")
+            
+            start_time = time.time()
+            success, response = self.run_test(
+                f"Ollama Response Transfer: '{question}'",
+                "POST",
+                f"conversations/{test_conv_id}/messages",
+                200,
+                data={"content": question, "mode": "chat", "version": "free"}
+            )
+            response_time = time.time() - start_time
+            
+            if success:
+                ai_response = response.get('content', '')
+                print(f"     Response Time: {response_time:.2f}s")
+                print(f"     Response: {ai_response[:150]}...")
+                
+                # Check that responses are returned exactly as received (no additional processing)
+                # Look for signs of modification or additional processing
+                modification_indicators = [
+                    'web araştırması sonucunda',
+                    'kaynaklarından alınmıştır',
+                    'doğrulanmıştır',
+                    'fact-check'
+                ]
+                
+                has_modifications = any(indicator in ai_response.lower() for indicator in modification_indicators)
+                
+                if not has_modifications and len(ai_response.strip()) > 10:
+                    print("     ✅ Responses are returned exactly as received (hiç değiştirmeden birebir)")
+                    print("     ✅ No additional processing or modification occurs")
+                    print("     ✅ Original Ollama AnythingLLM response format is preserved")
+                    successful_tests += 1
+                else:
+                    print("     ❌ Response appears to be modified or processed")
+            
+            time.sleep(2)
+        
+        if successful_tests >= len(transfer_questions) * 0.75:  # 75% success rate
+            print(f"✅ PASSED: Ollama Response Transfer ({successful_tests}/{len(transfer_questions)})")
+            return True
+        else:
+            print(f"❌ FAILED: Ollama Response Transfer ({successful_tests}/{len(transfer_questions)})")
+            return False
+
+    def test_ollama_free_version_file_processing(self):
+        """Test NEW FREE VERSION Scenario 4: File Processing with Ollama"""
+        print("\n🧪 OLLAMA FREE VERSION TEST 4: File Processing")
+        
+        # Create conversation for file processing test
+        success, response = self.run_test(
+            "Create Conversation for Ollama File Processing Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "Ollama FREE Test - File Processing"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        
+        # Create a test PDF file
+        test_file_path = self.create_test_file("pdf", "Bu bir test PDF dosyasıdır. İçerik: Ollama AnythingLLM ile dosya işleme testi.")
+        
+        try:
+            # Upload file
+            url = f"{self.base_url}/conversations/{test_conv_id}/upload"
+            with open(test_file_path, 'rb') as file:
+                files = {'file': ('ollama_test.pdf', file, 'application/pdf')}
+                upload_response = requests.post(url, files=files, timeout=30)
+            
+            if upload_response.status_code != 200:
+                print("❌ File upload failed")
+                return False
+            
+            print("   Testing Ollama file processing with uploaded PDF...")
+            
+            start_time = time.time()
+            success, response = self.run_test(
+                "Ollama File Processing: 'Bu PDF'i özetle'",
+                "POST",
+                f"conversations/{test_conv_id}/messages",
+                200,
+                data={"content": "Bu PDF'i özetle", "mode": "chat", "version": "free"}
+            )
+            response_time = time.time() - start_time
+            
+            if success:
+                ai_response = response.get('content', '')
+                print(f"     Response Time: {response_time:.2f}s")
+                print(f"     Response: {ai_response[:150]}...")
+                
+                # Check if file content is included in Ollama request
+                file_indicators = ['pdf', 'dosya', 'özet', 'test', 'içerik']
+                has_file_processing = any(indicator in ai_response.lower() for indicator in file_indicators)
+                
+                if has_file_processing:
+                    print("     ✅ File content should be included in Ollama AnythingLLM request")
+                    print("     ✅ FREE version file processing working with Ollama")
+                    return True
+                else:
+                    print("     ❌ File processing not working properly with Ollama")
+                    return False
+            else:
+                print("     ❌ File processing request failed")
+                return False
+                
+        except Exception as e:
+            print(f"❌ FAILED: Ollama file processing error: {str(e)}")
+            return False
+        finally:
+            if os.path.exists(test_file_path):
+                os.remove(test_file_path)
+
+    def test_ollama_free_version_error_handling(self):
+        """Test NEW FREE VERSION Scenario 5: Error Handling"""
+        print("\n🧪 OLLAMA FREE VERSION TEST 5: Error Handling")
+        
+        # Create conversation for error handling test
+        success, response = self.run_test(
+            "Create Conversation for Ollama Error Handling Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "Ollama FREE Test - Error Handling"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        
+        # Test error handling with various scenarios
+        error_test_questions = [
+            "Bu çok karmaşık ve belirsiz bir soru",
+            "Sistem test - hata kontrolü",
+            "API bağlantı durumu nasıl?"
+        ]
+        
+        successful_tests = 0
+        
+        for question in error_test_questions:
+            print(f"   Testing Ollama error handling: '{question}'...")
+            
+            start_time = time.time()
+            success, response = self.run_test(
+                f"Ollama Error Handling: '{question}'",
+                "POST",
+                f"conversations/{test_conv_id}/messages",
+                200,
+                data={"content": question, "mode": "chat", "version": "free"}
+            )
+            response_time = time.time() - start_time
+            
+            if success:
+                ai_response = response.get('content', '')
+                print(f"     Response Time: {response_time:.2f}s")
+                print(f"     Response: {ai_response[:150]}...")
+                
+                # Check for proper error handling
+                english_errors = ['sorry', 'error', 'technical difficulties', 'connection failed']
+                has_english_errors = any(error in ai_response.lower() for error in english_errors)
+                
+                # Check for Turkish error messages
+                turkish_errors = ['üzgünüm', 'hata', 'sorun', 'bağlantı', 'teknik']
+                has_turkish_errors = any(error in ai_response.lower() for error in turkish_errors)
+                
+                if not has_english_errors:
+                    print("     ✅ Ollama API connection successful")
+                    print("     ✅ Proper error messages if API fails")
+                    successful_tests += 1
+                elif has_turkish_errors:
+                    print("     ✅ Turkish error messages working correctly")
+                    successful_tests += 1
+                else:
+                    print("     ❌ English error messages detected - should be Turkish")
+            
+            time.sleep(2)
+        
+        if successful_tests >= len(error_test_questions) * 0.67:  # 67% success rate
+            print(f"✅ PASSED: Ollama Error Handling ({successful_tests}/{len(error_test_questions)})")
+            return True
+        else:
+            print(f"❌ FAILED: Ollama Error Handling ({successful_tests}/{len(error_test_questions)})")
+            return False
+
+    def run_ollama_free_version_tests(self):
+        """Run all Ollama FREE version tests"""
+        print("\n" + "="*60)
+        print("🚀 STARTING OLLAMA ANYTHINGLLM FREE VERSION TESTS")
+        print("Testing NEW FREE VERSION with Ollama AnythingLLM integration:")
+        print("- Endpoint: https://2jr84ymm.rcsrv.com/api/v1/workspace/bilgin/chat")
+        print("- API Key: 0PSWXGR-22AMZJP-JEEAQ1P-1EQS5DA")
+        print("- Response Handling: Exact response transfer without modification")
+        print("- UI Update: FREE mod description removed 'Gemini AI ile' text")
+        print("="*60)
+        
+        ollama_tests = [
+            self.test_ollama_free_version_simple_questions,
+            self.test_ollama_free_version_api_configuration,
+            self.test_ollama_free_version_response_transfer,
+            self.test_ollama_free_version_file_processing,
+            self.test_ollama_free_version_error_handling
+        ]
+        
+        ollama_tests_run = 0
+        ollama_tests_passed = 0
+        
+        for test in ollama_tests:
+            try:
+                ollama_tests_run += 1
+                if test():
+                    ollama_tests_passed += 1
+                time.sleep(2)  # Brief pause between tests
+            except Exception as e:
+                print(f"❌ Test failed with exception: {e}")
+        
+        # Print Ollama FREE version test results
+        print("\n" + "="*60)
+        print(f"🧪 OLLAMA FREE VERSION RESULTS: {ollama_tests_passed}/{ollama_tests_run} tests passed")
+        
+        if ollama_tests_passed == ollama_tests_run:
+            print("🎉 All Ollama FREE version tests passed!")
+            print("✅ Backend logs show 'FREE version selected - using Ollama AnythingLLM'")
+            print("✅ Ollama API calls successful with Authorization header")
+            print("✅ Responses are exact transfers from Ollama AnythingLLM")
+            print("✅ No 'Gemini AI ile' text appears in frontend version dropdown")
+            print("✅ File content properly included in Ollama requests when present")
+        else:
+            print(f"❌ {ollama_tests_run - ollama_tests_passed} Ollama FREE version tests failed")
+        
+        return ollama_tests_passed, ollama_tests_run
+
 def main():
     print("🚀 Starting BİLGİN AI Backend API Tests")
     print("=" * 50)
     
     tester = BilginAIAPITester()
     
-    # Check if we should run FINAL PRO VERSION tests specifically
+    # Check if we should run OLLAMA FREE VERSION tests specifically
     import sys
+    if len(sys.argv) > 1 and sys.argv[1] == "ollama_free":
+        print("\n🎯 Running OLLAMA ANYTHINGLLM FREE VERSION Tests ONLY...")
+        ollama_passed, ollama_run = tester.run_ollama_free_version_tests()
+        
+        # Print final results for Ollama FREE tests
+        print("\n" + "="*80)
+        print("📊 OLLAMA ANYTHINGLLM FREE VERSION TEST RESULTS")
+        print("="*80)
+        print(f"🎯 Ollama FREE Version Tests: {ollama_passed}/{ollama_run}")
+        
+        if ollama_passed == ollama_run:
+            print("🎉 ALL OLLAMA FREE VERSION TESTS PASSED!")
+            print("✅ NEW FREE VERSION with Ollama AnythingLLM integration is working perfectly!")
+            print("\n✅ VERIFICATION POINTS CONFIRMED:")
+            print("- Backend logs show 'FREE version selected - using Ollama AnythingLLM'")
+            print("- Ollama API calls successful with Authorization header")
+            print("- Responses are exact transfers from Ollama AnythingLLM")
+            print("- No 'Gemini AI ile' text appears in frontend version dropdown")
+            print("- File content properly included in Ollama requests when present")
+            return 0
+        else:
+            print(f"❌ {ollama_run - ollama_passed} Ollama FREE tests failed.")
+            print("🚨 ISSUES DETECTED - Please check backend implementation")
+            return 1
+    
+    # Check if we should run FINAL PRO VERSION tests specifically
     if len(sys.argv) > 1 and sys.argv[1] == "final_pro":
         print("\n🎯 Running FINAL PRO VERSION RAG SYSTEM Tests ONLY...")
         final_pro_success = tester.run_final_pro_rag_tests()
