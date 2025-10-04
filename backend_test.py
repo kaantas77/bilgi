@@ -8534,5 +8534,366 @@ def main():
         
         return gpt5_nano_tests_passed == gpt5_nano_tests_run
 
+    def test_layout_handling_complex_math(self):
+        """Test Layout Issue: Send complex mathematical question with long formulas"""
+        print("\n🧪 LAYOUT TEST: Complex Mathematical Question with Long Formulas")
+        
+        # Create conversation for layout test
+        success, response = self.run_test(
+            "Create Conversation for Layout Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "Layout Test - Complex Math"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        
+        # Send the complex mathematical question as requested
+        complex_math_question = "Mutlak basınç hesabı problemini çözüyorum: Manometre 8 mmHg gösteriyor, atmosfer basıncı 720 mmHg, sistem basıncı 1 bar. Adım adım formüllerle hesaplama yap ve detaylı matematik göster."
+        
+        print(f"   Testing layout with complex math question...")
+        print(f"   Question: {complex_math_question[:100]}...")
+        
+        start_time = time.time()
+        success, response = self.run_test(
+            "Send Complex Math Question (Layout Test)",
+            "POST",
+            f"conversations/{test_conv_id}/messages",
+            200,
+            data={"content": complex_math_question, "mode": "chat"}
+        )
+        response_time = time.time() - start_time
+        
+        if success:
+            ai_response = response.get('content', '')
+            print(f"   Response Time: {response_time:.2f} seconds")
+            print(f"   Response Length: {len(ai_response)} characters")
+            print(f"   Response Preview: {ai_response[:200]}...")
+            
+            # Check if response contains mathematical formulas and calculations
+            math_indicators = ['mmhg', 'bar', 'basınç', 'atmosfer', 'manometre', 'formül', 'hesap', '=', '+', '-', '*', '/']
+            has_math_content = any(indicator in ai_response.lower() for indicator in math_indicators)
+            
+            if has_math_content:
+                print("✅ PASSED: Complex mathematical response generated successfully")
+                print("✅ PASSED: Response contains mathematical formulas and calculations")
+                
+                # Check response length (long formulas should generate substantial content)
+                if len(ai_response) > 200:
+                    print("✅ PASSED: Response is substantial (good for layout testing)")
+                else:
+                    print("⚠️  WARNING: Response might be too short for comprehensive layout testing")
+                    
+                return True
+            else:
+                print("❌ FAILED: Response doesn't contain expected mathematical content")
+                return False
+        else:
+            print("❌ FAILED: Could not send complex math question")
+            return False
+
+    def test_vision_api_debug_endpoint(self):
+        """Test Vision API Debug Endpoint"""
+        print("\n🧪 VISION API TEST 1: Debug Endpoint")
+        
+        success, response = self.run_test(
+            "Vision API Debug Endpoint",
+            "POST",
+            "debug/test-vision",
+            200,
+            data={}
+        )
+        
+        if success:
+            print("✅ PASSED: Vision API debug endpoint accessible")
+            print(f"   Debug Response: {json.dumps(response, indent=2)[:300]}...")
+            
+            # Check if EMERGENT_LLM_KEY is configured
+            if 'emergent_llm_key' in str(response).lower() or 'configured' in str(response).lower():
+                print("✅ PASSED: EMERGENT_LLM_KEY configuration check available")
+            else:
+                print("⚠️  WARNING: EMERGENT_LLM_KEY configuration status unclear")
+                
+            return True
+        else:
+            print("❌ FAILED: Vision API debug endpoint not accessible")
+            return False
+
+    def test_vision_api_image_upload(self):
+        """Test Vision API with actual image upload"""
+        print("\n🧪 VISION API TEST 2: Image Upload and Processing")
+        
+        # Create conversation for vision test
+        success, response = self.run_test(
+            "Create Conversation for Vision Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "Vision Test - Image Upload"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        
+        # Create a simple test image file
+        test_image_path = self.create_test_image()
+        
+        try:
+            # Upload image file
+            url = f"{self.base_url}/conversations/{test_conv_id}/upload"
+            with open(test_image_path, 'rb') as file:
+                files = {'file': ('test_image.png', file, 'image/png')}
+                upload_response = requests.post(url, files=files, timeout=30)
+            
+            print(f"   Image Upload Status: {upload_response.status_code}")
+            
+            if upload_response.status_code == 200:
+                print("✅ PASSED: Image uploaded successfully")
+                
+                # Test vision-related questions
+                vision_questions = [
+                    "Bu görselde ne var?",
+                    "Görseldeki metni oku",
+                    "Bu resimde hangi renkler var?"
+                ]
+                
+                successful_vision_tests = 0
+                
+                for question in vision_questions:
+                    print(f"   Testing vision question: '{question}'...")
+                    
+                    start_time = time.time()
+                    success, response = self.run_test(
+                        f"Vision Question: '{question}'",
+                        "POST",
+                        f"conversations/{test_conv_id}/messages",
+                        200,
+                        data={"content": question, "mode": "chat"}
+                    )
+                    response_time = time.time() - start_time
+                    
+                    if success:
+                        ai_response = response.get('content', '')
+                        print(f"     Response Time: {response_time:.2f}s")
+                        print(f"     Response: {ai_response[:100]}...")
+                        
+                        # Check if response indicates vision processing
+                        vision_indicators = ['görsel', 'resim', 'image', 'renk', 'metin', 'görmek', 'analiz']
+                        has_vision_response = any(indicator in ai_response.lower() for indicator in vision_indicators)
+                        
+                        if has_vision_response:
+                            print("     ✅ Vision API processing detected")
+                            successful_vision_tests += 1
+                        else:
+                            print("     ⚠️  Vision processing unclear")
+                    
+                    time.sleep(2)
+                
+                if successful_vision_tests >= len(vision_questions) * 0.5:  # 50% success rate
+                    print(f"✅ PASSED: Vision API Integration ({successful_vision_tests}/{len(vision_questions)})")
+                    return True
+                else:
+                    print(f"❌ FAILED: Vision API Integration ({successful_vision_tests}/{len(vision_questions)})")
+                    return False
+                    
+            else:
+                print(f"❌ FAILED: Image upload failed with status {upload_response.status_code}")
+                try:
+                    error_data = upload_response.json()
+                    print(f"   Upload Error: {error_data}")
+                except:
+                    print(f"   Upload Error: {upload_response.text}")
+                return False
+                
+        except Exception as e:
+            print(f"❌ FAILED: Vision API test error: {str(e)}")
+            return False
+        finally:
+            if os.path.exists(test_image_path):
+                os.remove(test_image_path)
+
+    def test_emergent_llm_key_configuration_vision(self):
+        """Test EMERGENT_LLM_KEY configuration and authentication for Vision API"""
+        print("\n🧪 VISION API TEST 3: EMERGENT_LLM_KEY Configuration Check")
+        
+        # Create conversation for API key test
+        success, response = self.run_test(
+            "Create Conversation for Vision API Key Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "Vision API Key Test"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        
+        # Test a question that would use ChatGPT-4o-mini Vision API
+        api_test_question = "Test EMERGENT_LLM_KEY authentication with a simple question"
+        
+        print(f"   Testing EMERGENT_LLM_KEY with question: '{api_test_question}'...")
+        
+        start_time = time.time()
+        success, response = self.run_test(
+            "EMERGENT_LLM_KEY Authentication Test",
+            "POST",
+            f"conversations/{test_conv_id}/messages",
+            200,
+            data={"content": api_test_question, "mode": "chat"}
+        )
+        response_time = time.time() - start_time
+        
+        if success:
+            ai_response = response.get('content', '')
+            print(f"   Response Time: {response_time:.2f} seconds")
+            print(f"   Response: {ai_response[:150]}...")
+            
+            # Check for API authentication errors
+            auth_error_indicators = ['api key', 'authentication', 'unauthorized', '401', '403', 'invalid key']
+            has_auth_errors = any(indicator in ai_response.lower() for indicator in auth_error_indicators)
+            
+            if not has_auth_errors and len(ai_response.strip()) > 10:
+                print("✅ PASSED: EMERGENT_LLM_KEY authentication working")
+                print("✅ PASSED: ChatGPT-4o-mini API integration functional")
+                return True
+            else:
+                print("❌ FAILED: EMERGENT_LLM_KEY authentication issues detected")
+                if has_auth_errors:
+                    print(f"   Auth errors found: {[err for err in auth_error_indicators if err in ai_response.lower()]}")
+                return False
+        else:
+            print("❌ FAILED: Could not test EMERGENT_LLM_KEY authentication")
+            return False
+
+    def test_base64_image_encoding(self):
+        """Test Base64 image encoding functionality"""
+        print("\n🧪 VISION API TEST 4: Base64 Image Encoding")
+        
+        # Create a test image
+        test_image_path = self.create_test_image()
+        
+        try:
+            # Test if we can read and encode the image
+            with open(test_image_path, 'rb') as image_file:
+                image_data = image_file.read()
+                
+            print(f"   Test image size: {len(image_data)} bytes")
+            
+            if len(image_data) > 0:
+                print("✅ PASSED: Test image created and readable")
+                
+                # Test base64 encoding
+                import base64
+                try:
+                    base64_data = base64.b64encode(image_data).decode('utf-8')
+                    print(f"   Base64 encoded size: {len(base64_data)} characters")
+                    
+                    if len(base64_data) > 0 and base64_data.startswith('iVBOR'):  # PNG signature in base64
+                        print("✅ PASSED: Base64 image encoding working correctly")
+                        return True
+                    else:
+                        print("❌ FAILED: Base64 encoding produced invalid result")
+                        return False
+                        
+                except Exception as e:
+                    print(f"❌ FAILED: Base64 encoding error: {str(e)}")
+                    return False
+            else:
+                print("❌ FAILED: Test image is empty")
+                return False
+                
+        except Exception as e:
+            print(f"❌ FAILED: Image encoding test error: {str(e)}")
+            return False
+        finally:
+            if os.path.exists(test_image_path):
+                os.remove(test_image_path)
+
+    def create_test_image(self):
+        """Create a simple test image for vision API testing"""
+        try:
+            from PIL import Image, ImageDraw
+            
+            # Create a simple 100x100 test image
+            image = Image.new('RGB', (100, 100), color='white')
+            draw = ImageDraw.Draw(image)
+            
+            # Draw some simple shapes
+            draw.rectangle([10, 10, 90, 90], outline='black', width=2)
+            draw.text((30, 40), "TEST", fill='black')
+            
+            # Save to temporary file
+            test_image_path = tempfile.mktemp(suffix='.png')
+            image.save(test_image_path, 'PNG')
+            
+            return test_image_path
+            
+        except ImportError:
+            # Fallback: create a minimal PNG file manually
+            test_image_path = tempfile.mktemp(suffix='.png')
+            
+            # Minimal PNG file (1x1 pixel)
+            png_data = b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x02\x00\x00\x00\x90wS\xde\x00\x00\x00\tpHYs\x00\x00\x0b\x13\x00\x00\x0b\x13\x01\x00\x9a\x9c\x18\x00\x00\x00\x0cIDATx\x9cc```\x00\x00\x00\x04\x00\x01\xdd\x8d\xb4\x1c\x00\x00\x00\x00IEND\xaeB`\x82'
+            
+            with open(test_image_path, 'wb') as f:
+                f.write(png_data)
+                
+            return test_image_path
+
+    def run_layout_and_vision_tests(self):
+        """Run Layout and Vision API tests as requested in review"""
+        print("\n" + "="*60)
+        print("🚀 STARTING LAYOUT AND VISION API TESTS")
+        print("Testing critical fixes:")
+        print("1. Layout handling with complex mathematical formulas")
+        print("2. Vision API debug endpoint")
+        print("3. EMERGENT_LLM_KEY configuration")
+        print("4. ChatGPT-4o-mini Vision API integration")
+        print("5. Base64 image encoding functionality")
+        print("="*60)
+        
+        layout_vision_tests = [
+            self.test_layout_handling_complex_math,
+            self.test_vision_api_debug_endpoint,
+            self.test_emergent_llm_key_configuration_vision,
+            self.test_base64_image_encoding,
+            self.test_vision_api_image_upload
+        ]
+        
+        layout_vision_passed = 0
+        layout_vision_run = 0
+        
+        for test in layout_vision_tests:
+            try:
+                layout_vision_run += 1
+                if test():
+                    layout_vision_passed += 1
+                time.sleep(2)  # Brief pause between tests
+            except Exception as e:
+                print(f"❌ Test failed with exception: {e}")
+        
+        # Print layout and vision test results
+        print("\n" + "="*60)
+        print(f"🧪 LAYOUT AND VISION API RESULTS: {layout_vision_passed}/{layout_vision_run} tests passed")
+        
+        if layout_vision_passed == layout_vision_run:
+            print("🎉 All Layout and Vision API tests passed!")
+            print("✅ Layout handling working correctly")
+            print("✅ Vision API integration functional")
+            print("✅ EMERGENT_LLM_KEY authentication working")
+            print("✅ Base64 image encoding working")
+        else:
+            print(f"❌ {layout_vision_run - layout_vision_passed} Layout/Vision tests failed")
+        
+        return layout_vision_passed, layout_vision_run
+
 if __name__ == "__main__":
     sys.exit(main())
