@@ -1624,6 +1624,9 @@ function App() {
                     </div>
                   </div>
                 )}
+                
+                {/* Auto-scroll target */}
+                <div ref={messagesEndRef} />
               </div>
             </div>
 
