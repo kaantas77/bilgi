@@ -8899,3 +8899,23 @@ def main():
         
         return gpt5_nano_tests_passed == gpt5_nano_tests_run
 
+        # Print final results for Layout and Vision tests
+        print("\n" + "="*80)
+        print("📊 LAYOUT AND VISION API TEST RESULTS")
+        print("="*80)
+        print(f"🎨 Layout & Vision API Tests: {layout_vision_passed}/{layout_vision_run}")
+        
+        if layout_vision_passed == layout_vision_run:
+            print("🎉 ALL LAYOUT AND VISION API TESTS PASSED!")
+            print("✅ Layout handling with complex mathematical formulas working!")
+            print("✅ Vision API debug endpoint accessible!")
+            print("✅ EMERGENT_LLM_KEY configuration working!")
+            print("✅ ChatGPT-4o-mini Vision API integration functional!")
+            print("✅ Base64 image encoding working correctly!")
+            sys.exit(0)
+        else:
+            print(f"❌ {layout_vision_run - layout_vision_passed} Layout/Vision tests failed.")
+            print("🚨 ISSUES DETECTED - Please check implementation")
+            sys.exit(1)
+    
+    sys.exit(main())
