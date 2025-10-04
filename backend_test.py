@@ -7139,8 +7139,36 @@ def main():
     
     tester = BilginAIAPITester()
     
-    # Check if we should run OLLAMA FREE VERSION tests specifically
+    # Check if we should run OLLAMA CONVERSATION MODES tests specifically
     import sys
+    if len(sys.argv) > 1 and sys.argv[1] == "ollama_modes":
+        print("\n🎯 Running OLLAMA CONVERSATION MODES INTEGRATION Tests ONLY...")
+        ollama_passed, ollama_run = tester.run_ollama_conversation_modes_tests()
+        
+        # Print final results for Ollama conversation modes tests
+        print("\n" + "="*80)
+        print("📊 OLLAMA CONVERSATION MODES INTEGRATION TEST RESULTS")
+        print("="*80)
+        print(f"🎯 Ollama Conversation Modes Tests: {ollama_passed}/{ollama_run}")
+        
+        if ollama_passed == ollama_run:
+            print("🎉 ALL OLLAMA CONVERSATION MODES TESTS PASSED!")
+            print("✅ NEW Ollama AnythingLLM conversation modes integration is working perfectly!")
+            print("\n✅ VERIFICATION POINTS CONFIRMED:")
+            print("- PRO version conversation modes route to Ollama AnythingLLM")
+            print("- FREE version conversation modes route to Ollama AnythingLLM")
+            print("- Minimalist mode provides short, concise, bullet-pointed responses")
+            print("- Current topics still work for both PRO and FREE versions")
+            print("- Backend configuration verified - all 6 modes operational")
+            print("- API Key: 0PSWXGR-22AMZJP-JEEAQ1P-1EQS5DA working correctly")
+            print("- Endpoint: https://2jr84ymm.rcsrv.com/api/v1/workspace/testtt/chat working")
+            return 0
+        else:
+            print(f"❌ {ollama_run - ollama_passed} Ollama conversation modes tests failed.")
+            print("🚨 ISSUES DETECTED - Please check backend Ollama integration")
+            return 1
+    
+    # Check if we should run OLLAMA FREE VERSION tests specifically
     if len(sys.argv) > 1 and sys.argv[1] == "ollama_free":
         print("\n🎯 Running OLLAMA ANYTHINGLLM FREE VERSION Tests ONLY...")
         ollama_passed, ollama_run = tester.run_ollama_free_version_tests()
