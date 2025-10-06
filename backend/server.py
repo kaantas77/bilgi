@@ -833,6 +833,40 @@ def is_general_knowledge_question(question: str) -> bool:
     question_lower = question.lower()
     return any(keyword in question_lower for keyword in general_keywords)
 
+async def generate_streaming_response(response_text: str):
+    """Generate streaming response with typewriter effect"""
+    
+    # Send initial thinking message
+    yield f"data: {json.dumps({'type': 'thinking', 'content': 'BİLGİN düşünüyor...'})}\n\n"
+    await asyncio.sleep(0.5)
+    
+    # Stream the actual response word by word
+    words = response_text.split()
+    current_text = ""
+    
+    for i, word in enumerate(words):
+        current_text += word + " "
+        
+        # Send update every few words for smoother effect
+        if i % 2 == 0 or i == len(words) - 1:
+            yield f"data: {json.dumps({'type': 'content', 'content': current_text.strip()})}\n\n"
+            await asyncio.sleep(0.05)  # Small delay for typewriter effect
+    
+    # Send completion signal
+    yield f"data: {json.dumps({'type': 'complete', 'content': response_text})}\n\n"
+
+async def smart_hybrid_response(question: str, version: str = 'pro', conversation_mode: str = 'normal', uploaded_files: list = None) -> str:
+    """Main hybrid response function that routes to appropriate AI system"""
+    
+    # Check version and route accordingly
+    if version == "free":
+        logging.info("FREE version selected - using Ollama AnythingLLM")
+        return await process_with_ollama_free(question, conversation_mode)
+    else:
+        # PRO version - use simple system
+        logging.info("PRO version selected - using simple system")
+        return await simple_pro_system(question, conversation_mode)
+
 async def simple_pro_system(question: str, conversation_mode: str = 'normal', file_content: str = None, file_name: str = None) -> str:
     """PRO system with Novita DeepSeek v3.1: Novita for general, AnythingLLM for formulas, Serper for current"""
     
