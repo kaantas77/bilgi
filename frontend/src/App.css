@@ -1084,23 +1084,23 @@ textarea:focus {
 .chat-message h2, .bot-response h2 { font-size: 1.3rem; margin-top: 22px; }
 .chat-message h3, .bot-response h3 { font-size: 1.1rem; margin-top: 18px; }
 
-/* Enhanced paragraphs */
-.chat-message p { margin: 12px 0; }
-.chat-message small, 
-.chat-message .muted { color: var(--doc-muted); }
+/* Paragraflar */
+.chat-message p, .bot-response p { margin: 12px 0; }
+.chat-message small, .bot-response small,
+.chat-message .muted, .bot-response .muted { color: var(--muted); }
 
-/* Enhanced lists */
-.chat-message ul, 
-.chat-message ol { margin: 10px 0 10px 22px; }
-.chat-message li { margin: 4px 0; }
+/* Listeler */
+.chat-message ul, .bot-response ul,
+.chat-message ol, .bot-response ol { margin: 10px 0 10px 22px; }
+.chat-message li, .bot-response li { margin: 4px 0; }
 
-/* Enhanced links and emphasis */
-.chat-message a { 
-  color: var(--doc-accent); 
+/* Link / vurgu */
+.chat-message a, .bot-response a { 
+  color: var(--accent); 
   text-decoration: none; 
 }
-.chat-message a:hover { text-decoration: underline; }
-.chat-message strong { color: #fff; font-weight: 600; }
+.chat-message a:hover, .bot-response a:hover { text-decoration: underline; }
+.chat-message strong, .bot-response strong { color: #fff; }
 
 /* Enhanced code styling */
 .chat-message code {
