@@ -8899,6 +8899,333 @@ def main():
         
         return gpt5_nano_tests_passed == gpt5_nano_tests_run
 
+    def test_new_pro_routing_scenario_1_general_novita(self):
+        """Test NEW PRO ROUTING Scenario 1: General Questions → Novita DeepSeek v3.1"""
+        print("\n🧪 NEW PRO ROUTING TEST 1: General Questions → Novita DeepSeek v3.1")
+        
+        # Create conversation for NEW PRO routing test
+        success, response = self.run_test(
+            "Create Conversation for NEW PRO General Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "NEW PRO Test - General → Novita"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        self.pro_version_tests_run += 1
+        
+        # Test general question that should route to Novita DeepSeek v3.1
+        question = "Türkiye'nin en büyük şehri hangisidir ve nüfusu kaç?"
+        
+        print(f"   Testing NEW PRO general question: '{question}'...")
+        
+        start_time = time.time()
+        success, response = self.run_test(
+            f"NEW PRO General → Novita: '{question}'",
+            "POST",
+            f"conversations/{test_conv_id}/messages",
+            200,
+            data={"content": question, "mode": "normal", "version": "pro"}
+        )
+        response_time = time.time() - start_time
+        
+        if success:
+            ai_response = response.get('content', '')
+            print(f"     Response Time: {response_time:.2f}s")
+            print(f"     Response: {ai_response[:200]}...")
+            
+            # Check for appropriate response about Istanbul
+            istanbul_indicators = ['istanbul', 'İstanbul', 'büyük', 'şehir', 'nüfus', 'milyon']
+            has_istanbul_info = any(indicator in ai_response for indicator in istanbul_indicators)
+            
+            # Should NOT have web search indicators (direct Novita response)
+            web_indicators = ['web araştırması', 'güncel web kaynaklarından']
+            has_web_search = any(indicator in ai_response.lower() for indicator in web_indicators)
+            
+            if has_istanbul_info and not has_web_search:
+                print("     ✅ NEW PRO: General question → Novita DeepSeek v3.1 (direct response)")
+                self.pro_version_tests_passed += 1
+                return True
+            else:
+                print("     ❌ NEW PRO: Should route to Novita DeepSeek v3.1 for general questions")
+                return False
+        
+        return False
+
+    def test_new_pro_routing_scenario_2_formula_anythingllm(self):
+        """Test NEW PRO ROUTING Scenario 2: Formula/RAG Questions → AnythingLLM bilgin workspace"""
+        print("\n🧪 NEW PRO ROUTING TEST 2: Formula/RAG Questions → AnythingLLM bilgin workspace")
+        
+        # Create conversation for NEW PRO formula test
+        success, response = self.run_test(
+            "Create Conversation for NEW PRO Formula Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "NEW PRO Test - Formula → AnythingLLM"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        self.pro_version_tests_run += 1
+        
+        # Test formula question that should route to AnythingLLM bilgin workspace
+        question = "İstatistiksel standart sapma formülünü açıkla ve örnek hesaplama yap"
+        
+        print(f"   Testing NEW PRO formula question: '{question}'...")
+        
+        start_time = time.time()
+        success, response = self.run_test(
+            f"NEW PRO Formula → AnythingLLM: '{question}'",
+            "POST",
+            f"conversations/{test_conv_id}/messages",
+            200,
+            data={"content": question, "mode": "normal", "version": "pro"}
+        )
+        response_time = time.time() - start_time
+        
+        if success:
+            ai_response = response.get('content', '')
+            print(f"     Response Time: {response_time:.2f}s")
+            print(f"     Response: {ai_response[:200]}...")
+            
+            # Check for formula-based content from RAG system
+            formula_indicators = ['standart sapma', 'formül', 'hesaplama', 'σ', 'sigma', 'varyans', 'matematik']
+            has_formula_content = any(indicator in ai_response.lower() for indicator in formula_indicators)
+            
+            if has_formula_content:
+                print("     ✅ NEW PRO: Formula/RAG question → AnythingLLM bilgin workspace")
+                self.pro_version_tests_passed += 1
+                return True
+            else:
+                print("     ❌ NEW PRO: Should route to AnythingLLM bilgin workspace for formula questions")
+                return False
+        
+        return False
+
+    def test_new_pro_routing_scenario_3_current_serper(self):
+        """Test NEW PRO ROUTING Scenario 3: Current Topics → Serper API"""
+        print("\n🧪 NEW PRO ROUTING TEST 3: Current Topics → Serper API")
+        
+        # Create conversation for NEW PRO current test
+        success, response = self.run_test(
+            "Create Conversation for NEW PRO Current Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "NEW PRO Test - Current → Serper"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        self.pro_version_tests_run += 1
+        
+        # Test current topic question that should route to Serper API
+        question = "Bugün Champions League'de hangi maçlar oynanıyor?"
+        
+        print(f"   Testing NEW PRO current topic: '{question}'...")
+        
+        start_time = time.time()
+        success, response = self.run_test(
+            f"NEW PRO Current → Serper: '{question}'",
+            "POST",
+            f"conversations/{test_conv_id}/messages",
+            200,
+            data={"content": question, "mode": "normal", "version": "pro"}
+        )
+        response_time = time.time() - start_time
+        
+        if success:
+            ai_response = response.get('content', '')
+            print(f"     Response Time: {response_time:.2f}s")
+            print(f"     Response: {ai_response[:200]}...")
+            
+            # Check for current/real-time information from web search
+            current_indicators = ['champions league', 'maç', 'bugün', 'oynanıyor', 'güncel', 'web araştırması']
+            has_current_info = any(indicator in ai_response.lower() for indicator in current_indicators)
+            
+            if has_current_info:
+                print("     ✅ NEW PRO: Current topic → Serper API (real-time information)")
+                self.pro_version_tests_passed += 1
+                return True
+            else:
+                print("     ❌ NEW PRO: Should route to Serper API for current topics")
+                return False
+        
+        return False
+
+    def test_new_pro_routing_scenario_4_conversation_ollama(self):
+        """Test NEW PRO ROUTING Scenario 4: Conversation Modes → Ollama AnythingLLM"""
+        print("\n🧪 NEW PRO ROUTING TEST 4: Conversation Modes → Ollama AnythingLLM")
+        
+        # Create conversation for NEW PRO conversation mode test
+        success, response = self.run_test(
+            "Create Conversation for NEW PRO Conversation Mode Test",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "NEW PRO Test - Conversation → Ollama"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        self.pro_version_tests_run += 1
+        
+        # Test conversation mode that should route to Ollama AnythingLLM
+        question = "Motivasyona ihtiyacım var"
+        
+        print(f"   Testing NEW PRO conversation mode: '{question}' with friend mode...")
+        
+        start_time = time.time()
+        success, response = self.run_test(
+            f"NEW PRO Conversation → Ollama: '{question}'",
+            "POST",
+            f"conversations/{test_conv_id}/messages",
+            200,
+            data={"content": question, "mode": "friend", "version": "pro"}
+        )
+        response_time = time.time() - start_time
+        
+        if success:
+            ai_response = response.get('content', '')
+            print(f"     Response Time: {response_time:.2f}s")
+            print(f"     Response: {ai_response[:200]}...")
+            
+            # Check for friendly, motivational response style from Ollama
+            friend_indicators = ['dostum', 'arkadaş', 'motivasyon', 'başarabilirsin', 'güçlü', 'cesaret', 'inan']
+            has_friend_personality = any(indicator in ai_response.lower() for indicator in friend_indicators)
+            
+            if has_friend_personality:
+                print("     ✅ NEW PRO: Conversation mode → Ollama AnythingLLM (friend personality)")
+                self.pro_version_tests_passed += 1
+                return True
+            else:
+                print("     ❌ NEW PRO: Should route to Ollama AnythingLLM for conversation modes")
+                return False
+        
+        return False
+
+    def test_new_pro_routing_api_keys_verification(self):
+        """Test NEW PRO ROUTING: API Keys Verification"""
+        print("\n🧪 NEW PRO ROUTING TEST 5: API Keys Verification")
+        
+        # Create conversation for API key verification
+        success, response = self.run_test(
+            "Create Conversation for API Key Verification",
+            "POST",
+            "conversations",
+            200,
+            data={"title": "NEW PRO Test - API Keys"}
+        )
+        
+        if not success:
+            return False
+            
+        test_conv_id = response.get('id')
+        self.pro_version_tests_run += 1
+        
+        # Test different scenarios to verify all API keys are working
+        test_scenarios = [
+            ("Novita API", "Basit bir soru: 2+2 kaç eder?", "normal", ["4", "dört", "toplam"]),
+            ("AnythingLLM", "Matematik formülü: karekök hesaplama", "normal", ["karekök", "formül", "matematik"]),
+            ("Serper API", "Bugün hava durumu nasıl?", "normal", ["hava", "sıcaklık", "derece", "güncel"]),
+            ("Ollama", "Arkadaşça sohbet edelim", "friend", ["dostum", "arkadaş", "sohbet"])
+        ]
+        
+        successful_tests = 0
+        
+        for api_name, question, mode, expected_indicators in test_scenarios:
+            print(f"   Testing {api_name} integration: '{question[:30]}...'")
+            
+            start_time = time.time()
+            success, response = self.run_test(
+                f"API Key Test - {api_name}",
+                "POST",
+                f"conversations/{test_conv_id}/messages",
+                200,
+                data={"content": question, "mode": mode, "version": "pro"}
+            )
+            response_time = time.time() - start_time
+            
+            if success:
+                ai_response = response.get('content', '')
+                print(f"     Response Time: {response_time:.2f}s")
+                print(f"     Response: {ai_response[:100]}...")
+                
+                # Check for expected content
+                has_expected_content = any(indicator in ai_response.lower() for indicator in expected_indicators)
+                
+                # Check for error indicators
+                error_indicators = ['hata', 'error', 'api key', 'authentication', 'unauthorized']
+                has_errors = any(indicator in ai_response.lower() for indicator in error_indicators)
+                
+                if has_expected_content and not has_errors:
+                    print(f"     ✅ {api_name} API key working correctly")
+                    successful_tests += 1
+                else:
+                    print(f"     ❌ {api_name} API key may have issues")
+            
+            time.sleep(2)
+        
+        if successful_tests >= len(test_scenarios) * 0.75:  # 75% success rate
+            self.pro_version_tests_passed += 1
+            print(f"✅ PASSED: NEW PRO API Keys Verification ({successful_tests}/{len(test_scenarios)})")
+            return True
+        else:
+            print(f"❌ FAILED: NEW PRO API Keys Verification ({successful_tests}/{len(test_scenarios)})")
+            return False
+
+    def run_new_pro_routing_tests(self):
+        """Run all NEW PRO ROUTING tests for Novita DeepSeek v3.1 integration"""
+        print("\n" + "="*60)
+        print("🚀 STARTING NEW PRO VERSION ROUTING TESTS")
+        print("Testing NEW PRO routing system:")
+        print("1. General Questions → Novita API DeepSeek v3.1")
+        print("2. Formula/RAG Questions → AnythingLLM bilgin workspace")  
+        print("3. Current Topics → Serper API")
+        print("4. Conversation Modes → Ollama AnythingLLM")
+        print("="*60)
+        
+        new_pro_tests = [
+            self.test_new_pro_routing_scenario_1_general_novita,
+            self.test_new_pro_routing_scenario_2_formula_anythingllm,
+            self.test_new_pro_routing_scenario_3_current_serper,
+            self.test_new_pro_routing_scenario_4_conversation_ollama,
+            self.test_new_pro_routing_api_keys_verification
+        ]
+        
+        for test in new_pro_tests:
+            try:
+                test()
+                time.sleep(3)  # Longer pause between tests for API rate limiting
+            except Exception as e:
+                print(f"❌ Test failed with exception: {e}")
+        
+        # Print NEW PRO routing test results
+        print("\n" + "="*60)
+        print(f"🧪 NEW PRO ROUTING RESULTS: {self.pro_version_tests_passed}/{self.pro_version_tests_run} tests passed")
+        
+        if self.pro_version_tests_passed == self.pro_version_tests_run:
+            print("🎉 All NEW PRO routing tests passed!")
+            print("✅ Novita DeepSeek v3.1 integration working")
+            print("✅ AnythingLLM bilgin workspace working")
+            print("✅ Serper API integration working")
+            print("✅ Ollama AnythingLLM conversation modes working")
+        else:
+            print(f"❌ {self.pro_version_tests_run - self.pro_version_tests_passed} NEW PRO routing tests failed")
+        
+        return self.pro_version_tests_passed == self.pro_version_tests_run
+
 if __name__ == "__main__":
     # Check if we should run Layout and Vision tests specifically
     import sys
