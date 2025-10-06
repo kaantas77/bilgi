@@ -1113,6 +1113,46 @@ def clean_response_formatting(text: str) -> str:
     
     return text
 
+def format_math_response(text: str) -> str:
+    """Format mathematical expressions from RAG responses for better display"""
+    if not text:
+        return text
+    
+    # Convert LaTeX-style expressions to KaTeX compatible format
+    # Handle inline math expressions
+    text = re.sub(r'P_\{([^}]+)\}', r'P_{\\text{\1}}', text)
+    text = re.sub(r'\\text\{([^}]+)\}', r'\\text{\1}', text)
+    
+    # Handle display math expressions - wrap in $$ for KaTeX
+    # Look for equations on their own lines
+    lines = text.split('\n')
+    formatted_lines = []
+    
+    for line in lines:
+        line = line.strip()
+        
+        # Check if line contains mathematical expressions
+        if any(pattern in line for pattern in ['=', 'P_{', '\\Delta', '\\rho', 'g =', 'h =']):
+            # If it's a mathematical expression, wrap in display math
+            if not line.startswith('$') and not line.endswith('$'):
+                # Don't wrap if it's part of regular text
+                if len(line.split()) > 8:  # Long line, probably explanation
+                    formatted_lines.append(line)
+                else:  # Short line, likely formula
+                    formatted_lines.append(f'$${line}$$')
+            else:
+                formatted_lines.append(line)
+        else:
+            formatted_lines.append(line)
+    
+    result = '\n'.join(formatted_lines)
+    
+    # Clean up common LaTeX artifacts
+    result = re.sub(r'\\\\', r'\\newline', result)
+    result = re.sub(r'\\,', ' ', result)
+    
+    return result
+
 async def process_with_ollama_free(question: str, conversation_mode: str = 'normal', file_content: str = None, file_name: str = None) -> str:
     """Process question with Ollama AnythingLLM for FREE/PRO version - returns exact response without modification"""
     try:
