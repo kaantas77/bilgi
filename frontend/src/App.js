@@ -1663,7 +1663,6 @@ function App() {
                               <MathRenderer content={message.content || ''} />
                             </div>
                           )}
-                          </div>
                         </div>
                       ))
                   ) : null;
