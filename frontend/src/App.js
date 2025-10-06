@@ -130,9 +130,13 @@ function App() {
     localStorage.setItem('bilgin-modes-conversations', JSON.stringify(modesConversations));
   }, [modesConversations]);
 
-  // Auto-scroll to bottom when messages change
+  // Auto-scroll to bottom when messages change - throttled for streaming
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const timeoutId = setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, 100); // Small delay to prevent excessive scrolling during streaming
+    
+    return () => clearTimeout(timeoutId);
   }, [normalMessages, modesMessages]);
 
   // Close dropdown when clicking outside
