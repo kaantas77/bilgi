@@ -1627,18 +1627,10 @@ function App() {
                         >
                           {/* User questions as headings */}
                           {message.role === 'user' && (
-                            <h2 className="user-question">{message.content}</h2>
-                          )}
-                          
-                          {/* Bot responses as document content */}
-                          {message.role === 'assistant' && (
-                            <div className="bot-response">
-                              <MathRenderer content={message.content || ''} />
-                            </div>
-                          )}
-                              
+                            <>
+                              <h2 className="user-question">{message.content}</h2>
                               {/* Show uploaded files for user messages */}
-                              {message.role === 'user' && uploadedFiles.length > 0 && (
+                              {uploadedFiles.length > 0 && (
                                 <div className="uploaded-files">
                                   {uploadedFiles.map((file) => (
                                     <div key={file.id} className="file-attachment">
@@ -1662,20 +1654,15 @@ function App() {
                                   ))}
                                 </div>
                               )}
+                            </>
+                          )}
+                          
+                          {/* Bot responses as document content */}
+                          {message.role === 'assistant' && (
+                            <div className="bot-response">
+                              <MathRenderer content={message.content || ''} />
                             </div>
-                            <div className="text-xs text-gray-500 mt-2">
-                              {(() => {
-                                try {
-                                  return new Date(message.timestamp).toLocaleTimeString('tr-TR', {
-                                    hour: '2-digit',
-                                    minute: '2-digit'
-                                  });
-                                } catch (error) {
-                                  console.error('Timestamp formatting error:', error);
-                                  return 'Zaman yok';
-                                }
-                              })()}
-                            </div>
+                          )}
                           </div>
                         </div>
                       ))
