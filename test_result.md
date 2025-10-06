@@ -492,11 +492,7 @@ metadata:
 
 test_plan:
   current_focus: 
-    - "SCROLL JUMPING PROBLEM FIX TESTING"
-    - "MATH FORMATTING PROBLEM FIX TESTING"
-    - "Streaming Behavior During Long Responses"
-    - "Math Formula Display Quality"
-    - "Version Compatibility Testing (PRO/FREE)"
+    - "CLEAN DOCUMENT STYLE TRANSFORMATION TESTING COMPLETED"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
