@@ -613,90 +613,44 @@ function App() {
   const sendMessage = async () => {
     if (!inputMessage.trim() || isMessageLoading) return;
 
+    const messageText = inputMessage.trim();
     setInputMessage('');
     setIsMessageLoading(true);
 
-    // Get or create conversation
+    // Determine conversation ID
     let conversationId;
     
     if (activeTab === 'normal') {
       if (!currentNormalConversation) {
-        // Create conversation first
-        try {
-          const response = await fetch(`${BACKEND_URL}/api/conversations`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json'
-            },
-            body: JSON.stringify({
-              title: 'Yeni Sohbet'
-            })
-          });
-
-          if (response.ok) {
-            const newConversation = await response.json();
-            console.log('Created new normal conversation:', newConversation);
-            setNormalConversations(prev => [newConversation, ...prev]);
-            setCurrentNormalConversation(newConversation);
-            conversationId = newConversation.id;
-          } else {
-            throw new Error('Failed to create conversation');
-          }
-        } catch (error) {
-          console.error('Error creating conversation:', error);
-          setIsMessageLoading(false);
-          return;
-        }
+        // Create new conversation if none exists
+        await createNewNormalConversation();
+        conversationId = currentNormalConversation?.id;
       } else {
         conversationId = currentNormalConversation.id;
       }
     } else {
-      // Modes tab
       if (!currentModesConversation) {
-        // Create conversation first
-        try {
-          const response = await fetch(`${BACKEND_URL}/api/conversations`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json'
-            },
-            body: JSON.stringify({
-              title: 'Yeni Mod Sohbeti'
-            })
-          });
-
-          if (response.ok) {
-            const newConversation = await response.json();
-            console.log('Created new modes conversation:', newConversation);
-            newConversation.mode = selectedMode;
-            setModesConversations(prev => [newConversation, ...prev]);
-            setCurrentModesConversation(newConversation);
-            conversationId = newConversation.id;
-          } else {
-            throw new Error('Failed to create modes conversation');
-          }
-        } catch (error) {
-          console.error('Error creating modes conversation:', error);
-          setIsMessageLoading(false);
-          return;
-        }
+        await createNewModesConversation();
+        conversationId = currentModesConversation?.id;
       } else {
         conversationId = currentModesConversation.id;
       }
     }
 
+    if (!conversationId) {
+      console.error('No conversation ID available');
+      setIsMessageLoading(false);
+      return;
+    }
+
+    // Add user message to appropriate state
     const userMessage = {
       id: Date.now().toString(),
       role: 'user',
-      content: inputMessage,
+      content: messageText,
       timestamp: new Date().toISOString()
     };
 
-    console.log('Sending message with conversation ID:', conversationId);
-    
-    // Add user message immediately to UI
     if (activeTab === 'normal') {
       setNormalMessages(prev => [...(Array.isArray(prev) ? prev : []), userMessage]);
     } else {
@@ -705,71 +659,145 @@ function App() {
 
     try {
       const payload = {
-        content: inputMessage,
+        content: messageText,
         conversationMode: activeTab === 'modes' ? selectedMode : 'normal',
-        version: selectedVersion // Pro or Free version
+        version: selectedVersion
       };
 
-      console.log('Calling backend API with payload:', payload);
+      console.log('Starting streaming request with payload:', payload);
 
       // Create AbortController for cancelling request
       const controller = new AbortController();
       setAbortController(controller);
 
-      const response = await fetch(`${BACKEND_URL}/api/conversations/${conversationId}/messages`, {
+      // Use streaming endpoint
+      const response = await fetch(`${BACKEND_URL}/api/conversations/${conversationId}/messages/stream`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          'Accept': 'text/event-stream'
         },
         body: JSON.stringify(payload),
         signal: controller.signal
       });
 
-      console.log('Backend API response status:', response.status);
-
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Backend API error:', errorText);
-        throw new Error(`Backend API error! status: ${response.status} - ${errorText}`);
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const data = await response.json();
-      console.log('Backend API response data:', data);
-
+      // Create initial bot message
+      const botMessageId = (Date.now() + 1).toString();
       const botMessage = {
-        id: (Date.now() + 1).toString(),
+        id: botMessageId,
         role: 'assistant',
-        content: data.content || 'Üzgünüm, bir sorun oluştu.',
-        timestamp: new Date().toISOString()
+        content: '',
+        timestamp: new Date().toISOString(),
+        streaming: true
       };
-      
-      console.log('Received response - botMessage:', botMessage);
-      
-      // Add bot message directly to appropriate state
+
+      // Add initial empty bot message
       if (activeTab === 'normal') {
-        setNormalMessages(prev => [...(Array.isArray(prev) ? prev : []), botMessage]);
+        setNormalMessages(prev => [...prev, botMessage]);
       } else {
-        setModesMessages(prev => [...(Array.isArray(prev) ? prev : []), botMessage]);
+        setModesMessages(prev => [...prev, botMessage]);
+      }
+
+      // Process streaming response
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              
+              if (data.type === 'thinking') {
+                // Update message with thinking indicator
+                const updateMessage = (prev) => prev.map(msg => 
+                  msg.id === botMessageId 
+                    ? { ...msg, content: data.content, streaming: true }
+                    : msg
+                );
+                
+                if (activeTab === 'normal') {
+                  setNormalMessages(updateMessage);
+                } else {
+                  setModesMessages(updateMessage);
+                }
+              } else if (data.type === 'chunk') {
+                // Update message with streaming content
+                const updateMessage = (prev) => prev.map(msg => 
+                  msg.id === botMessageId 
+                    ? { ...msg, content: data.full_content, streaming: true }
+                    : msg
+                );
+                
+                if (activeTab === 'normal') {
+                  setNormalMessages(updateMessage);
+                } else {
+                  setModesMessages(updateMessage);
+                }
+              } else if (data.type === 'complete') {
+                // Finalize message
+                const updateMessage = (prev) => prev.map(msg => 
+                  msg.id === botMessageId 
+                    ? { ...msg, content: data.content, streaming: false }
+                    : msg
+                );
+                
+                if (activeTab === 'normal') {
+                  setNormalMessages(updateMessage);
+                } else {
+                  setModesMessages(updateMessage);
+                }
+              } else if (data.type === 'error') {
+                // Handle error
+                const updateMessage = (prev) => prev.map(msg => 
+                  msg.id === botMessageId 
+                    ? { ...msg, content: data.content, streaming: false }
+                    : msg
+                );
+                
+                if (activeTab === 'normal') {
+                  setNormalMessages(updateMessage);
+                } else {
+                  setModesMessages(updateMessage);
+                }
+              }
+            } catch (error) {
+              console.error('Error parsing streaming data:', error);
+            }
+          }
+        }
       }
       
       // Clear uploaded files after successful message send
       setUploadedFiles([]);
-      
+
     } catch (error) {
       console.error('Error sending message:', error);
+      
       const errorMessage = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
         content: `Bağlantı sorunu: ${error.message}`,
         timestamp: new Date().toISOString()
       };
-      
-      // Add error message directly to appropriate state
+
       if (activeTab === 'normal') {
-        setNormalMessages(prev => [...(Array.isArray(prev) ? prev : []), errorMessage]);
+        setNormalMessages(prev => [...prev, errorMessage]);
       } else {
-        setModesMessages(prev => [...(Array.isArray(prev) ? prev : []), errorMessage]);
+        setModesMessages(prev => [...prev, errorMessage]);
       }
     } finally {
       setIsMessageLoading(false);
