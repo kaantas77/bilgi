@@ -723,9 +723,15 @@ function App() {
     };
 
     if (activeTab === 'normal') {
-      setNormalMessages(prev => [...(Array.isArray(prev) ? prev : []), userMessage]);
+      setNormalMessages(prev => {
+        console.log('Adding user message to normal messages. Current count:', prev.length);
+        return [...(Array.isArray(prev) ? prev : []), userMessage];
+      });
     } else {
-      setModesMessages(prev => [...(Array.isArray(prev) ? prev : []), userMessage]);
+      setModesMessages(prev => {
+        console.log('Adding user message to modes messages. Current count:', prev.length);
+        return [...(Array.isArray(prev) ? prev : []), userMessage];
+      });
     }
 
     try {
