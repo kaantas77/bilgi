@@ -806,54 +806,40 @@ def is_general_knowledge_question(question: str) -> bool:
     return any(keyword in question_lower for keyword in general_keywords)
 
 async def simple_pro_system(question: str, conversation_mode: str = 'normal', file_content: str = None, file_name: str = None) -> str:
-    """PRO system with smart routing: ChatGPT for general knowledge, AnythingLLM for formula-based questions"""
+    """PRO system with Novita DeepSeek v3.1: Novita for general, AnythingLLM for formulas, Serper for current"""
     
-    logging.info(f"PRO version - Smart routing system for: {question}")
+    logging.info(f"PRO version - Novita DeepSeek routing system for: {question}")
     
     # Step 1: Check if conversation mode is active - use Ollama for all conversation modes
     if conversation_mode and conversation_mode != 'normal':
         logging.info(f"PRO: Conversation mode {conversation_mode} detected - using Ollama AnythingLLM")
         return await process_with_ollama_free(question, conversation_mode, file_content, file_name)
     
-    # Step 2: Check if question is about current/güncel topics
+    # Step 2: Check if question is about current/güncel topics - use Serper API
     category = get_question_category(question)
     if category == 'current':
-        logging.info("PRO: Current topic detected - using web search")
+        logging.info("PRO: Current topic detected - using Serper web search")
         web_search_response = await handle_web_search_question(question)
         return await clean_web_search_with_anythingllm(web_search_response, question)
     
-    # Step 3: Smart routing for normal questions
+    # Step 3: Check if question requires formulas/RAG knowledge - use AnythingLLM
     if is_formula_based_question(question):
-        logging.info("PRO: Formula-based question detected - using AnythingLLM for specialized knowledge")
+        logging.info("PRO: Formula/RAG question detected - using AnythingLLM bilgin workspace")
         try:
             anythingllm_response = await get_anythingllm_response(question, conversation_mode)
             if can_anythingllm_answer(anythingllm_response):
                 return anythingllm_response
             else:
-                logging.info("PRO: AnythingLLM couldn't answer formula question - falling back to ChatGPT")
-                return await process_with_openai_gpt5_nano(question, conversation_mode, file_content, file_name)
+                logging.info("PRO: AnythingLLM couldn't answer - falling back to Novita DeepSeek")
+                return await process_with_novita_deepseek(question, conversation_mode, file_content, file_name)
         except Exception as e:
-            logging.error(f"PRO: AnythingLLM error for formula question: {e} - using ChatGPT")
-            return await process_with_openai_gpt5_nano(question, conversation_mode, file_content, file_name)
-    elif is_general_knowledge_question(question):
-        logging.info("PRO: General knowledge question detected - using ChatGPT directly")
-        return await process_with_openai_gpt5_nano(question, conversation_mode, file_content, file_name)
+            logging.error(f"PRO: AnythingLLM error: {e} - using Novita DeepSeek")
+            return await process_with_novita_deepseek(question, conversation_mode, file_content, file_name)
+    
+    # Step 4: All other general questions - use Novita DeepSeek v3.1 (primary)
     else:
-        logging.info("PRO: Standard question - trying AnythingLLM first")
-        try:
-            anythingllm_response = await get_anythingllm_response(question, conversation_mode)
-            
-            # Check if AnythingLLM gave "no answer" or error
-            if can_anythingllm_answer(anythingllm_response):
-                logging.info("PRO: AnythingLLM provided good answer - using it")
-                return anythingllm_response
-            else:
-                logging.info("PRO: AnythingLLM returned 'no answer' or error - falling back to ChatGPT")
-                return await process_with_openai_gpt5_nano(question, conversation_mode, file_content, file_name)
-                
-        except Exception as e:
-            logging.error(f"PRO: AnythingLLM error: {e} - falling back to ChatGPT")
-            return await process_with_openai_gpt5_nano(question, conversation_mode, file_content, file_name)
+        logging.info("PRO: General question - using Novita DeepSeek v3.1")
+        return await process_with_novita_deepseek(question, conversation_mode, file_content, file_name)
 
 def optimize_search_query(question: str) -> str:
     """Optimize question for better web search results"""
