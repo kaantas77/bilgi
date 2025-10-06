@@ -820,6 +820,9 @@ function App() {
                 } else {
                   setModesMessages(updateMessage);
                 }
+                
+                // Stop loading indicator when streaming completes
+                setIsMessageLoading(false);
               } else if (data.type === 'error') {
                 // Handle error
                 const updateMessage = (prev) => prev.map(msg => 
