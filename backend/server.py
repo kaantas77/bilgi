@@ -543,31 +543,25 @@ def get_question_category(question: str) -> str:
         r'^(iyi geceler|günaydın|tünaydın)$'
     ]
     
-    # Current/live information - Web search required (Google'dan aratılabilecek bilgiler)
+    # Current/live information - ONLY real-time data that DeepSeek can't know
     current_info_patterns = [
-        # Time-sensitive information
-        r'(bugün|şu an|anlık|canlı|güncel|son|şimdi)\s+',
-        r'(dün|geçen hafta|bu hafta|son hafta|yeni)\s+',
+        # Weather (today/now only)
+        r'(bugün|şu an|anlık)\s+(hava durumu|hava|sıcaklık)',
+        r'(hava durumu|hava)\s+(bugün|şimdi|şu an)',
         
-        # Weather - Google'dan aratılabilir
-        r'(hava durumu|hava|sıcaklık|yağmur|kar|rüzgar|nem)',
-        r'(meteoroloji|hava tahmini|iklim)',
+        # Sports scores/results (today/recent only)  
+        r'(bugün|dün|bu hafta)\s+(maç|skor|sonuç)',
+        r'(maç|skor|sonuç)\s+(bugün|dün|şu an)',
+        r'(galatasaray|fenerbahçe|beşiktaş|trabzonspor)\s+(maç|skor)\s+(bugün|dün)',
+        r'(şampiyonlar ligi|premier lig|süper lig)\s+(bugün|dün|bu hafta)',
         
-        # Sports - Google'dan aratılabilir  
-        r'(maç|skor|sonuç|puan|derbi|lig)\s*',
-        r'(galatasaray|fenerbahçe|beşiktaş|trabzonspor).*(maç|skor)',
-        r'(barcelona|real madrid|manchester|chelsea).*(maç|skor)',
-        r'(şampiyonlar ligi|premier lig|süper lig|la liga).*(sonuç|tablo|puan)',
-        r'(futbol|basketbol|voleybol).*(sonuç|maç)',
+        # Financial/Currency (current prices only)
+        r'(bugün|şu an|anlık)\s+(dolar|euro|bitcoin|altın)\s+(kur|fiyat)',
+        r'(dolar|euro|bitcoin|altın|borsa)\s+(bugün|şu an|anlık)',
         
-        # Financial/Currency - Google'dan aratılabilir
-        r'(dolar|euro|bitcoin|altın|borsa|kripto)\s+(kur|fiyat|değer)',
-        r'(bist|nasdaq|dow jones|piyasa)',
-        
-        # News and Events - Google'dan aratılabilir
-        r'(haber|gelişme|olay|açıklama).*(son|yeni|bugün|güncel)',
-        r'(seçim|politika|hükümet|cumhurbaşkanı).*(son|güncel)',
-        r'(deprem|afet|kaza|olay).*(son|bugün)',
+        # Breaking News (today only)
+        r'(bugün|şu an|son dakika)\s+(haber|gelişme|olay)',
+        r'(son dakika|breaking|acil)\s+(haber|bilgi)',
         
         # Traffic and Transportation - Google'dan aratılabilir
         r'(trafik|yol durumu|ulaşım|metro|otobüs)',
