@@ -7,7 +7,7 @@ import time
 def test_free_pro_versions():
     """Test the NEW FREE/PRO VERSION SYSTEM with Gemini API integration"""
     
-    base_url = "https://hybrid-chat-app.preview.emergentagent.com/api"
+    base_url = "https://bilgin-ai.preview.emergentagent.com/api"
     
     print("🚀 TESTING NEW FREE/PRO VERSION SYSTEM")
     print("="*60)

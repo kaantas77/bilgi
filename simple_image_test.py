@@ -10,7 +10,7 @@ def create_simple_test_file(extension, content="Test content"):
     return temp_file.name
 
 def test_image_upload():
-    base_url = "https://hybrid-chat-app.preview.emergentagent.com/api"
+    base_url = "https://bilgin-ai.preview.emergentagent.com/api"
     
     # Create conversation
     print("Creating conversation...")

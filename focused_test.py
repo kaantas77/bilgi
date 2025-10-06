@@ -5,7 +5,7 @@ import time
 
 def test_anythingllm_scenarios():
     """Test the specific AnythingLLM scenarios from review request"""
-    base_url = "https://hybrid-chat-app.preview.emergentagent.com/api"
+    base_url = "https://bilgin-ai.preview.emergentagent.com/api"
     
     print("🧪 TESTING IMPROVED ANYTHINGLLM EVALUATION")
     print("="*60)
@@ -94,7 +94,7 @@ def test_anythingllm_scenarios():
 
 def test_image_support_scenarios():
     """Test the image support scenarios from review request"""
-    base_url = "https://hybrid-chat-app.preview.emergentagent.com/api"
+    base_url = "https://bilgin-ai.preview.emergentagent.com/api"
     
     print("\n\n🖼️ TESTING IMAGE SUPPORT FEATURES")
     print("="*60)

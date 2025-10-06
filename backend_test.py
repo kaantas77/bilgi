@@ -7,7 +7,7 @@ import tempfile
 from datetime import datetime
 
 class BilginAIAPITester:
-    def __init__(self, base_url="https://hybrid-chat-app.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://bilgin-ai.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.tests_run = 0
         self.tests_passed = 0
