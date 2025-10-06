@@ -1123,33 +1123,30 @@ textarea:focus {
   padding: 0; 
 }
 
-/* Enhanced blockquotes */
-.chat-message blockquote {
+/* Alıntı */
+.chat-message blockquote, .bot-response blockquote {
   margin: 14px 0;
   padding: 10px 14px;
-  border-left: 3px solid var(--doc-accent);
-  color: var(--doc-muted);
+  border-left: 3px solid var(--accent);
+  color: var(--muted);
   background: #2f2f2f;
   border-radius: 8px;
-  font-style: italic;
 }
 
-/* Enhanced horizontal rules */
-.chat-message hr {
+/* Yatay çizgi */
+.chat-message hr, .bot-response hr {
   border: 0;
   border-top: 1px solid rgba(255,255,255,0.1);
   margin: 18px 0;
 }
 
-/* Enhanced KaTeX/Math styling */
-.chat-message .katex { 
+/* KaTeX/MathJax formülleri */
+.chat-message .katex, .bot-response .katex { 
   font-size: 1.05rem; 
-  color: var(--doc-text);
 }
 
-.chat-message .katex-display { 
+.chat-message .katex-display, .bot-response .katex-display { 
   margin: 12px 0; 
-  padding: 8px 0;
 }
 
 /* Math expression containers */
