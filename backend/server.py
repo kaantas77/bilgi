@@ -2304,6 +2304,40 @@ async def get_messages(conversation_id: str):
     messages = await db.messages.find({"conversation_id": conversation_id}).sort("timestamp", 1).to_list(1000)
     return [MessageResponse(**parse_from_mongo(msg)) for msg in messages]
 
+@api_router.post("/conversations/{conversation_id}/messages/stream")
+async def send_message_stream(conversation_id: str, input: MessageCreate):
+    """Send message with streaming response"""
+    try:
+        # Process message normally first
+        ai_content = await smart_hybrid_response(
+            question=input.content,
+            version=input.version,
+            conversation_mode=input.conversationMode,
+            uploaded_files=getattr(input, 'uploadedFiles', None)
+        )
+        
+        # Return streaming response
+        return StreamingResponse(
+            generate_streaming_response(ai_content),
+            media_type="text/plain",
+            headers={
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
+                "Content-Type": "text/event-stream",
+            }
+        )
+    except Exception as e:
+        logging.error(f"Streaming message error: {e}")
+        return StreamingResponse(
+            generate_streaming_response("Üzgünüm, bir hata oluştu. Lütfen tekrar deneyin."),
+            media_type="text/plain",
+            headers={
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive", 
+                "Content-Type": "text/event-stream",
+            }
+        )
+
 @api_router.post("/conversations/{conversation_id}/messages", response_model=MessageResponse)
 async def send_message(conversation_id: str, input: MessageCreate):
     # Check if conversation exists for anonymous user
