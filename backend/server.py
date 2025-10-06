@@ -856,27 +856,95 @@ def is_general_knowledge_question(question: str) -> bool:
     question_lower = question.lower()
     return any(keyword in question_lower for keyword in general_keywords)
 
-async def generate_streaming_response(response_text: str):
-    """Generate streaming response with typewriter effect"""
+async def generate_novita_streaming_response(question: str, conversation_mode: str = 'normal', file_content: str = None, file_name: str = None):
+    """Generate real-time streaming response from Novita API"""
     
-    # Send initial thinking message
-    yield f"data: {json.dumps({'type': 'thinking', 'content': 'BİLGİN düşünüyor...'})}\n\n"
-    await asyncio.sleep(0.5)
-    
-    # Stream the actual response word by word
-    words = response_text.split()
-    current_text = ""
-    
-    for i, word in enumerate(words):
-        current_text += word + " "
+    try:
+        # Send initial thinking message
+        yield f"data: {json.dumps({'type': 'thinking', 'content': 'BİLGİN düşünüyor...'})}\n\n"
         
-        # Send update every few words for smoother effect
-        if i % 2 == 0 or i == len(words) - 1:
-            yield f"data: {json.dumps({'type': 'content', 'content': current_text.strip()})}\n\n"
-            await asyncio.sleep(0.05)  # Small delay for typewriter effect
-    
-    # Send completion signal
-    yield f"data: {json.dumps({'type': 'complete', 'content': response_text})}\n\n"
+        # Prepare system message
+        if conversation_mode and conversation_mode != 'normal':
+            mode_personalities = {
+                'friend': "Sanki karşında bir arkadaşın varmış gibi davranır, sohbeti takip eder, dostça fikirler ve samimi yorumlar yapar.",
+                'realistic': "Yalan söylemez, yanlış fikri açıkça belirtir, seni en doğru sonuca ulaştırmaya çalışır.", 
+                'coach': "Sorular sorarak düşündürür, hedef belirlemene yardımcı olur, adım adım ilerleme planı çıkarır.",
+                'lawyer': "Karşıt görüş üretir, bir avukat gibi mantıklı ve savunmacı şekilde karşı argümanı savunur.",
+                'teacher': "Her konuda öğretici yaklaşır, konuyu adım adım açıklar ve pekiştirme soruları sorarak anlamanı kontrol eder.",
+                'minimalist': "Tek cümlelik, net ve doğrudan cevap verir; uzatmaz, sadece soruna odaklanır."
+            }
+            system_message = mode_personalities.get(conversation_mode, "Sen Türkçe konuşan yardımcı bir asistansın.")
+        else:
+            system_message = "Sen Türkçe konuşan yardımcı bir asistansın."
+            
+        # Prepare user message
+        if file_content:
+            user_message = f"Dosya adı: {file_name}\n\nDosya içeriği:\n{file_content}\n\nKullanıcı sorusu: {question}"
+        else:
+            user_message = question
+        
+        headers = {
+            "Authorization": f"Bearer {NOVITA_API_KEY}",
+            "Content-Type": "application/json"
+        }
+        
+        payload = {
+            "model": "deepseek/deepseek-v3.1-terminus",
+            "messages": [
+                {"role": "system", "content": system_message},
+                {"role": "user", "content": user_message}
+            ],
+            "max_tokens": 16384,
+            "temperature": 1.0,
+            "top_p": 1.0,
+            "min_p": 0.0,
+            "top_k": 50,
+            "presence_penalty": 0.0,
+            "frequency_penalty": 0.0,
+            "repetition_penalty": 1.0,
+            "stream": True
+        }
+        
+        full_content = ""
+        
+        async with httpx.AsyncClient() as client:
+            async with client.stream("POST", 
+                                   "https://api.novita.ai/v3/openai/chat/completions",
+                                   headers=headers, 
+                                   json=payload, 
+                                   timeout=60.0) as response:
+                
+                if response.status_code == 200:
+                    async for line in response.aiter_lines():
+                        if line.startswith("data: "):
+                            data_str = line[6:]
+                            
+                            if data_str.strip() == "[DONE]":
+                                break
+                                
+                            try:
+                                chunk_data = json.loads(data_str)
+                                delta = chunk_data.get('choices', [{}])[0].get('delta', {})
+                                chunk_content = delta.get('content', '')
+                                
+                                if chunk_content:
+                                    full_content += chunk_content
+                                    # Stream each chunk as it arrives
+                                    yield f"data: {json.dumps({'type': 'chunk', 'content': chunk_content, 'full_content': full_content})}\n\n"
+                                    
+                            except json.JSONDecodeError:
+                                continue
+                else:
+                    error_text = await response.atext()
+                    yield f"data: {json.dumps({'type': 'error', 'content': 'API hatası oluştu'})}\n\n"
+                    return
+        
+        # Send completion signal
+        yield f"data: {json.dumps({'type': 'complete', 'content': full_content})}\n\n"
+        
+    except Exception as e:
+        logging.error(f"Streaming error: {e}")
+        yield f"data: {json.dumps({'type': 'error', 'content': 'Bağlantı hatası oluştu'})}\n\n"
 
 async def smart_hybrid_response(question: str, version: str = 'pro', conversation_mode: str = 'normal', uploaded_files: list = None) -> str:
     """Main hybrid response function that routes to appropriate AI system"""
