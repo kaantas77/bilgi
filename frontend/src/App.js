@@ -782,7 +782,7 @@ function App() {
               const data = JSON.parse(line.slice(6));
               
               if (data.type === 'thinking') {
-                // Update message with thinking indicator
+                // Update message with thinking indicator and hide loading
                 const updateMessage = (prev) => prev.map(msg => 
                   msg.id === botMessageId 
                     ? { ...msg, content: data.content, streaming: true }
@@ -794,6 +794,9 @@ function App() {
                 } else {
                   setModesMessages(updateMessage);
                 }
+                
+                // Hide the loading indicator when thinking message arrives
+                setIsMessageLoading(false);
               } else if (data.type === 'chunk') {
                 // Update message with streaming content
                 const updateMessage = (prev) => prev.map(msg => 
