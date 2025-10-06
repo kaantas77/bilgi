@@ -623,15 +623,75 @@ function App() {
     if (activeTab === 'normal') {
       if (!currentNormalConversation) {
         // Create new conversation if none exists
-        await createNewNormalConversation();
-        conversationId = currentNormalConversation?.id;
+        try {
+          const response = await fetch(`${BACKEND_URL}/api/conversations`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+              title: 'Yeni Sohbet'
+            })
+          });
+
+          if (response.ok) {
+            const newConversation = await response.json();
+            console.log('Created new normal conversation:', newConversation);
+            
+            // Add to local state
+            setNormalConversations(prev => [newConversation, ...prev]);
+            setCurrentNormalConversation(newConversation);
+            setNormalMessages([]);
+            setUploadedFiles([]);
+            conversationId = newConversation.id;
+          } else {
+            console.error('Failed to create conversation:', response.status);
+            setIsMessageLoading(false);
+            return;
+          }
+        } catch (error) {
+          console.error('Error creating conversation:', error);
+          setIsMessageLoading(false);
+          return;
+        }
       } else {
         conversationId = currentNormalConversation.id;
       }
     } else {
       if (!currentModesConversation) {
-        await createNewModesConversation();
-        conversationId = currentModesConversation?.id;
+        try {
+          const response = await fetch(`${BACKEND_URL}/api/conversations`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+              title: 'Yeni Mod Sohbeti'
+            })
+          });
+
+          if (response.ok) {
+            const newConversation = await response.json();
+            console.log('Created new modes conversation:', newConversation);
+            
+            // Add to local state
+            setModesConversations(prev => [newConversation, ...prev]);
+            setCurrentModesConversation(newConversation);
+            setModesMessages([]);
+            setUploadedFiles([]);
+            conversationId = newConversation.id;
+          } else {
+            console.error('Failed to create modes conversation:', response.status);
+            setIsMessageLoading(false);
+            return;
+          }
+        } catch (error) {
+          console.error('Error creating modes conversation:', error);
+          setIsMessageLoading(false);
+          return;
+        }
       } else {
         conversationId = currentModesConversation.id;
       }
