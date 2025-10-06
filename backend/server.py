@@ -684,7 +684,7 @@ async def process_with_novita_deepseek(question: str, conversation_mode: str = '
         }
         
         payload = {
-            "model": "deepseek-ai/DeepSeek-V3",
+            "model": "deepseek/deepseek-v3.1-terminus",
             "messages": [
                 {"role": "system", "content": system_message},
                 {"role": "user", "content": user_message}
