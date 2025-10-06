@@ -924,13 +924,17 @@ async def generate_novita_streaming_response(question: str, conversation_mode: s
                                 
                             try:
                                 chunk_data = json.loads(data_str)
-                                delta = chunk_data.get('choices', [{}])[0].get('delta', {})
-                                chunk_content = delta.get('content', '')
+                                choices = chunk_data.get('choices', [])
                                 
-                                if chunk_content:
-                                    full_content += chunk_content
-                                    # Stream each chunk as it arrives
-                                    yield f"data: {json.dumps({'type': 'chunk', 'content': chunk_content, 'full_content': full_content})}\n\n"
+                                # Safely check if choices array has content
+                                if choices and len(choices) > 0:
+                                    delta = choices[0].get('delta', {})
+                                    chunk_content = delta.get('content', '')
+                                    
+                                    if chunk_content:
+                                        full_content += chunk_content
+                                        # Stream each chunk as it arrives
+                                        yield f"data: {json.dumps({'type': 'chunk', 'content': chunk_content, 'full_content': full_content})}\n\n"
                                     
                             except json.JSONDecodeError:
                                 continue
