@@ -130,13 +130,24 @@ function App() {
     localStorage.setItem('bilgin-modes-conversations', JSON.stringify(modesConversations));
   }, [modesConversations]);
 
-  // Auto-scroll to bottom when messages change - throttled for streaming
+  // Auto-scroll to bottom when messages change - controlled for better UX
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, 100); // Small delay to prevent excessive scrolling during streaming
+    // Only scroll if not currently streaming or if it's a significant change
+    const hasStreamingMessage = [...normalMessages, ...modesMessages].some(msg => msg.streaming);
     
-    return () => clearTimeout(timeoutId);
+    if (!hasStreamingMessage) {
+      // No streaming messages, safe to scroll
+      const timeoutId = setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }, 150);
+      return () => clearTimeout(timeoutId);
+    } else {
+      // During streaming, only scroll occasionally to prevent UI jumping
+      const timeoutId = setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
+      }, 500);
+      return () => clearTimeout(timeoutId);
+    }
   }, [normalMessages, modesMessages]);
 
   // Close dropdown when clicking outside
