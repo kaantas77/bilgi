@@ -1600,13 +1600,13 @@ function App() {
 
             {/* Dosya listesi kaldırıldı - sadece chat mesajlarında gösterilecek */}
 
-            {/* Messages Area */}
-            <div className="flex-1 p-6 bg-black overflow-y-auto">
-              <div className="space-y-6 max-w-4xl mx-auto">
+            {/* Messages Area - Clean Document Style */}
+            <div className="flex-1 overflow-y-auto" style={{background: '#3b3b3b'}}>
+              <main className="document-container">
                 {getCurrentMessages().length === 0 && (
-                  <div className="text-center text-gray-300 mt-20">
-                    <h3 className="text-2xl font-bold mb-4">Merhaba! Ne öğrenmek istersin?</h3>
-                    <p className="text-lg mb-4">
+                  <div className="empty-state">
+                    <h1>Merhaba! Ne öğrenmek istersin?</h1>
+                    <p>
                       {activeTab === 'normal' 
                         ? 'BİLGİN ile sohbet edebilirsiniz.'
                         : `${conversationModes[selectedMode]?.name} modunda matematik sorularınızı yanıtlıyorum.`
@@ -1623,30 +1623,19 @@ function App() {
                       .map((message) => (
                         <div
                           key={message.id || `msg-${Math.random()}`}
-                          className={`flex items-start space-x-4 ${
-                            message.role === 'user' ? 'flex-row-reverse space-x-reverse' : ''
-                          }`}
+                          className="document-message"
                         >
-                          <Avatar className="w-8 h-8 flex-shrink-0">
-                            {message.role === 'user' ? (
-                              <AvatarFallback className="bg-blue-600 text-white">
-                                <User className="w-4 h-4" />
-                              </AvatarFallback>
-                            ) : (
-                              <AvatarFallback className="bg-gray-700 text-white">
-                                <Bot className="w-4 h-4" />
-                              </AvatarFallback>
-                            )}
-                          </Avatar>
-                          <div className={`flex-1 ${message.role === 'user' ? 'text-right' : ''}`}>
-                            <div className={`inline-block max-w-3xl p-4 rounded-2xl ${
-                              message.role === 'user' 
-                                ? 'bg-blue-600 text-white' 
-                                : 'bg-gray-800 text-white border border-gray-900'
-                            }`}>
-                              <div className="text-sm leading-relaxed chat-message">
-                                <MathRenderer content={message.content || ''} />
-                              </div>
+                          {/* User questions as headings */}
+                          {message.role === 'user' && (
+                            <h2 className="user-question">{message.content}</h2>
+                          )}
+                          
+                          {/* Bot responses as document content */}
+                          {message.role === 'assistant' && (
+                            <div className="bot-response">
+                              <MathRenderer content={message.content || ''} />
+                            </div>
+                          )}
                               
                               {/* Show uploaded files as thumbnails for user messages */}
                               {message.role === 'user' && uploadedFiles.length > 0 && (
