@@ -2397,35 +2397,51 @@ async def get_messages(conversation_id: str):
 
 @api_router.post("/conversations/{conversation_id}/messages/stream")
 async def send_message_stream(conversation_id: str, input: MessageCreate):
-    """Send message with streaming response"""
+    """Send message with real-time streaming response"""
     try:
-        # Process message normally first
-        ai_content = await smart_hybrid_response(
-            question=input.content,
-            version=input.version,
-            conversation_mode=input.conversationMode,
-            uploaded_files=getattr(input, 'uploadedFiles', None)
-        )
-        
-        # Return streaming response
-        return StreamingResponse(
-            generate_streaming_response(ai_content),
-            media_type="text/plain",
-            headers={
-                "Cache-Control": "no-cache",
-                "Connection": "keep-alive",
-                "Content-Type": "text/event-stream",
-            }
-        )
+        # For PRO version, use Novita streaming
+        if input.version == "pro":
+            return StreamingResponse(
+                generate_novita_streaming_response(
+                    question=input.content,
+                    conversation_mode=input.conversationMode,
+                    file_content=getattr(input, 'file_content', None),
+                    file_name=getattr(input, 'file_name', None)
+                ),
+                media_type="text/event-stream",
+                headers={
+                    "Cache-Control": "no-cache",
+                    "Connection": "keep-alive",
+                    "Content-Type": "text/event-stream",
+                    "Access-Control-Allow-Origin": "*",
+                }
+            )
+        else:
+            # For FREE version, process normally then stream
+            ai_content = await process_with_ollama_free(input.content, input.conversationMode)
+            return StreamingResponse(
+                generate_streaming_response(ai_content),
+                media_type="text/event-stream",
+                headers={
+                    "Cache-Control": "no-cache",
+                    "Connection": "keep-alive",
+                    "Content-Type": "text/event-stream",
+                    "Access-Control-Allow-Origin": "*",
+                }
+            )
     except Exception as e:
         logging.error(f"Streaming message error: {e}")
+        async def error_stream():
+            yield f"data: {json.dumps({'type': 'error', 'content': 'Bir hata oluştu. Lütfen tekrar deneyin.'})}\n\n"
+        
         return StreamingResponse(
-            generate_streaming_response("Üzgünüm, bir hata oluştu. Lütfen tekrar deneyin."),
-            media_type="text/plain",
+            error_stream(),
+            media_type="text/event-stream",
             headers={
                 "Cache-Control": "no-cache",
                 "Connection": "keep-alive", 
                 "Content-Type": "text/event-stream",
+                "Access-Control-Allow-Origin": "*",
             }
         )
 
