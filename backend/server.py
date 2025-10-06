@@ -950,6 +950,32 @@ async def generate_novita_streaming_response(question: str, conversation_mode: s
         logging.error(f"Streaming error: {e}")
         yield f"data: {json.dumps({'type': 'error', 'content': 'Bağlantı hatası oluştu'})}\n\n"
 
+async def generate_streaming_response(content: str):
+    """Generate streaming response for FREE version (non-real-time streaming)"""
+    try:
+        # Send initial thinking message
+        yield f"data: {json.dumps({'type': 'thinking', 'content': 'BİLGİN düşünüyor...'})}\n\n"
+        
+        # Simulate streaming by splitting content into chunks
+        import asyncio
+        words = content.split(' ')
+        current_text = ""
+        
+        for i, word in enumerate(words):
+            current_text += word + " "
+            
+            # Stream in chunks of 3-5 words
+            if (i + 1) % 4 == 0 or i == len(words) - 1:
+                yield f"data: {json.dumps({'type': 'chunk', 'content': word + ' ', 'full_content': current_text.strip()})}\n\n"
+                await asyncio.sleep(0.05)  # Small delay for streaming effect
+        
+        # Send completion signal
+        yield f"data: {json.dumps({'type': 'complete', 'content': current_text.strip()})}\n\n"
+        
+    except Exception as e:
+        logging.error(f"Free streaming error: {e}")
+        yield f"data: {json.dumps({'type': 'error', 'content': 'Bağlantı hatası oluştu'})}\n\n"
+
 async def smart_hybrid_response(question: str, version: str = 'pro', conversation_mode: str = 'normal', uploaded_files: list = None) -> str:
     """Main hybrid response function that routes to appropriate AI system"""
     
