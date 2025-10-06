@@ -1249,3 +1249,21 @@ textarea:focus {
   margin: 0;
   font-size: 0.9rem;
 }
+
+/* Empty state styling */
+.empty-state {
+  text-align: center;
+  margin-top: 80px;
+  color: var(--muted);
+}
+
+.empty-state h1 {
+  font-size: 1.8rem;
+  margin-bottom: 16px;
+  color: var(--text);
+}
+
+.empty-state p {
+  font-size: 1.1rem;
+  margin-bottom: 16px;
+}
