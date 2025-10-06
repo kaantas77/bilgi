@@ -698,29 +698,45 @@ async def process_with_novita_deepseek(question: str, conversation_mode: str = '
         }
         
         async with httpx.AsyncClient() as client:
-            response = await client.post(
-                "https://api.novita.ai/v3/openai/chat/completions",
-                headers=headers,
-                json=payload,
-                timeout=30.0
-            )
-            
-            logging.info(f"Novita API response status: {response.status_code}")
-            
-            if response.status_code == 200:
-                data = response.json()
-                content = data.get('choices', [{}])[0].get('message', {}).get('content', '')
+            async with client.stream("POST", 
+                                   "https://api.novita.ai/v3/openai/chat/completions",
+                                   headers=headers, 
+                                   json=payload, 
+                                   timeout=30.0) as response:
                 
-                if not content:
-                    logging.warning("Empty content from Novita API")
-                    return "Yanıt oluşturulamadı. Lütfen tekrar deneyin."
+                logging.info(f"Novita API streaming response status: {response.status_code}")
                 
-                # Return response exactly as received from Novita (no cleaning)
-                logging.info(f"Novita DeepSeek response received successfully: {len(content)} characters")
-                return content
-            else:
-                logging.error(f"Novita API error: {response.status_code} - {response.text}")
-                return "Novita API'sinde bir hata oluştu. Lütfen tekrar deneyin."
+                if response.status_code == 200:
+                    full_content = ""
+                    
+                    async for line in response.aiter_lines():
+                        if line.startswith("data: "):
+                            data_str = line[6:]  # Remove "data: " prefix
+                            
+                            if data_str.strip() == "[DONE]":
+                                break
+                                
+                            try:
+                                chunk_data = json.loads(data_str)
+                                delta = chunk_data.get('choices', [{}])[0].get('delta', {})
+                                chunk_content = delta.get('content', '')
+                                
+                                if chunk_content:
+                                    full_content += chunk_content
+                                    
+                            except json.JSONDecodeError:
+                                continue
+                    
+                    if not full_content:
+                        logging.warning("Empty content from Novita streaming API")
+                        return "Yanıt oluşturulamadı. Lütfen tekrar deneyin."
+                    
+                    logging.info(f"Novita DeepSeek streaming response completed: {len(full_content)} characters")
+                    return full_content
+                else:
+                    error_text = await response.atext()
+                    logging.error(f"Novita API error: {response.status_code} - {error_text}")
+                    return "Novita API'sinde bir hata oluştu. Lütfen tekrar deneyin."
                 
     except Exception as e:
         logging.error(f"Novita API request error: {e}")
