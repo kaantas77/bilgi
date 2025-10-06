@@ -1059,27 +1059,30 @@ textarea:focus {
   margin-bottom: 20px;
 }
 
-/* Enhanced chat message styling */
-.chat-message {
-  color: var(--doc-text);
-  font-family: var(--doc-sans);
+/* Clean document message styling */
+.chat-message, .bot-response {
+  color: var(--text);
+  font-family: var(--sans);
   line-height: 1.7;
   -webkit-font-smoothing: antialiased;
 }
 
-/* Enhanced headings in chat */
+/* Başlıklar */
 .chat-message h1, 
 .chat-message h2, 
 .chat-message h3, 
-.chat-message h4 {
+.chat-message h4,
+.bot-response h1,
+.bot-response h2,
+.bot-response h3,
+.bot-response h4 {
   margin: 0 0 12px;
   line-height: 1.25;
-  color: #fff;
 }
 
-.chat-message h1 { font-size: 1.6rem; }
-.chat-message h2 { font-size: 1.3rem; margin-top: 22px; }
-.chat-message h3 { font-size: 1.1rem; margin-top: 18px; }
+.chat-message h1, .bot-response h1 { font-size: 1.6rem; }
+.chat-message h2, .bot-response h2 { font-size: 1.3rem; margin-top: 22px; }
+.chat-message h3, .bot-response h3 { font-size: 1.1rem; margin-top: 18px; }
 
 /* Enhanced paragraphs */
 .chat-message p { margin: 12px 0; }
