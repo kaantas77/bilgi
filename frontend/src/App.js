@@ -850,40 +850,49 @@ function App() {
             </Button>
           </div>
           
-          {/* Vertical Tab Buttons - Compact Design */}
-          <div className="space-y-2">
+          {/* New Chat Button - Like in the reference image */}
+          <div className="mb-4">
+            <button
+              onClick={() => {
+                if (activeTab === 'normal') {
+                  createNewNormalConversation();
+                } else {
+                  createNewModesConversation();
+                }
+              }}
+              className="w-full flex items-center space-x-3 p-3 rounded-lg bg-gray-800 hover:bg-gray-700 text-white transition-all duration-200"
+            >
+              <div className="w-4 h-4 border-2 border-white rounded-sm flex items-center justify-center">
+                <svg className="w-2 h-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <span className="text-sm font-medium">New Chat</span>
+            </button>
+          </div>
+
+          {/* Tab Navigation - Simplified */}
+          <div className="space-y-1 mb-4">
             <button
               onClick={() => setActiveTab('normal')}
-              className={`w-full p-3 rounded-lg text-left transition-all duration-300 ${
+              className={`w-full p-2 rounded text-left text-sm transition-all duration-200 ${
                 activeTab === 'normal' 
-                  ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg' 
-                  : 'bg-gray-900 hover:bg-gray-800 text-gray-300 hover:text-white border border-gray-700 hover:border-gray-600'
+                  ? 'bg-gray-700 text-white' 
+                  : 'text-gray-400 hover:text-white hover:bg-gray-800'
               }`}
             >
-              <div className="flex items-center space-x-2">
-                <div className={`w-3 h-3 rounded-full ${activeTab === 'normal' ? 'bg-white' : 'bg-blue-500'}`}></div>
-                <div>
-                  <div className="font-medium text-xs">Normal Sohbet</div>
-                  <div className="text-xs opacity-75">Standart sohbet</div>
-                </div>
-              </div>
+              Normal Sohbet
             </button>
             
             <button
               onClick={() => setActiveTab('modes')}
-              className={`w-full p-3 rounded-lg text-left transition-all duration-300 ${
+              className={`w-full p-2 rounded text-left text-sm transition-all duration-200 ${
                 activeTab === 'modes' 
-                  ? 'bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-lg' 
-                  : 'bg-gray-900 hover:bg-gray-800 text-gray-300 hover:text-white border border-gray-700 hover:border-gray-600'
+                  ? 'bg-gray-700 text-white' 
+                  : 'text-gray-400 hover:text-white hover:bg-gray-800'
               }`}
             >
-              <div className="flex items-center space-x-2">
-                <div className={`w-3 h-3 rounded-full ${activeTab === 'modes' ? 'bg-white' : 'bg-purple-500'}`}></div>
-                <div>
-                  <div className="font-medium text-xs">Konuşma Modları</div>
-                  <div className="text-xs opacity-75">6 farklı tarzı</div>
-                </div>
-              </div>
+              Konuşma Modları
             </button>
           </div>
         </div>
