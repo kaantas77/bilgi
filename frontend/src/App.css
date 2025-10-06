@@ -1102,29 +1102,25 @@ textarea:focus {
 .chat-message a:hover, .bot-response a:hover { text-decoration: underline; }
 .chat-message strong, .bot-response strong { color: #fff; }
 
-/* Enhanced code styling */
-.chat-message code {
-  font-family: var(--doc-mono);
+/* Kod */
+.chat-message code, .bot-response code {
+  font-family: var(--mono);
   background: #2d2d2d;
   padding: 0.15rem 0.4rem;
   border-radius: 6px;
-  font-size: 0.9em;
-  color: #f8f8f2;
 }
 
-.chat-message pre {
+.chat-message pre, .bot-response pre {
   background: #2d2d2d;
   padding: 14px;
   border-radius: 10px;
   overflow: auto;
   margin: 14px 0;
-  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.chat-message pre code { 
+.chat-message pre code, .bot-response pre code { 
   background: transparent; 
   padding: 0; 
-  border-radius: 0;
 }
 
 /* Enhanced blockquotes */
