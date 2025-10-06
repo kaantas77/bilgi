@@ -1637,25 +1637,25 @@ function App() {
                             </div>
                           )}
                               
-                              {/* Show uploaded files as thumbnails for user messages */}
+                              {/* Show uploaded files for user messages */}
                               {message.role === 'user' && uploadedFiles.length > 0 && (
-                                <div className="mt-3 flex flex-wrap gap-2">
+                                <div className="uploaded-files">
                                   {uploadedFiles.map((file) => (
-                                    <div key={file.id} className="inline-block">
+                                    <div key={file.id} className="file-attachment">
                                       {file.type && ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(file.type) ? (
                                         <img 
                                           src={file.url} 
                                           alt={file.name}
-                                          className="w-32 h-32 object-cover rounded-lg border border-gray-600 cursor-pointer hover:opacity-80 transition-opacity"
+                                          className="uploaded-image"
                                           onClick={() => {
                                             setSelectedImage(file.url);
                                             setShowImageModal(true);
                                           }}
                                         />
                                       ) : (
-                                        <div className="w-32 h-20 bg-gray-700 rounded-lg border border-gray-600 flex items-center justify-center flex-col p-2">
+                                        <div className="uploaded-document">
                                           <span className="text-2xl">📄</span>
-                                          <span className="text-xs text-gray-300 text-center truncate w-full">{file.name}</span>
+                                          <span className="document-name">{file.name}</span>
                                         </div>
                                       )}
                                     </div>
