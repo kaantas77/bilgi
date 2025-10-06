@@ -1338,9 +1338,9 @@ function App() {
 
             {/* Dosya listesi kaldırıldı - sadece chat mesajlarında gösterilecek */}
 
-            {/* Messages Area */}
-            <ScrollArea className="flex-1 p-6 bg-black">
-              <div className="space-y-6 max-w-4xl mx-auto">
+            {/* Messages Area - Clean Document Style */}
+            <ScrollArea className="flex-1" style={{background: '#3b3b3b'}}>
+              <main className="document-container">
                 {(() => {
                   const messages = getCurrentMessages();
                   return Array.isArray(messages) && messages.length > 0 ? (
@@ -1349,30 +1349,19 @@ function App() {
                       .map((message) => (
                         <div
                           key={message.id || `msg-${Math.random()}`}
-                          className={`flex items-start space-x-4 ${
-                            message.role === 'user' ? 'flex-row-reverse space-x-reverse' : ''
-                          }`}
+                          className="document-message"
                         >
-                          <Avatar className="w-8 h-8 flex-shrink-0">
-                            {message.role === 'user' ? (
-                              <AvatarFallback className="bg-gray-900 text-white">
-                                <User className="w-4 h-4" />
-                              </AvatarFallback>
-                            ) : (
-                              <AvatarFallback className="bg-gray-900 text-white">
-                                <Bot className="w-4 h-4" />
-                              </AvatarFallback>
-                            )}
-                          </Avatar>
-                          <div className={`flex-1 ${message.role === 'user' ? 'text-right' : ''}`}>
-                            <div className={`inline-block w-full max-w-full p-4 rounded-2xl ${
-                              message.role === 'user' 
-                                ? 'bg-gray-800 text-white' 
-                                : 'bg-gray-900 text-white border border-gray-900'
-                            }`}>
-                              <div className="text-sm leading-relaxed chat-message">
-                                <MathRenderer content={message.content || ''} />
-                              </div>
+                          {/* User questions as headings */}
+                          {message.role === 'user' && (
+                            <h2 className="user-question">{message.content}</h2>
+                          )}
+                          
+                          {/* Bot responses as document content */}
+                          {message.role === 'assistant' && (
+                            <div className="bot-response">
+                              <MathRenderer content={message.content || ''} />
+                            </div>
+                          )}
                               
                               {/* Show uploaded files as thumbnails for user messages */}
                               {message.role === 'user' && uploadedFiles.length > 0 && (
