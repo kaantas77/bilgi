@@ -1012,17 +1012,51 @@ textarea:focus {
 }
 
 /* =====================================================
-   ENHANCED DOCUMENT/MATH STYLING
+   CLEAN DOCUMENT STYLING - NO CHAT BUBBLES
    ===================================================== */
 
-/* CSS variables for document styling */
+/* Document styling variables from user request */
 :root {
-  --doc-bg: #3b3b3b;        /* grimsi arka plan */
-  --doc-text: #f0f0f0;      /* ana metin */
-  --doc-muted: #c2c2c2;     /* ikincil metin */
-  --doc-accent: #7aa2f7;    /* link/vurgu */
-  --doc-mono: ui-monospace, Menlo, Consolas, "JetBrains Mono", monospace;
-  --doc-sans: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  --bg: #3b3b3b;        /* grimsi arka plan */
+  --text: #f0f0f0;      /* ana metin */
+  --muted: #c2c2c2;     /* ikincil metin */
+  --accent: #7aa2f7;    /* link/vurgu */
+  --mono: ui-monospace, Menlo, Consolas, "JetBrains Mono", monospace;
+  --sans: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+}
+
+/* Document container styling */
+.document-container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 0 20px;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* User questions as clean headings */
+.user-question {
+  font-size: 1.3rem;
+  margin: 22px 0 12px;
+  line-height: 1.25;
+  color: var(--text);
+  font-weight: 500;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  padding-bottom: 8px;
+}
+
+/* Bot responses as document content */
+.bot-response {
+  margin: 12px 0 30px;
+  color: var(--text);
+}
+
+/* Clean message styling */
+.document-message {
+  margin-bottom: 20px;
 }
 
 /* Enhanced chat message styling */
