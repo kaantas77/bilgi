@@ -836,6 +836,9 @@ function App() {
                 } else {
                   setModesMessages(updateMessage);
                 }
+                
+                // Stop loading indicator on error
+                setIsMessageLoading(false);
               }
             } catch (error) {
               console.error('Error parsing streaming data:', error);
