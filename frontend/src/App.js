@@ -1398,7 +1398,7 @@ function App() {
                   </div>
                 )}
                 <div ref={messagesEndRef} />
-              </div>
+              </main>
             </ScrollArea>
 
             {/* Uploaded Files Display */}
