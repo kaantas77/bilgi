@@ -582,7 +582,9 @@ function App() {
   const getCurrentMessages = () => {
     const messages = activeTab === 'normal' ? normalMessages : modesMessages;
     // Always return array, never undefined
-    return Array.isArray(messages) ? messages : [];
+    const result = Array.isArray(messages) ? messages : [];
+    console.log(`getCurrentMessages for ${activeTab} tab: ${result.length} messages`);
+    return result;
   };
 
   const getCurrentConversations = () => {
