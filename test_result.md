@@ -492,18 +492,15 @@ metadata:
 
 test_plan:
   current_focus: 
-    - "Layout Handling with Complex Mathematical Formulas"
-    - "Vision API Debug Endpoint Testing"
-    - "EMERGENT_LLM_KEY Configuration for Vision API"
-    - "Base64 Image Encoding Functionality"
-    - "Vision API Image Upload and Processing"
-  stuck_tasks: 
-    - "EMERGENT_LLM_KEY Configuration for Vision API"
-    - "Vision API Image Upload and Processing"
+    - "SCROLL JUMPING PROBLEM FIX TESTING"
+    - "MATH FORMATTING PROBLEM FIX TESTING"
+    - "Streaming Behavior During Long Responses"
+    - "Math Formula Display Quality"
+    - "Version Compatibility Testing (PRO/FREE)"
+  stuck_tasks: []
   test_all: false
   test_priority: "high_first"
-  critical_issues: 
-    - "EMERGENT_LLM_KEY invalid - Vision API authentication failing with 401 errors"
+  critical_issues: []
 
   - task: "FIXED ChatGPT API Integration with gpt-4o-mini model"
     implemented: true
