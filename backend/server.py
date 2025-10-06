@@ -686,8 +686,15 @@ async def process_with_novita_deepseek(question: str, conversation_mode: str = '
                 {"role": "system", "content": system_message},
                 {"role": "user", "content": user_message}
             ],
-            "max_tokens": 2000,
-            "temperature": 0.3
+            "max_tokens": 16384,
+            "temperature": 1.0,
+            "top_p": 1.0,
+            "min_p": 0.0,
+            "top_k": 50,
+            "presence_penalty": 0.0,
+            "frequency_penalty": 0.0,
+            "repetition_penalty": 1.0,
+            "stream": True
         }
         
         async with httpx.AsyncClient() as client:
