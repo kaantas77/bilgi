@@ -1010,3 +1010,145 @@ textarea:focus {
   background: rgba(147, 51, 234, 0.3);
   color: white;
 }
+
+/* =====================================================
+   ENHANCED DOCUMENT/MATH STYLING
+   ===================================================== */
+
+/* CSS variables for document styling */
+:root {
+  --doc-bg: #3b3b3b;        /* grimsi arka plan */
+  --doc-text: #f0f0f0;      /* ana metin */
+  --doc-muted: #c2c2c2;     /* ikincil metin */
+  --doc-accent: #7aa2f7;    /* link/vurgu */
+  --doc-mono: ui-monospace, Menlo, Consolas, "JetBrains Mono", monospace;
+  --doc-sans: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+}
+
+/* Enhanced chat message styling */
+.chat-message {
+  color: var(--doc-text);
+  font-family: var(--doc-sans);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Enhanced headings in chat */
+.chat-message h1, 
+.chat-message h2, 
+.chat-message h3, 
+.chat-message h4 {
+  margin: 0 0 12px;
+  line-height: 1.25;
+  color: #fff;
+}
+
+.chat-message h1 { font-size: 1.6rem; }
+.chat-message h2 { font-size: 1.3rem; margin-top: 22px; }
+.chat-message h3 { font-size: 1.1rem; margin-top: 18px; }
+
+/* Enhanced paragraphs */
+.chat-message p { margin: 12px 0; }
+.chat-message small, 
+.chat-message .muted { color: var(--doc-muted); }
+
+/* Enhanced lists */
+.chat-message ul, 
+.chat-message ol { margin: 10px 0 10px 22px; }
+.chat-message li { margin: 4px 0; }
+
+/* Enhanced links and emphasis */
+.chat-message a { 
+  color: var(--doc-accent); 
+  text-decoration: none; 
+}
+.chat-message a:hover { text-decoration: underline; }
+.chat-message strong { color: #fff; font-weight: 600; }
+
+/* Enhanced code styling */
+.chat-message code {
+  font-family: var(--doc-mono);
+  background: #2d2d2d;
+  padding: 0.15rem 0.4rem;
+  border-radius: 6px;
+  font-size: 0.9em;
+  color: #f8f8f2;
+}
+
+.chat-message pre {
+  background: #2d2d2d;
+  padding: 14px;
+  border-radius: 10px;
+  overflow: auto;
+  margin: 14px 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.chat-message pre code { 
+  background: transparent; 
+  padding: 0; 
+  border-radius: 0;
+}
+
+/* Enhanced blockquotes */
+.chat-message blockquote {
+  margin: 14px 0;
+  padding: 10px 14px;
+  border-left: 3px solid var(--doc-accent);
+  color: var(--doc-muted);
+  background: #2f2f2f;
+  border-radius: 8px;
+  font-style: italic;
+}
+
+/* Enhanced horizontal rules */
+.chat-message hr {
+  border: 0;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  margin: 18px 0;
+}
+
+/* Enhanced KaTeX/Math styling */
+.chat-message .katex { 
+  font-size: 1.05rem; 
+  color: var(--doc-text);
+}
+
+.chat-message .katex-display { 
+  margin: 12px 0; 
+  padding: 8px 0;
+}
+
+/* Math expression containers */
+.chat-message .math-expression {
+  background: rgba(45, 45, 45, 0.3);
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin: 8px 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  overflow-x: auto;
+}
+
+/* Inline math styling */
+.chat-message .math-inline {
+  background: rgba(45, 45, 45, 0.5);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: var(--doc-mono);
+}
+
+/* Formula highlighting */
+.chat-message .formula {
+  background: linear-gradient(135deg, rgba(122, 162, 247, 0.1), rgba(122, 162, 247, 0.05));
+  padding: 12px;
+  border-radius: 8px;
+  border-left: 3px solid var(--doc-accent);
+  margin: 12px 0;
+  font-family: var(--doc-mono);
+}
+
+/* Mathematical symbols enhancement */
+.chat-message .symbol {
+  font-weight: 600;
+  color: var(--doc-accent);
+}
