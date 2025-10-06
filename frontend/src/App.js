@@ -830,6 +830,11 @@ function App() {
                 
                 // Stop loading indicator when streaming completes
                 setIsMessageLoading(false);
+                
+                // Scroll to bottom after completion
+                setTimeout(() => {
+                  messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+                }, 200);
               } else if (data.type === 'error') {
                 // Handle error
                 const updateMessage = (prev) => prev.map(msg => 
