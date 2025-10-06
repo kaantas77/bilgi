@@ -1178,7 +1178,71 @@ textarea:focus {
 }
 
 /* Mathematical symbols enhancement */
-.chat-message .symbol {
+.chat-message .symbol, .bot-response .symbol {
   font-weight: 600;
-  color: var(--doc-accent);
+  color: var(--accent);
+}
+
+/* File upload styling */
+.uploaded-files {
+  margin: 14px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.file-attachment {
+  display: inline-block;
+}
+
+.uploaded-image {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  opacity: 0.9;
+  transition: opacity 0.2s ease;
+}
+
+.uploaded-image:hover {
+  opacity: 1;
+}
+
+.uploaded-document {
+  width: 120px;
+  height: 80px;
+  background: #2f2f2f;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+}
+
+.document-name {
+  font-size: 0.75rem;
+  color: var(--muted);
+  text-align: center;
+  margin-top: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+}
+
+/* Loading indicator */
+.loading-indicator {
+  margin: 14px 0;
+  padding: 10px;
+  color: var(--muted);
+  font-style: italic;
+}
+
+.loading-text {
+  margin: 0;
+  font-size: 0.9rem;
 }
