@@ -761,25 +761,56 @@ async def process_with_openai_gpt5_nano(question: str, conversation_mode: str = 
         return "ChatGPT API'sine bağlanırken bir hata oluştu. Lütfen tekrar deneyin."
 
 def is_formula_based_question(question: str) -> bool:
-    """Check if question requires formula calculations or specialized technical knowledge"""
+    """Check if question requires formula calculations or specialized technical knowledge from RAG"""
     formula_keywords = [
-        # Matematik formülleri
-        'integral', 'türev', 'diferansiyel', 'eşitlik', 'denklem', 'formula', 'hesapla', 'çöz',
+        # Matematik & İstatistik
+        'matematik', 'istatistik', 'olasılık', 'permütasyon', 'kombinasyon',
+        'integral', 'türev', 'diferansiyel', 'eşitlik', 'denklem', 'formül', 'hesapla', 'çöz',
         'sin', 'cos', 'tan', 'logaritma', 'üssel', 'kök', 'karekök', 'faktöriyel',
-        'matris', 'determinant', 'vektör', 'trigonometri',
-        # Fizik formülleri  
-        'newton', 'euler', 'maxwell', 'schrödinger', 'ohm', 'coulomb', 'bernoulli',
-        'termodinamik', 'kinetik', 'potansiyel', 'momentum', 'enerji korunumu',
-        # Mühendislik formülleri
-        'mukavemet', 'gerilme', 'burulma', 'moment', 'kiriş', 'yapı analizi',
-        'elektrik devre', 'impedans', 'frekans', 'filtre tasarımı',
-        # İstatistik formülleri
+        'matris', 'determinant', 'vektör', 'trigonometri', 'limit', 'seri',
         'standart sapma', 'varyans', 'korelasyon', 'regresyon', 'hipotez testi',
-        'normal dağılım', 'p-değeri', 'güven aralığı'
+        'normal dağılım', 'p-değeri', 'güven aralığı', 'örneklem', 'populasyon',
+        
+        # Finans & Muhasebe  
+        'finans', 'muhasebe', 'mali', 'bütçe', 'bilanço', 'gelir tablosu',
+        'nakit akışı', 'roi', 'npv', 'irr', 'faiz', 'kredi', 'yatırım',
+        'amortisman', 'vergi', 'gider', 'gelir', 'kar', 'zarar', 'aktif', 'pasif',
+        'oran analizi', 'likidite', 'karlılık', 'finansal analiz',
+        
+        # Mühendislik 
+        'mühendislik', 'mekanik', 'elektrik', 'endüstri', 'inşaat', 'makine',
+        'mukavemet', 'gerilme', 'burulma', 'moment', 'kiriş', 'yapı analizi',
+        'devre', 'impedans', 'frekans', 'filtre', 'transistör', 'direnç', 'kondensatör',
+        'termodinamik', 'ısı transferi', 'akışkanlar', 'bernoulli', 'reynolds',
+        
+        # Fizik & Kimya
+        'fizik', 'kimya', 'newton', 'euler', 'maxwell', 'schrödinger', 'ohm', 'coulomb',
+        'kinetik', 'potansiyel', 'momentum', 'enerji korunumu', 'hız', 'ivme',
+        'mol', 'molalite', 'molarite', 'ph', 'asit', 'baz', 'reaksiyon', 'denge',
+        
+        # Technical indicators
+        'basınç', 'hacim', 'yoğunluk', 'sıcaklık', 'entropi', 'entalpi',
+        'mutlak', 'relatif', 'katsayı', 'oran', 'ölçü', 'birim',
+        
+        # Calculation terms
+        'hesapla', 'bul', 'çöz', 'formül', 'denklem', 'işlem', 'sonuç'
     ]
     
     question_lower = question.lower()
-    return any(keyword in question_lower for keyword in formula_keywords)
+    
+    # Also check for mathematical expressions
+    math_patterns = [
+        r'\d+\s*[+\-*/^]\s*\d+',  # Basic math operations
+        r'[xyz]\s*[=+\-]',  # Variable equations
+        r'[∑∫∏√π]',  # Math symbols
+        r'\b\d+%\b',  # Percentages in calculations
+        r'\bp_\{.*\}',  # Probability notation
+    ]
+    
+    has_keywords = any(keyword in question_lower for keyword in formula_keywords)
+    has_math_pattern = any(re.search(pattern, question_lower) for pattern in math_patterns)
+    
+    return has_keywords or has_math_pattern
 
 def is_general_knowledge_question(question: str) -> bool:
     """Check if question is about general knowledge, culture, history, etc."""
