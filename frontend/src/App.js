@@ -1070,7 +1070,6 @@ function App() {
                             <div className="flex-1 min-w-0">
                               <p className="text-sm truncate">{conversation.title}</p>
                               <p className="text-xs opacity-75">
-                                {conversationModes[conversation.mode]?.name || 'Normal'} • {' '}
                                 {(() => {
                                   try {
                                     return new Date(conversation.lastMessageAt).toLocaleDateString('tr-TR', {
@@ -1080,7 +1079,7 @@ function App() {
                                       minute: '2-digit'
                                     });
                                   } catch (error) {
-                                    console.error('Date formatting error in modes:', error);
+                                    console.error('Date formatting error:', error);
                                     return 'Tarih yok';
                                   }
                                 })()}
