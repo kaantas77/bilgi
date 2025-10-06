@@ -945,16 +945,15 @@ function App() {
                         <div
                           key={conversation.id}
                           onClick={() => selectNormalConversation(conversation)}
-                          className={`flex items-center justify-between p-2 rounded-md cursor-pointer group transition-colors ${
+                          className={`p-2 rounded cursor-pointer group transition-colors ${
                             currentNormalConversation?.id === conversation.id
-                              ? 'bg-blue-600 text-white'
-                              : 'hover:bg-gray-800 text-gray-300 hover:text-white'
+                              ? 'bg-gray-700 text-white'
+                              : 'text-gray-400 hover:text-white hover:bg-gray-800'
                           }`}
                         >
-                          <div className="flex items-center space-x-2 flex-1 min-w-0">
-                            <MessageCircle className="w-3 h-3 flex-shrink-0" />
+                          <div className="flex items-center justify-between">
                             <div className="flex-1 min-w-0">
-                              <p className="text-xs truncate font-medium">{conversation.title}</p>
+                              <p className="text-sm truncate">{conversation.title}</p>
                               <p className="text-xs opacity-75">
                                 {(() => {
                                   try {
