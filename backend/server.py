@@ -718,11 +718,15 @@ async def process_with_novita_deepseek(question: str, conversation_mode: str = '
                                 
                             try:
                                 chunk_data = json.loads(data_str)
-                                delta = chunk_data.get('choices', [{}])[0].get('delta', {})
-                                chunk_content = delta.get('content', '')
+                                choices = chunk_data.get('choices', [])
                                 
-                                if chunk_content:
-                                    full_content += chunk_content
+                                # Safely check if choices array has content
+                                if choices and len(choices) > 0:
+                                    delta = choices[0].get('delta', {})
+                                    chunk_content = delta.get('content', '')
+                                    
+                                    if chunk_content:
+                                        full_content += chunk_content
                                     
                             except json.JSONDecodeError:
                                 continue
