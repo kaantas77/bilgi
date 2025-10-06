@@ -654,6 +654,74 @@ def are_responses_similar(response1: str, response2: str) -> bool:
     logging.info(f"Response similarity: {similarity:.2f} (threshold: 0.6)")
     return similarity >= 0.6
 
+async def process_with_novita_deepseek(question: str, conversation_mode: str = 'normal', file_content: str = None, file_name: str = None) -> str:
+    """Process question with Novita API DeepSeek v3.1"""
+    try:
+        # Prepare personality prompt if conversation mode is active
+        if conversation_mode and conversation_mode != 'normal':
+            mode_personalities = {
+                'friend': "Sanki karşında bir arkadaşın varmış gibi davranır, sohbeti takip eder, dostça fikirler ve samimi yorumlar yapar. Arkadaşça, sıcak ve samimi bir dille konuş.",
+                'realistic': "Yalan söylemez, yanlış fikri açıkça belirtir, seni en doğru sonuca ulaştırmaya çalışır. Gerçekçi, objektif ve doğrudan yaklaşım sergile.",
+                'coach': "Sorular sorarak düşündürür, hedef belirlemene yardımcı olur, adım adım ilerleme planı çıkarır. Motivasyonel koç gibi davran ve sürekli sorular sor.",
+                'lawyer': "Karşıt görüş üretir, bir avukat gibi mantıklı ve savunmacı şekilde karşı argümanı savunur. Her konuda alternatif bakış açısı sun ve karşı argüman geliştir.",
+                'teacher': "Her konuda öğretici yaklaşır, konuyu adım adım açıklar ve pekiştirme soruları sorarak anlamanı kontrol eder. Pedagogik ve eğitici bir dil kullan.",
+                'minimalist': "Tek cümlelik, net ve doğrudan cevap verir; uzatmaz, sadece soruna odaklanır. Çok kısa ve öz yanıtlar ver, gereksiz ayrıntıya girme."
+            }
+            system_message = mode_personalities.get(conversation_mode, "Sen Türkçe konuşan yardımcı bir asistansın.")
+        else:
+            system_message = "Sen Türkçe konuşan yardımcı bir asistansın. Kullanıcının sorularına sadece doğru, güvenilir ve kanıta dayalı cevaplar verirsin."
+        
+        # Prepare the message
+        if file_content:
+            user_message = f"Dosya adı: {file_name}\n\nDosya içeriği:\n{file_content}\n\nKullanıcı sorusu: {question}\n\nLütfen bu dosya hakkındaki soruyu yanıtla."
+        else:
+            user_message = question
+        
+        # Novita API request
+        headers = {
+            "Authorization": f"Bearer {NOVITA_API_KEY}",
+            "Content-Type": "application/json"
+        }
+        
+        payload = {
+            "model": "deepseek-ai/DeepSeek-V3",
+            "messages": [
+                {"role": "system", "content": system_message},
+                {"role": "user", "content": user_message}
+            ],
+            "max_tokens": 2000,
+            "temperature": 0.3
+        }
+        
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                "https://api.novita.ai/v3/openai/chat/completions",
+                headers=headers,
+                json=payload,
+                timeout=30.0
+            )
+            
+            logging.info(f"Novita API response status: {response.status_code}")
+            
+            if response.status_code == 200:
+                data = response.json()
+                content = data.get('choices', [{}])[0].get('message', {}).get('content', '')
+                
+                if not content:
+                    logging.warning("Empty content from Novita API")
+                    return "Yanıt oluşturulamadı. Lütfen tekrar deneyin."
+                
+                # Return response exactly as received from Novita (no cleaning)
+                logging.info(f"Novita DeepSeek response received successfully: {len(content)} characters")
+                return content
+            else:
+                logging.error(f"Novita API error: {response.status_code} - {response.text}")
+                return "Novita API'sinde bir hata oluştu. Lütfen tekrar deneyin."
+                
+    except Exception as e:
+        logging.error(f"Novita API request error: {e}")
+        return "Novita API'sine bağlanırken bir hata oluştu. Lütfen tekrar deneyin."
+
 async def process_with_openai_gpt5_nano(question: str, conversation_mode: str = 'normal', file_content: str = None, file_name: str = None) -> str:
     """Process question with ChatGPT-4o-mini using Emergent integrations"""
     try:
