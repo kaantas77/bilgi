@@ -1276,44 +1276,56 @@ def clean_response_formatting(text: str) -> str:
     return text
 
 def format_math_response(text: str) -> str:
-    """Format mathematical expressions from RAG responses for better display"""
+    """Clean and simplify mathematical expressions for better user experience"""
     if not text:
         return text
     
-    # Convert LaTeX-style expressions to KaTeX compatible format
-    # Handle inline math expressions
-    text = re.sub(r'P_\{([^}]+)\}', r'P_{\\text{\1}}', text)
-    text = re.sub(r'\\text\{([^}]+)\}', r'\\text{\1}', text)
+    # Remove complex LaTeX formatting that looks ugly to users
+    # Clean up common LaTeX artifacts that appear messy
+    result = text
     
-    # Handle display math expressions - wrap in $$ for KaTeX
-    # Look for equations on their own lines
-    lines = text.split('\n')
+    # Remove complex LaTeX symbols and replace with simpler versions
+    result = re.sub(r'\\displaystyle', '', result)
+    result = re.sub(r'\\sum_\{[^}]+\}\^\{[^}]+\}', 'Σ', result)
+    result = re.sub(r'\\frac\{([^}]+)\}\{([^}]+)\}', r'(\1)/(\2)', result)
+    result = re.sub(r'\\bigl\(', '(', result) 
+    result = re.sub(r'\\bigr\)', ')', result)
+    result = re.sub(r'\\sqrt\{([^}]+)\}', r'√(\1)', result)
+    
+    # Clean up subscripts and superscripts for readability
+    result = re.sub(r'\^\{([^}]+)\}', r'^(\1)', result)
+    result = re.sub(r'_\{([^}]+)\}', r'_(\1)', result)
+    
+    # Remove excessive LaTeX spacing commands
+    result = re.sub(r'\\,', ' ', result)
+    result = re.sub(r'\\;', ' ', result)
+    result = re.sub(r'\\:', ' ', result)
+    result = re.sub(r'\\!', '', result)
+    
+    # Clean up line breaks
+    result = re.sub(r'\\\\', '\n', result)
+    result = re.sub(r'\\newline', '\n', result)
+    
+    # Remove LaTeX alignment characters
+    result = re.sub(r'&', '', result)
+    
+    # For simple formulas, keep them clean without $ wrappers unless already formatted
+    lines = result.split('\n')
     formatted_lines = []
     
     for line in lines:
         line = line.strip()
-        
-        # Check if line contains mathematical expressions
-        if any(pattern in line for pattern in ['=', 'P_{', '\\Delta', '\\rho', 'g =', 'h =']):
-            # If it's a mathematical expression, wrap in display math
-            if not line.startswith('$') and not line.endswith('$'):
-                # Don't wrap if it's part of regular text
-                if len(line.split()) > 8:  # Long line, probably explanation
-                    formatted_lines.append(line)
-                else:  # Short line, likely formula
-                    formatted_lines.append(f'$${line}$$')
+        # Only wrap very simple, clear mathematical expressions
+        if line and ('=' in line) and len(line.split()) <= 3 and not line.startswith('$'):
+            # Simple equation like "s² = value" 
+            if not any(word in line.lower() for word in ['hesap', 'formül', 'sonuç', 'değer', 'olan', 'ise']):
+                formatted_lines.append(f'${line}$')
             else:
                 formatted_lines.append(line)
         else:
             formatted_lines.append(line)
     
-    result = '\n'.join(formatted_lines)
-    
-    # Clean up common LaTeX artifacts
-    result = re.sub(r'\\\\', r'\\newline', result)
-    result = re.sub(r'\\,', ' ', result)
-    
-    return result
+    return '\n'.join(formatted_lines)
 
 async def process_with_ollama_free(question: str, conversation_mode: str = 'normal', file_content: str = None, file_name: str = None) -> str:
     """Process question with Ollama AnythingLLM for FREE/PRO version - returns exact response without modification"""
