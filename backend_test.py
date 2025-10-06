@@ -9227,8 +9227,9 @@ def main():
         return self.pro_version_tests_passed == self.pro_version_tests_run
 
 if __name__ == "__main__":
-    # Check if we should run Layout and Vision tests specifically
+    # Check if we should run specific tests
     import sys
+    
     if len(sys.argv) > 1 and sys.argv[1] == "layout_vision":
         print("\n🎯 Running LAYOUT AND VISION API Tests ONLY...")
         tester = BilginAIAPITester()
@@ -9253,4 +9254,10 @@ if __name__ == "__main__":
             print("🚨 ISSUES DETECTED - Please check implementation")
             sys.exit(1)
     
-    sys.exit(main())
+    # Default: Run NEW PRO routing tests (priority focus)
+    print("🎯 CRITICAL: Testing NEW PRO version routing with Novita DeepSeek v3.1 API integration")
+    tester = BilginAIAPITester()
+    success = tester.run_new_pro_routing_tests()
+    
+    # Exit with appropriate code
+    sys.exit(0 if success else 1)
