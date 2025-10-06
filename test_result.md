@@ -718,6 +718,17 @@ test_plan:
     status_history:
         - working: "NA"
         - agent: "main"
+  - task: "CLEAN DOCUMENT STYLE TRANSFORMATION - Complete removal of chat bubbles and implementation of document layout"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+        - agent: "testing"
+        - comment: "🎉 CLEAN DOCUMENT STYLE TRANSFORMATION TESTING COMPLETED WITH 100% SUCCESS RATE! All 8 critical requirements have been successfully implemented and verified: ✅ NO CHAT BUBBLES ANYWHERE - Complete removal of bubble UI confirmed with 0 bubble elements found across all selectors (.chat-bubble, .message-bubble, .bubble, .rounded-lg, .rounded-xl). ✅ GRIMSI BACKGROUND (#3b3b3b) - Exact color implementation verified with 3 elements using rgb(59, 59, 59) background including body and document container. ✅ LIGHT TEXT (#f0f0f0) - Proper contrast and readability confirmed with rgb(240, 240, 240) text color in document container. ✅ USER QUESTIONS AS CLEAN HEADINGS - Document-style h2 formatting working perfectly with .user-question class styling user messages as clean headings with border-bottom and proper spacing. ✅ BOT RESPONSES AS DOCUMENT CONTENT - Clean content blocks without bubbles confirmed with .bot-response class displaying assistant messages as formatted document content. ✅ ENHANCED TYPOGRAPHY AND STYLING - Headers (H1: 1, H2: 3), math rendering, code highlighting all working correctly in document style with proper CSS variables (--bg: #3b3b3b, --text: #f0f0f0, --accent: #7aa2f7). ✅ DOCUMENT FLOW WITH MULTIPLE MESSAGES - Smooth streaming and auto-scroll working with 6 document messages displayed correctly, scroll position managed properly during long responses. ✅ FILE UPLOAD INTEGRATION - Paperclip and image buttons working in document style with 2 file input elements and proper visibility. COMPREHENSIVE TESTING RESULTS: All test scenarios passed including clean document layout verification, enhanced styling with headers and math, color scheme verification (#3b3b3b background, #f0f0f0 text), long content document flow, and file upload integration. The transformation from chat bubbles to clean document layout has been successfully completed. The interface now displays conversations as a clean document with user questions as headings and bot responses as formatted content, exactly matching the user's requirements for a document-style interface like the HTML document they provided."
         - comment: "NEW OLLAMA CONVERSATION MODES INTEGRATION: Updated both PRO and FREE versions to use Ollama AnythingLLM for all conversation modes instead of ChatGPT API. Minimalist mode configured for short, concise responses. All 6 conversation modes (friend, teacher, coach, realistic, lawyer, minimalist) now route to Ollama with proper personality prompts."
         - working: true
         - agent: "testing"
